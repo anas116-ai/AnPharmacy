@@ -1,0 +1,1191 @@
+/**
+ * Data Import Studio — Main Component
+ * 
+ * Enterprise-grade import workspace. No stock updates happen until
+ * the user explicitly clicks "Commit to Stock".
+ * 
+ * Workflow:
+ *   Select File → Parse → Column Mapping → Validate → Review → Preview → Commit
+ * 
+ * Features:
+ * - Multi-format support (Excel, CSV, PDF, OCR)
+ * - AI column mapping suggestions
+ * - Inline data editing
+ * - Full validation engine
+ * - Commit preview with impact analysis
+ * - Import profiles (save/load mappings)
+ * - Auto-save drafts
+ * - Recycle Bin integration
+ */
+
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useImportSessionStore, ImportStep } from '../stores/importSessionStore';
+import { useStockStore } from '../stores/stockStore';
+import { useToast } from '../hooks/useToast';
+
+import { formatCurrency, cn } from '../lib/utils';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Badge } from './ui/badge';
+import { Card, CardContent } from './ui/card';
+import { 
+  Upload, FileSpreadsheet, FileText, FileImage, File,
+  ArrowRight, ArrowLeft, Check, X, AlertTriangle, AlertCircle,
+  Info, RefreshCw, Save, Download, Search, Columns, Filter,
+  ChevronDown, ChevronUp, Settings, Eye, EyeOff, Trash2,
+  Undo2, Redo2, Grid3X3, Map, ShieldCheck, FileCheck,
+  ListChecks, BarChart3, History, Bookmark, Sparkles,
+  Loader2, RotateCcw, Package, HelpCircle, Maximize2, Minimize2,
+  Lightbulb, Target, Zap
+} from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { ACCEPTED_FILE_TYPES } from '../lib/fileImporter';
+import VirtualDataGrid, { DataGridColumn } from './DataImportStudio/VirtualDataGrid';
+import { importProfileStore } from '../lib/importer/importProfileStore';
+import { 
+  ColumnMapping, AIMappingSuggestion, UnknownColumnInfo,
+  ValidationRecord, ValidationSummary, CommitSummary,
+  PROTECTED_SCHEMA_FIELDS, GridColumn, GridState, GridSort, GridFilter,
+  FIELD_SYNONYMS,
+} from '../lib/importer/types';
+
+// ═════════════════════════════════════════════════════════════════════
+// STEP CONFIGURATION
+// ═════════════════════════════════════════════════════════════════════
+
+interface StepConfig {
+  id: ImportStep;
+  label: string;
+  icon: React.ElementType;
+  description: string;
+}
+
+const STEPS: StepConfig[] = [
+  { id: 'select', label: 'Select File', icon: Upload, description: 'Choose your import file' },
+  { id: 'mapping', label: 'Map Columns', icon: Map, description: 'Map file columns to stock fields' },
+  { id: 'validation', label: 'Validate', icon: ShieldCheck, description: 'Review validation results' },
+  { id: 'review', label: 'Review', icon: ListChecks, description: 'Review and edit imported data' },
+  { id: 'preview', label: 'Preview', icon: Eye, description: 'Preview changes before commit' },
+  { id: 'complete', label: 'Complete', icon: FileCheck, description: 'Import completed' },
+];
+
+// ═════════════════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═════════════════════════════════════════════════════════════════════
+
+export default function DataImportStudio() {
+  const {
+    session, activeStep, isProcessing, processingMessage, error,
+    validationSummary, showProfileDialog, matchedProfileName,
+    selectFile, updateMapping, updateAllMappings, applyAISuggestion,
+    applyUnknownColumnAction, runValidation, editRow, deleteRows,
+    undeleteRow, generatePreview, commitToStock, resetSession,
+    saveDraft, loadDraft, setActiveStep,
+    saveAsProfile, applyProfile,
+  } = useImportSessionStore();
+  const { setMedicines, setDashboardStats } = useStockStore();
+  
+  const toast = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [saveProfileOpen, setSaveProfileOpen] = useState(false);
+  const [profileName, setProfileName] = useState('');
+  const [supplierName, setSupplierName] = useState('');
+  const [confirmCommitOpen, setConfirmCommitOpen] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Load draft on mount
+  useEffect(() => {
+    const hasDraft = loadDraft();
+    if (hasDraft) {
+      toast.info('Draft Restored', 'A saved draft was found and restored.');
+    }
+  }, []);
+
+  // Auto-save draft every 30 seconds when session is active
+  useEffect(() => {
+    if (!session || session.status === 'committed') return;
+    const interval = setInterval(() => saveDraft(), 30000);
+    return () => clearInterval(interval);
+  }, [session]);
+
+  // Handle file drop/select
+  const handleFile = useCallback(async (file: File) => {
+    const ext = '.' + (file.name.split('.').pop()?.toLowerCase() || '');
+    const accepted = ACCEPTED_FILE_TYPES.split(',').map(t => t.trim().toLowerCase());
+    if (!accepted.includes(ext)) {
+      toast.error('Unsupported Format', `File type "${ext}" is not supported. Accepted: ${ACCEPTED_FILE_TYPES}`);
+      return;
+    }
+    await selectFile(file);
+    toast.success('File Parsed', `Successfully parsed "${file.name}"`);
+  }, [selectFile, toast]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  }, [handleFile]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback(() => setDragOver(false), []);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+    if (e.target) e.target.value = '';
+  }, [handleFile]);
+
+  // Handle column mapping update
+  const handleMappingChange = (sourceCol: string, targetField: string) => {
+    updateMapping(sourceCol, targetField || null);
+  };
+
+  // Apply profile
+  const handleApplyProfile = (profileId: string) => {
+    applyProfile(profileId);
+    toast.success('Profile Applied', 'Column mappings updated from profile.');
+  };
+
+  // Commit flow
+  const handleCommit = async () => {
+    setConfirmCommitOpen(false);
+    await commitToStock();
+    if (!error) {
+      toast.success('Import Complete', 'Stock has been updated successfully.');
+      // Refresh Dashboard & Stock stores after commit
+      try {
+        if (window.electronAPI) {
+          const [stockResult, dashResult] = await Promise.all([
+            window.electronAPI.listStock(),
+            window.electronAPI.getDashboardStats(),
+          ]);
+          if (stockResult.success) setMedicines(stockResult.medicines || []);
+          if (dashResult.success) setDashboardStats(dashResult.stats);
+        }
+      } catch (e) {
+        console.warn('Post-commit refresh failed:', e);
+      }
+    }
+  };
+
+  // ═════════════════════════════════════════════════════════════════
+  // RENDER: STEP INDICATOR
+  // ═════════════════════════════════════════════════════════════════
+  const renderStepIndicator = () => (
+    <div className="flex items-center gap-1 mb-6 overflow-x-auto pb-2">
+      {STEPS.map((step, idx) => {
+        const isActive = activeStep === step.id;
+        const currentIdx = STEPS.findIndex(s => s.id === activeStep);
+        const isPast = currentIdx > idx;
+        const isClickable = isPast && step.id !== 'complete';
+        const Icon = step.icon;
+
+        return (
+          <React.Fragment key={step.id}>
+            <button
+              onClick={() => isClickable && setActiveStep(step.id)}
+              disabled={!isClickable}
+              className={cn(
+                'flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-semibold transition-all duration-200 whitespace-nowrap border',
+                isActive && 'bg-slate-900 text-white border-slate-900 shadow-md',
+                isPast && 'bg-white dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/60 hover:shadow-sm cursor-pointer',
+                !isActive && !isPast && 'bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-default'
+              )}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{step.label}</span>
+              {isPast && <Check className="w-3 h-3 text-emerald-500" />}
+            </button>
+            {idx < STEPS.length - 1 && (
+              <div className={cn(
+                'h-px w-6 flex-shrink-0',
+                isPast ? 'bg-emerald-400' : 'bg-slate-200 dark:bg-slate-700'
+              )} />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+
+  // ═════════════════════════════════════════════════════════════════
+  // RENDER: FILE SELECT
+  // ═════════════════════════════════════════════════════════════════
+  const renderFileSelect = () => (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h3 className="text-xl font-semibold text-slate-900 tracking-tight">Import Stock Data</h3>
+        <p className="text-sm text-slate-500 mt-1">
+          Upload Excel, CSV, PDF, or Invoice Image to begin
+        </p>
+      </div>
+
+      {/* Drop Zone */}
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onClick={() => fileInputRef.current?.click()}
+        className={cn(
+          'relative border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-200',
+          'hover:border-emerald-400 hover:bg-emerald-50/40 group',
+          dragOver ? 'border-emerald-500 bg-emerald-50 scale-[1.01]' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
+        )}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ACCEPTED_FILE_TYPES}
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+
+        <div className={cn(
+          'w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-all duration-200 border',
+          'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700',
+          dragOver && 'border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 scale-110'
+        )}>
+          <Upload className={cn(
+            'w-8 h-8 transition-colors duration-200',
+            dragOver ? 'text-emerald-600' : 'text-slate-500'
+          )} />
+        </div>
+
+        <p className="text-sm font-semibold text-slate-700">
+          {dragOver ? 'Drop your file here' : 'Drag & drop your file here, or click to browse'}
+        </p>
+        <p className="text-xs text-slate-400 mt-2">
+          Supports: Excel (.xlsx, .xls), CSV, PDF Invoices, Images (OCR)
+        </p>
+      </div>
+
+      {/* Quick Format Guide */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {[
+          { icon: FileSpreadsheet, label: 'Excel Files', desc: '.xlsx, .xls', color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30' },
+          { icon: FileText, label: 'CSV / TSV', desc: '.csv, .tsv', color: 'text-blue-600 bg-blue-50 dark:bg-blue-950/30' },
+          { icon: FileImage, label: 'PDF / Images', desc: '.pdf, .jpg, .png (OCR)', color: 'text-violet-600 bg-violet-50 dark:bg-violet-950/30' },
+        ].map(item => {
+          const Icon = item.icon;
+          return (
+            <div key={item.label} className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+              <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center border', item.color)}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-700">{item.label}</p>
+                <p className="text-[10px] text-slate-400">{item.desc}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // ═════════════════════════════════════════════════════════════════
+  // RENDER: COLUMN MAPPING
+  // ═════════════════════════════════════════════════════════════════
+  const renderColumnMapping = () => {
+    if (!session) return null;
+    const { columnMappings, aiSuggestions, unknownColumns } = session;
+    const mappedCount = columnMappings.filter(m => m.isMapped).length;
+    const totalCount = columnMappings.length;
+    const progress = totalCount > 0 ? Math.round((mappedCount / totalCount) * 100) : 0;
+
+    return (
+      <div className="space-y-4">
+        {/* Mapping Progress */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-slate-900">Column Mapping</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Map file columns to stock fields. AI suggestions are shown where detected.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-500">
+              <strong className="text-slate-700">{mappedCount}</strong> / {totalCount} mapped
+            </span>
+            <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }} 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* AI Suggestions Summary */}
+        {aiSuggestions.length > 0 && (
+          <Card variant="bordered" className="bg-gradient-to-r from-violet-50 to-purple-50 border-violet-100">
+            <CardContent className="p-3 flex items-center gap-3">
+              <Sparkles className="w-4 h-4 text-violet-500" />
+              <span className="text-xs text-violet-700">
+                AI detected <strong>{aiSuggestions.length}</strong> column mappings automatically.
+                {unknownColumns.length > 0 && ` ${unknownColumns.length} unknown columns found.`}
+              </span>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Profile Match Dialog */}
+        {showProfileDialog && matchedProfileName && (
+          <Card variant="bordered" className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <Bookmark className="w-5 h-5 text-amber-600" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-900">Import Profile Found</p>
+                    <p className="text-xs text-amber-700 mt-0.5">
+                      Profile: <strong>{matchedProfileName}</strong> — Apply saved column mappings?
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={() => useImportSessionStore.setState({ showProfileDialog: false })}>
+                    Ignore
+                  </Button>
+                  <Button size="sm" variant="primary" onClick={() => {
+                    const profiles = importProfileStore.list();
+                    const match = profiles.find(p => p.name === matchedProfileName);
+                    if (match) handleApplyProfile(match.id);
+                  }}>
+                    Apply Profile
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Column Mapping List */}
+        <div className="space-y-1.5 max-h-[60vh] overflow-y-auto">
+          {columnMappings.map((mapping) => {
+            const suggestion = aiSuggestions.find(s => s.sourceColumn === mapping.sourceColumn);
+            const isUnknown = unknownColumns.find(u => u.sourceColumn === mapping.sourceColumn);
+            
+            return (
+              <div
+                key={mapping.sourceColumn}
+                className={cn(
+                  'flex items-center gap-3 p-3 rounded-xl border transition-all duration-200',
+                  'hover:border-slate-300 hover:shadow-sm',
+                  mapping.isMapped ? 'bg-white border-border' : 'bg-amber-50/50 border-amber-200',
+                )}
+              >
+                {/* Source Column */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-slate-700 truncate">{mapping.sourceColumn}</span>
+                    {mapping.suggestedBy === 'ai' && (
+                      <Badge variant="outline-teal" size="sm" className="gap-1">
+                        <Sparkles className="w-2.5 h-2.5" /> AI
+                      </Badge>
+                    )}
+                    {mapping.suggestedBy === 'profile' && (
+                      <Badge variant="outline-teal" size="sm" className="gap-1">
+                        <Bookmark className="w-2.5 h-2.5" /> Profile
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] text-slate-400">
+                      Type: {mapping.dataType}
+                    </span>
+                    {mapping.sampleValues.length > 0 && (
+                      <span className="text-[10px] text-slate-400">
+                        Sample: <span className="font-mono text-slate-500">{mapping.sampleValues.slice(0, 2).join(', ')}</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="text-slate-300">
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+
+                {/* Target Field Select */}
+                <div className="w-56">
+                  <select
+                    value={mapping.targetField || ''}
+                    onChange={(e) => handleMappingChange(mapping.sourceColumn, e.target.value)}
+                    className={cn(
+                      'w-full px-3 py-2 text-xs rounded-lg border transition-all duration-200',
+                      'focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400',
+                      mapping.isMapped 
+                        ? 'bg-white border-border text-slate-700' 
+                        : 'bg-amber-50 border-amber-300 text-amber-800'
+                    )}
+                  >
+                    <option value="">— Skip / Do Not Import —</option>
+                    {PROTECTED_SCHEMA_FIELDS.map(field => (
+                      <option key={field.key} value={field.key}>
+                        {field.label} {field.required ? '*' : ''}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* AI Suggestions */}
+                  {suggestion && !mapping.isMapped && (
+                    <div className="mt-1 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-violet-400" />
+                      <button
+                        onClick={() => applyAISuggestion(mapping.sourceColumn)}
+                        className="text-[10px] text-violet-600 hover:text-violet-800 underline font-medium"
+                      >
+                        Map to "{PROTECTED_SCHEMA_FIELDS.find(f => f.key === suggestion.suggestedField)?.label}"
+                      </button>
+                      <span className="text-[9px] text-violet-400">({suggestion.confidence}%)</span>
+                    </div>
+                  )}
+
+                  {/* Alternatives */}
+                  {suggestion?.alternativeFields && suggestion.alternativeFields.length > 0 && !mapping.isMapped && (
+                    <div className="mt-0.5 flex flex-wrap gap-1">
+                      {suggestion.alternativeFields.slice(0, 2).map(alt => (
+                        <button
+                          key={alt.field}
+                          onClick={() => handleMappingChange(mapping.sourceColumn, alt.field)}
+                          className="text-[9px] px-1.5 py-0.5 rounded bg-muted text-slate-500 hover:bg-slate-200 transition-colors"
+                        >
+                          {PROTECTED_SCHEMA_FIELDS.find(f => f.key === alt.field)?.label || alt.field} ({alt.confidence}%)
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Unknown Column Actions */}
+                  {isUnknown && (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {(['add_to_schema', 'import_once', 'ignore', 'rename'] as const).map(action => {
+                        const isActive = isUnknown.action === action;
+                        const labels: Record<string, string> = {
+                          add_to_schema: 'Add to Schema',
+                          import_once: 'Import Once',
+                          ignore: 'Ignore',
+                          rename: 'Rename',
+                        };
+                        return (
+                          <button
+                            key={action}
+                            onClick={() => applyUnknownColumnAction(mapping.sourceColumn, action)}
+                            className={cn(
+                              'text-[9px] px-1.5 py-0.5 rounded transition-colors',
+                              isActive ? 'bg-emerald-100 text-emerald-700 font-medium' : 'bg-muted text-slate-500 hover:bg-slate-200'
+                            )}
+                          >
+                            {labels[action]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => setSaveProfileOpen(true)} disabled={mappedCount === 0}>
+              <Bookmark className="w-3.5 h-3.5 mr-1" />
+              Save Profile
+            </Button>
+          </div>
+          <Button 
+            size="sm" 
+            variant="primary" 
+            onClick={() => { runValidation(); }} 
+            disabled={mappedCount === 0}
+          >
+            <ShieldCheck className="w-4 h-4 mr-1.5" />
+            Validate & Review
+          </Button>
+        </div>
+
+        {/* Save Profile Dialog */}
+        <Dialog open={saveProfileOpen} onOpenChange={setSaveProfileOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Bookmark className="w-5 h-5 text-emerald-600" />
+                Save Import Profile
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Profile Name *</label>
+                <Input 
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  placeholder="e.g., Cipla Excel Format"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Supplier Name (optional)</label>
+                <Input
+                  value={supplierName}
+                  onChange={(e) => setSupplierName(e.target.value)}
+                  placeholder="e.g., Cipla, Sun Pharma"
+                />
+              </div>
+              <p className="text-xs text-slate-400">
+                Profile saves: {mappedCount} column mappings, ignored columns, and default values.
+                Next time a matching file is detected, you'll be prompted to apply this profile.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setSaveProfileOpen(false)}>Cancel</Button>
+              <Button 
+                variant="primary" 
+                disabled={!profileName.trim()} 
+                onClick={() => {
+                  saveAsProfile(profileName.trim(), supplierName.trim() || undefined);
+                  setSaveProfileOpen(false);
+                  setProfileName('');
+                  setSupplierName('');
+                  toast.success('Profile Saved', `Import profile "${profileName}" saved successfully.`);
+                }}
+              >
+                <Bookmark className="w-4 h-4 mr-1" />
+                Save Profile
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  };
+
+  // ═════════════════════════════════════════════════════════════════
+  // RENDER: VALIDATION RESULTS
+  // ═════════════════════════════════════════════════════════════════
+  const renderValidation = () => {
+    if (!session || !validationSummary) return null;
+    
+    const hasIssues = validationSummary.totalErrors > 0 || validationSummary.totalWarnings > 0;
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-slate-900">Validation Results</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {hasIssues ? 'Issues found — review before proceeding' : 'All rows pass validation'}
+            </p>
+          </div>
+        </div>
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: 'Valid Rows', value: validationSummary.validRows, color: 'text-emerald-600 bg-emerald-50', icon: Check },
+            { label: 'Warnings', value: validationSummary.totalWarnings, color: 'text-amber-600 bg-amber-50', icon: AlertTriangle },
+            { label: 'Errors', value: validationSummary.totalErrors, color: 'text-red-600 bg-red-50', icon: AlertCircle },
+            { label: 'Duplicates', value: validationSummary.duplicateCount, color: 'text-violet-600 bg-violet-50', icon: AlertTriangle },
+          ].map(item => {
+            const Icon = item.icon;
+            return (
+              <Card key={item.label} variant="bordered" className="p-3">
+                <div className="flex items-center gap-2">
+                  <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', item.color)}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-800">{item.value}</p>
+                    <p className="text-[10px] text-slate-500">{item.label}</p>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Issue Details */}
+        {hasIssues && (
+          <Card variant="bordered">
+            <CardContent className="p-4 max-h-[50vh] overflow-y-auto space-y-2">
+              {session.validationResults.filter(r => r.status !== 'valid').slice(0, 50).map(record => (
+                <div key={record.rowIndex} className="p-3 rounded-xl bg-muted space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-slate-700">Row {record.rowIndex + 1}</span>
+                    {record.status === 'error' && <Badge variant="destructive" size="sm">Error</Badge>}
+                    {record.status === 'warning' && <Badge variant="warning" size="sm">Warning</Badge>}
+                  </div>
+                  {record.fieldErrors.map((err, i) => (
+                    <p key={i} className={cn(
+                      'text-[11px] flex items-start gap-1.5',
+                      err.severity === 'error' ? 'text-red-600' : err.severity === 'warning' ? 'text-amber-600' : 'text-slate-500'
+                    )}>
+                      {err.severity === 'error' ? <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" /> : <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />}
+                      <span>{err.message}</span>
+                    </p>
+                  ))}
+                  {record.globalWarnings.map((w, i) => (
+                    <p key={`gw-${i}`} className="text-[11px] text-amber-600 flex items-start gap-1.5">
+                      <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />
+                      <span>{w}</span>
+                    </p>
+                  ))}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center justify-between">
+          <Button size="sm" variant="outline" onClick={() => setActiveStep('mapping')}>
+            <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+            Back to Mapping
+          </Button>
+          <Button 
+            size="sm" 
+            variant="primary" 
+            onClick={() => setActiveStep('review')}
+          >
+            Continue to Review
+            <ArrowRight className="w-3.5 h-3.5 ml-1" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // ═════════════════════════════════════════════════════════════════
+  // RENDER: DATA REVIEW (Virtual Data Grid)
+  // ═════════════════════════════════════════════════════════════════
+  const renderDataReview = () => {
+    if (!session || session.sheets.length === 0) return null;
+    
+    const activeSheet = session.sheets[session.activeSheetIndex];
+    const visibleColumns = session.columnMappings.filter(m => !m.isHidden);
+    
+    // Build grid columns
+    const gridColumns: DataGridColumn[] = visibleColumns.map((m, i) => ({
+      key: m.sourceColumn,
+      label: m.displayLabel + (m.isProtected ? ' *' : ''),
+      width: m.width,
+      minWidth: 80,
+      visible: true,
+      frozen: i < 1, // First visible column is frozen
+      resizable: true,
+      draggable: true,
+      editable: true,
+      dataType: m.dataType === 'currency' ? 'currency' : m.dataType === 'number' ? 'number' : 'text',
+      colorTag: m.isProtected ? '#059669' : undefined,
+    }));
+    
+    // Build row data from active sheet
+    const allRows = activeSheet.rows.map((row, idx) => {
+      const obj: Record<string, any> = {};
+      activeSheet.headers.forEach((h, i) => {
+        obj[h] = row[i] || '';
+      });
+      return obj;
+    });
+    
+    // Build edited cells map for VirtualDataGrid
+    const deletedSet = session.deletedRowIndices;
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-slate-900">Review Import Data</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {activeSheet.totalRows - deletedSet.size} rows · {visibleColumns.length} columns
+              {deletedSet.size > 0 && ` · ${deletedSet.size} deleted`}
+              {activeSheet.totalRows > 500 && ` · Virtual scroll active`}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => saveDraft()}>
+              <Save className="w-3.5 h-3.5 mr-1" />
+              Save Draft
+            </Button>
+          </div>
+        </div>
+
+        {/* Virtual Data Grid */}
+        <VirtualDataGrid
+          columns={gridColumns}
+          rows={allRows}
+          totalRows={allRows.length}
+          onColumnsChange={(cols) => {
+            // Map back to session column mappings
+            const newMappings = cols.map(c => {
+              const existing = session.columnMappings.find(m => m.sourceColumn === c.key);
+              if (existing) {
+                return { ...existing, width: c.width, isHidden: !c.visible };
+              }
+              return existing;
+            }).filter(Boolean) as typeof session.columnMappings;
+            if (newMappings.length > 0) {
+              updateAllMappings(newMappings);
+            }
+          }}
+          onCellEdit={(rowIdx, colKey, value) => editRow(rowIdx, colKey, value)}
+          onDeleteRow={(rowIdx) => deleteRows([rowIdx])}
+          onRestoreRow={(rowIdx) => undeleteRow(rowIdx)}
+          deletedRowIndices={deletedSet}
+          editedCells={session.editedRows}
+          selectedRows={new Set()}
+          maxHeight={550}
+        />
+
+        {/* Action Bar */}
+        <div className="flex items-center justify-between">
+          <Button size="sm" variant="outline" onClick={() => runValidation()}>
+            <RefreshCw className="w-3.5 h-3.5 mr-1" />
+            Re-validate
+          </Button>
+          <Button size="sm" variant="primary" onClick={() => { generatePreview(); }}>
+            Preview Changes
+            <ArrowRight className="w-3.5 h-3.5 ml-1" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // ═════════════════════════════════════════════════════════════════
+  // RENDER: COMMIT PREVIEW
+  // ═════════════════════════════════════════════════════════════════
+  const renderCommitPreview = () => {
+    if (!session || !session.commitSummary) return null;
+    const summary = session.commitSummary;
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-slate-900">Commit Preview</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Review all changes before committing to stock
+            </p>
+          </div>
+          <Badge variant="outline-teal" size="sm" className="gap-1">
+            <Eye className="w-3 h-3" />
+            Preview Mode
+          </Badge>
+        </div>
+
+        {/* Impact Summary */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: 'Rows to Add', value: summary.rowsAdded, color: 'text-emerald-600 bg-emerald-50' },
+            { label: 'Rows to Update', value: summary.rowsUpdated, color: 'text-amber-600 bg-amber-50' },
+            { label: 'Rows to Skip', value: summary.rowsIgnored, color: 'text-slate-500 bg-muted' },
+            { label: 'New Columns', value: summary.columnsAdded, color: 'text-violet-600 bg-violet-50' },
+          ].map(item => (
+            <Card key={item.label} variant="bordered" className="p-3">
+              <p className={cn('text-lg font-bold', item.color.split(' ')[0])}>{item.value}</p>
+              <p className="text-[10px] text-slate-500">{item.label}</p>
+            </Card>
+          ))}
+        </div>
+
+        {/* Financial Impact */}
+        <Card variant="bordered" className="bg-gradient-to-r from-navy-50 to-indigo-50 border-navy-100">
+          <CardContent className="p-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div>
+                <p className="text-[10px] text-navy-500 uppercase tracking-wider font-medium">Stock Value Change</p>
+                <p className={cn(
+                  'text-lg font-bold font-data',
+                  summary.inventoryValueChange >= 0 ? 'text-emerald-700' : 'text-red-700'
+                )}>
+                  {summary.inventoryValueChange >= 0 ? '+' : ''}{formatCurrency(summary.inventoryValueChange)}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-navy-500 uppercase tracking-wider font-medium">Stock Count Change</p>
+                <p className="text-lg font-bold text-navy-800 font-data">
+                  {summary.stockCountChange >= 0 ? '+' : ''}{summary.stockCountChange} units
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-navy-500 uppercase tracking-wider font-medium">Batch Count Change</p>
+                <p className="text-lg font-bold text-navy-800 font-data">
+                  {summary.batchCountChange >= 0 ? '+' : ''}{summary.batchCountChange} batches
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Preview Items List */}
+        <Card variant="bordered">
+          <CardContent className="p-4 max-h-[40vh] overflow-y-auto space-y-1">
+            {summary.previewItems.slice(0, 100).map((item, idx) => (
+              <div key={idx} className={cn(
+                'flex items-center justify-between p-2 rounded-lg text-xs',
+                item.action === 'add' && 'bg-emerald-50',
+                item.action === 'update' && 'bg-amber-50',
+                item.action === 'skip' && 'bg-muted',
+                item.action === 'error' && 'bg-red-50',
+              )}>
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  {item.action === 'add' && <Check className="w-3 h-3 text-emerald-500 shrink-0" />}
+                  {item.action === 'update' && <RefreshCw className="w-3 h-3 text-amber-500 shrink-0" />}
+                  {item.action === 'skip' && <X className="w-3 h-3 text-slate-400 shrink-0" />}
+                  {item.action === 'error' && <AlertCircle className="w-3 h-3 text-red-500 shrink-0" />}
+                  <span className="font-medium text-slate-700 truncate">{item.name}</span>
+                  {item.batch && <span className="text-[10px] font-mono text-slate-400">{item.batch}</span>}
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0 ml-2">
+                  <span className="font-mono text-slate-600">{item.quantity} qty</span>
+                  <span className="font-mono text-slate-500">₹{item.mrp}</span>
+                  {item.action === 'add' && <Badge variant="success" size="sm">New</Badge>}
+                  {item.action === 'update' && <Badge variant="warning" size="sm">Update</Badge>}
+                  {item.action === 'skip' && <Badge variant="secondary" size="sm">Skip</Badge>}
+                  {item.action === 'error' && <Badge variant="destructive" size="sm">Error</Badge>}
+                </div>
+              </div>
+            ))}
+            {summary.previewItems.length > 100 && (
+              <p className="text-center text-xs text-slate-400 pt-2">
+                +{summary.previewItems.length - 100} more items
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Commit Actions */}
+        <div className="flex items-center justify-between pt-2">
+          <Button size="sm" variant="outline" onClick={() => setActiveStep('review')}>
+            <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+            Back to Review
+          </Button>
+          <Button 
+            size="sm" 
+            variant="success" 
+            onClick={() => setConfirmCommitOpen(true)}
+            className="gap-2 px-6"
+          >
+            <Check className="w-4 h-4" />
+            Commit to Stock
+          </Button>
+        </div>
+
+        {/* Commit Confirmation Dialog */}
+        <Dialog open={confirmCommitOpen} onOpenChange={setConfirmCommitOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                Confirm Commit to Stock
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4 space-y-3">
+              <p className="text-sm text-slate-600">
+                This will permanently add <strong>{summary.rowsAdded} rows</strong> and update <strong>{summary.rowsUpdated} rows</strong> in your stock database.
+              </p>
+              <ul className="space-y-1.5 text-xs text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Check className="w-3 h-3 text-emerald-500" /> {summary.rowsAdded} new items will be added
+                </li>
+                {summary.rowsUpdated > 0 && (
+                  <li className="flex items-center gap-2">
+                    <RefreshCw className="w-3 h-3 text-amber-500" /> {summary.rowsUpdated} existing items will be updated
+                  </li>
+                )}
+                {summary.columnsAdded > 0 && (
+                  <li className="flex items-center gap-2">
+                    <Columns className="w-3 h-3 text-violet-500" /> {summary.columnsAdded} new custom fields will be created
+                  </li>
+                )}
+                <li className="flex items-center gap-2">
+                  <BarChart3 className="w-3 h-3 text-navy-500" /> Stock value change: <strong>{formatCurrency(summary.inventoryValueChange)}</strong>
+                </li>
+              </ul>
+              <p className="text-xs text-amber-600 bg-amber-50 p-3 rounded-lg">
+                <strong>Warning:</strong> This action can be undone from Import History for the next 30 days.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setConfirmCommitOpen(false)}>Cancel</Button>
+              <Button variant="success" onClick={handleCommit} disabled={isProcessing}>
+                {isProcessing ? (
+                  <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Committing...</>
+                ) : (
+                  <><Check className="w-4 h-4 mr-1" /> Confirm & Commit</>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  };
+
+  // ═════════════════════════════════════════════════════════════════
+  // RENDER: COMPLETE
+  // ═════════════════════════════════════════════════════════════════
+  const renderComplete = () => {
+    if (!session || !session.commitSummary) return null;
+
+    return (
+      <div className="text-center py-12 space-y-6">
+        <div className="w-20 h-20 mx-auto rounded-full bg-emerald-100 flex items-center justify-center">
+          <FileCheck className="w-10 h-10 text-emerald-600" />
+        </div>
+        
+        <div>
+          <h3 className="text-xl font-bold text-slate-900">Import Complete!</h3>
+          <p className="text-sm text-slate-500 mt-1">
+            Stock has been updated successfully
+          </p>
+        </div>
+
+        {/* Results */}
+        <div className="max-w-sm mx-auto grid grid-cols-2 gap-3">
+          {[
+            { label: 'Items Added', value: session.commitSummary.rowsAdded },
+            { label: 'Items Updated', value: session.commitSummary.rowsUpdated },
+            { label: 'Stock Value', value: formatCurrency(session.commitSummary.inventoryValueChange) },
+            { label: 'File', value: session.fileName },
+          ].map(item => (
+            <div key={item.label} className="p-3 rounded-xl bg-muted">
+              <p className="text-lg font-bold text-slate-800">{item.value}</p>
+              <p className="text-[10px] text-slate-500">{item.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-center gap-3">
+          <Button variant="outline" onClick={() => {
+            resetSession();
+            setActiveStep('select');
+          }}>
+            <Upload className="w-4 h-4 mr-1" />
+            Import Another File
+          </Button>
+          <Button variant="primary" onClick={() => {
+            // Navigate to stock management
+            window.location.hash = '#/stock';
+            window.location.reload();
+          }}>
+            <Package className="w-4 h-4 mr-1" />
+            View Stock
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // ═════════════════════════════════════════════════════════════════
+  // RENDER: LOADING OVERLAY
+  // ═════════════════════════════════════════════════════════════════
+  if (isProcessing) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mx-auto" />
+          <p className="text-sm font-medium text-slate-700">{processingMessage}</p>
+          <p className="text-xs text-slate-400">Please wait while we process your file...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ═════════════════════════════════════════════════════════════════
+  // RENDER: ERROR STATE
+  // ═════════════════════════════════════════════════════════════════
+  if (error) {
+    return (
+      <div className="text-center py-12 space-y-4">
+        <AlertCircle className="w-16 h-16 text-red-400 mx-auto" />
+        <h3 className="text-lg font-semibold text-slate-900">Error</h3>
+        <p className="text-sm text-slate-500 max-w-md mx-auto">{error}</p>
+        <Button variant="outline" onClick={() => {
+          useImportSessionStore.setState({ error: null });
+          resetSession();
+        }}>
+          Try Again
+        </Button>
+      </div>
+    );
+  }
+
+  // ═════════════════════════════════════════════════════════════════
+  // FULLSCREEN / MAXIMIZE EFFECT
+  // ═════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+        setIsMaximized(false);
+        document.body.style.overflow = '';
+      }
+    };
+    if (isFullscreen) {
+      document.addEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreen]);
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(f => !f);
+    setIsMaximized(false);
+  };
+
+  const toggleMaximize = () => {
+    setIsMaximized(m => !m);
+    setIsFullscreen(false);
+  };
+
+  const dismissMinimize = () => {
+    setIsMaximized(false);
+    setIsFullscreen(false);
+    document.body.style.overflow = '';
+  };
+
+  // ═════════════════════════════════════════════════════════════════
+  // MAIN RENDER
+  // ═════════════════════════════════════════════════════════════════
+  if (isMaximized && !isFullscreen) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-white dark:bg-slate-900 flex flex-col animate-fade-in">
+        {/* Maximized Header */}
+        <div className="flex items-center justify-between px-6 py-3 bg-slate-50 border-b border-slate-200">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Data Import Studio</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Maximized view • Professional import workspace</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={dismissMinimize} className="gap-1">
+              <Minimize2 className="w-4 h-4" /> Minimize
+            </Button>
+            <Button size="sm" variant="primary" onClick={toggleFullscreen} className="gap-1">
+              <Maximize2 className="w-4 h-4" /> Fullscreen
+            </Button>
+          </div>
+        </div>
+        {/* Maximized Content */}
+        <div className="flex-1 overflow-auto p-6">
+          {renderStepIndicator()}
+          <Card variant="bordered" className={cn(
+            'transition-all duration-300',
+            activeStep === 'preview' ? 'bg-gradient-to-br from-slate-50 to-white' : 'bg-white'
+          )}>
+            <CardContent className="p-6">
+              {activeStep === 'select' && renderFileSelect()}
+              {activeStep === 'mapping' && renderColumnMapping()}
+              {activeStep === 'validation' && renderValidation()}
+              {activeStep === 'review' && renderDataReview()}
+              {activeStep === 'preview' && renderCommitPreview()}
+              {activeStep === 'complete' && renderComplete()}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (isFullscreen) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-white dark:bg-slate-900 flex flex-col animate-fade-in">
+        {/* Fullscreen Header */}
+        <div className="flex items-center justify-between px-6 py-3 bg-slate-50 border-b border-slate-200">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Data Import Studio</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Fullscreen view • Press ESC to exit</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={dismissMinimize} className="gap-1">
+              <Minimize2 className="w-4 h-4" /> Exit Fullscreen
+            </Button>
+          </div>
+        </div>
+        {/* Fullscreen Content */}
+        <div className="flex-1 overflow-auto p-6">
+          {renderStepIndicator()}
+          <Card variant="bordered" className={cn(
+            'transition-all duration-300',
+            activeStep === 'preview' ? 'bg-gradient-to-br from-slate-50 to-white' : 'bg-white'
+          )}>
+            <CardContent className="p-6">
+              {activeStep === 'select' && renderFileSelect()}
+              {activeStep === 'mapping' && renderColumnMapping()}
+              {activeStep === 'validation' && renderValidation()}
+              {activeStep === 'review' && renderDataReview()}
+              {activeStep === 'preview' && renderCommitPreview()}
+              {activeStep === 'complete' && renderComplete()}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">Data Import Studio</h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Professional import workspace — nothing is committed until you confirm
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {session && session.status !== 'committed' && (
+            <>
+              {session.draftSavedAt && (
+                <span className="text-[10px] text-slate-400">
+                  Draft saved: {new Date(session.draftSavedAt).toLocaleTimeString()}
+                </span>
+              )}
+              <Badge variant="outline-teal" size="sm">
+                <Info className="w-3 h-3 mr-1" />
+                {session.fileName}
+              </Badge>
+            </>
+          )}
+          <div className="flex items-center gap-1 ml-2">
+            <Button size="icon" variant="ghost" onClick={toggleMaximize} title="Maximize">
+              <Maximize2 className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Step Indicator */}
+      {renderStepIndicator()}
+
+      {/* Content Area */}
+      <Card variant="bordered" className={cn(
+        'transition-all duration-300',
+        activeStep === 'preview' ? 'bg-gradient-to-br from-slate-50 to-white' : 'bg-white'
+      )}>
+        <CardContent className="p-6">
+          {activeStep === 'select' && renderFileSelect()}
+          {activeStep === 'mapping' && renderColumnMapping()}
+          {activeStep === 'validation' && renderValidation()}
+          {activeStep === 'review' && renderDataReview()}
+          {activeStep === 'preview' && renderCommitPreview()}
+          {activeStep === 'complete' && renderComplete()}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

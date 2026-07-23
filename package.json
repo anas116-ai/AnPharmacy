@@ -1,0 +1,134 @@
+{
+  "name": "anpharmacy",
+  "version": "1.0.0",
+  "description": "AnPharmacy - Medical Distribution Management System",
+  "main": "electron/main.cjs",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "build": "vite build",
+    "preview": "vite preview",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "pack": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "com.anpharmacy.app",
+    "productName": "AnPharmacy",
+    "copyright": "Copyright © 2024 AnPharmacy Solutions",
+    "directories": {
+      "output": "release",
+      "buildResources": "public"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "public/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/icon.ico",
+      "publisherName": "AnPharmacy Solutions"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AnPharmacy",
+      "installerIcon": "public/icon.ico",
+      "uninstallerIcon": "public/icon.ico",
+      "installerHeaderIcon": "public/icon.ico",
+      "license": "LICENSE.txt",
+      "deleteAppDataOnUninstall": false
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "public/icon.icns",
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "public/icon.png",
+      "category": "Office"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "anpharmacy",
+      "repo": "anpharmacy"
+    }
+  },
+  "keywords": [
+    "pharmacy",
+    "medical",
+    "distribution",
+    "management"
+  ],
+  "author": "AnPharmacy Solutions",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "crypto-js": "^4.2.0",
+    "i18next": "^26.3.6",
+    "jszip": "^3.10.1",
+    "lucide-react": "^1.25.0",
+    "pdfjs-dist": "^3.11.174",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-i18next": "^17.0.10",
+    "recharts": "^2.15.0",
+    "tesseract.js": "^5.1.1",
+    "uuid": "^14.0.1",
+    "xlsx": "^0.18.5",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@types/crypto-js": "^4.2.2",
+    "@types/jszip": "^3.4.0",
+    "@types/node": "^26.1.1",
+    "@types/pdfjs-dist": "^2.10.377",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@types/tesseract.js": "^0.0.2",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^6.0.3",
+    "autoprefixer": "^10.5.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "concurrently": "^10.0.3",
+    "electron": "^43.1.1",
+    "electron-builder": "^26.15.3",
+    "jsdom": "^29.1.1",
+    "postcss": "^8.5.19",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^3.4.19",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5",
+    "vitest": "^4.1.10",
+    "wait-on": "^9.0.10"
+  }
+}

@@ -1,0 +1,104 @@
+import { Fragment } from 'react';
+import { Keyboard, X } from 'lucide-react';
+import { KeyboardShortcut, ShortcutCategory } from '../hooks/useKeyboardShortcuts';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+
+interface KeyboardShortcutsHelpProps {
+  isOpen: boolean;
+  onClose: () => void;
+  shortcuts: KeyboardShortcut[];
+}
+
+export default function KeyboardShortcutsHelp({ isOpen, onClose, shortcuts }: KeyboardShortcutsHelpProps) {
+  // Group shortcuts by category
+  const groupedShortcuts = shortcuts.reduce<Record<string, KeyboardShortcut[]>>((acc, shortcut) => {
+    const category = shortcut.category || 'Other';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(shortcut);
+    return acc;
+  }, {});
+
+  const getShortcutDisplay = (shortcut: KeyboardShortcut): string => {
+    const parts: string[] = [];
+    
+    if (shortcut.ctrlKey) parts.push('Ctrl');
+    if (shortcut.shiftKey) parts.push('Shift');
+    if (shortcut.altKey) parts.push('Alt');
+    
+    // Format the key
+    let key = shortcut.key;
+    if (key === 'Escape') key = 'Esc';
+    else if (key.length === 1) key = key.toUpperCase();
+    
+    parts.push(key);
+    
+    return parts.join(' + ');
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
+                <Keyboard className="w-5 h-5 text-white" />
+              </div>
+              Keyboard Shortcuts
+            </DialogTitle>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </button>
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            Boost your productivity with these keyboard shortcuts
+          </p>
+        </DialogHeader>
+
+        <div className="overflow-y-auto max-h-[60vh] px-6 py-4">
+          {Object.entries(groupedShortcuts).map(([category, categoryShortcuts]) => (
+            <div key={category} className="mb-6">
+              <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                {category}
+              </h3>
+              <div className="space-y-2">
+                {categoryShortcuts.map((shortcut, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-slate-800/50 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {shortcut.description}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      {getShortcutDisplay(shortcut).split(' + ').map((key, keyIndex) => (
+                        <Fragment key={keyIndex}>
+                          {keyIndex > 0 && <span className="text-gray-400 dark:text-gray-500 text-xs">+</span>}
+                          <kbd className="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-mono font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg shadow-sm min-w-[2rem]">
+                            {key}
+                          </kbd>
+                        </Fragment>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            Press <kbd className="inline-flex items-center justify-center px-2 py-1 text-xs font-mono font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg shadow-sm">Esc</kbd> to close this dialog
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
