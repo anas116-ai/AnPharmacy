@@ -16,13 +16,18 @@ interface ElectronAPI {
   addStock: (data: { medicine: AddMedicineInput; userId: number }) => Promise<{ success: boolean; id?: number; error?: string }>;
   saveAllStock: (data: { medicines: any[] }) => Promise<{ success: boolean; count?: number; error?: string }>;
   getBatches: (data: { medicineName: string }) => Promise<{ success: boolean; batches?: Medicine[]; error?: string }>;
-  processSale: (data: { customerName: string; customerPhone?: string | null; customerAddress?: string | null; customerGstin?: string | null; doctorName?: string | null; doctorRegNo?: string | null; prescriptionType?: string | null; medicineName: string; totalAmount: number; discountAmount?: number; taxableAmount?: number; cgstAmount?: number; sgstAmount?: number; igstAmount?: number; netPayable?: number; paymentMode?: string; counterId?: string | null; pharmacistId?: number | null; pharmacistName?: string | null; items: SaleItem[]; userId: number }) => Promise<{ success: boolean; saleId?: string; billNumber?: string; error?: string }>;
+  processSale: (data: { customerName: string; customerId?: number | null; customerPhone?: string | null; customerAddress?: string | null; customerGstin?: string | null; doctorName?: string | null; doctorRegNo?: string | null; prescriptionType?: string | null; medicineName: string; totalAmount: number; discountAmount?: number; taxableAmount?: number; cgstAmount?: number; sgstAmount?: number; igstAmount?: number; netPayable?: number; paymentMode?: string; counterId?: string | null; pharmacistId?: number | null; pharmacistName?: string | null; items: SaleItem[]; userId: number }) => Promise<{ success: boolean; saleId?: string; billNumber?: string; error?: string }>;
   listSales: () => Promise<{ success: boolean; sales?: any[]; error?: string }>;
   listPurchases: () => Promise<{ success: boolean; purchases?: any[]; error?: string }>;
   getStockReport: () => Promise<{ success: boolean; medicines?: any[]; stats?: any; error?: string }>;
   getExpiryReport: () => Promise<{ success: boolean; categories?: any; total?: number; error?: string }>;
   getExpiryTierReport: () => Promise<{ success: boolean; tiers?: any; stats?: any; error?: string }>;
   getProfitReport: () => Promise<{ success: boolean; rows?: any[]; stats?: any; error?: string }>;
+  getSaleMarginReport: (days?: number) => Promise<{ success: boolean; rows?: any[]; stats?: any; error?: string }>;
+  getReceivables: () => Promise<{ success: boolean; customers?: any[]; buckets?: any; totalOutstanding?: number; error?: string }>;
+  getPayables: () => Promise<{ success: boolean; suppliers?: any[]; totalPayable?: number; count?: number; error?: string }>;
+  getGst1Report: (month?: string) => Promise<{ success: boolean; summary?: any; error?: string }>;
+  createPurchase: (data: { supplierName?: string; supplierGstin?: string; invoiceNo?: string; invoiceDate?: string; totalAmount?: number; items?: any[] }) => Promise<{ success: boolean; id?: string; supplierId?: number | null; totalQty?: number; error?: string }>;
   getSalesReport: () => Promise<{ success: boolean; sales?: any[]; stats?: any; error?: string }>;
   getDashboardStats: () => Promise<{ success: boolean; stats?: any; medicines?: any[]; error?: string }>;
   getImportHistory: () => Promise<{ success: boolean; imports?: any[]; error?: string }>;
@@ -78,6 +83,7 @@ interface ElectronAPI {
   // Purchase Returns
   listPurchaseReturns: () => Promise<{ success: boolean; returns?: any[]; error?: string }>;
   createPurchaseReturn: (data: any) => Promise<{ success: boolean; return?: any; error?: string }>;
+  updatePurchaseReturnStatus: (data: { id: string; status: string; rejectReason?: string }) => Promise<{ success: boolean; error?: string }>;
 
   // Sales Returns
   listSalesReturns: () => Promise<{ success: boolean; returns?: any[]; error?: string }>;

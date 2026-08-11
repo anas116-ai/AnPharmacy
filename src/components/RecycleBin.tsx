@@ -176,11 +176,11 @@ export default function RecycleBin() {
         </div>
         <div className="card-enterprise p-4">
           <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Restorable</p>
-          <p className="text-2xl font-bold text-emerald-600">{deletedItems.length}</p>
+          <p className="text-2xl font-bold text-success">{deletedItems.length}</p>
         </div>
         <div className="card-enterprise p-4">
           <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Selected</p>
-          <p className="text-2xl font-bold text-blue-600">{selectedIds.size}</p>
+          <p className="text-2xl font-bold text-info">{selectedIds.size}</p>
         </div>
         <div className="card-enterprise p-4">
           <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Storage</p>
@@ -209,9 +209,9 @@ export default function RecycleBin() {
           </div>
 
           {selectedIds.size > 0 && (
-            <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-              <Info className="w-4 h-4 text-emerald-600" />
-              <span className="text-sm text-emerald-700 font-medium">{selectedIds.size} item(s) selected</span>
+            <div className="flex items-center gap-2 p-3 bg-success-light border border-success/40 rounded-xl">
+              <Info className="w-4 h-4 text-success" />
+              <span className="text-sm text-success font-medium">{selectedIds.size} item(s) selected</span>
               <div className="ml-auto flex gap-2">
                 <Button variant="outline-teal" size="sm" onClick={() => setShowConfirmRestore(true)} className="gap-1.5">
                   <RotateCcw className="w-4 h-4" /> Restore All
@@ -230,10 +230,10 @@ export default function RecycleBin() {
 
       {/* Error Banner */}
       {error && (
-        <Card variant="bordered" className="border-red-200 bg-red-50">
+        <Card variant="bordered" className="border-destructive/20 bg-destructive/10">
           <CardContent className="p-4 flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-500" />
-            <p className="text-sm text-red-700">{error}</p>
+            <AlertTriangle className="w-5 h-5 text-destructive" />
+            <p className="text-sm text-destructive">{error}</p>
             <Button variant="ghost" size="sm" onClick={loadDeletedItems} className="ml-auto">
               <RefreshCw className="w-4 h-4 mr-1" /> Retry
             </Button>
@@ -245,9 +245,9 @@ export default function RecycleBin() {
       {filteredItems.length === 0 && !isLoading && (
         <Card variant="bordered">
           <CardContent className="p-12 text-center">
-            <Archive className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-            <p className="text-gray-500 text-sm font-medium">Recycle bin is empty</p>
-            <p className="text-gray-400 text-xs mt-1">Deleted items will appear here for restoration</p>
+            <Archive className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground text-sm font-medium">Recycle bin is empty</p>
+            <p className="text-muted-foreground/60 text-xs mt-1">Deleted items will appear here for restoration</p>
           </CardContent>
         </Card>
       )}
@@ -261,7 +261,7 @@ export default function RecycleBin() {
               type="checkbox"
               checked={selectedIds.size === filteredItems.length}
               onChange={toggleSelectAll}
-              className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              className="w-4 h-4 rounded border-slate-300 text-success focus:ring-emerald-500"
             />
             <span className="text-xs text-slate-500">
               {selectedIds.size === filteredItems.length ? 'Deselect all' : 'Select all'}
@@ -284,7 +284,7 @@ export default function RecycleBin() {
                       type="checkbox"
                       checked={selectedIds.has(item.id)}
                       onChange={() => toggleSelect(item.id)}
-                      className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 mt-1"
+                      className="w-4 h-4 rounded border-slate-300 text-success focus:ring-emerald-500 mt-1"
                     />
                     
                     {/* Details */}
@@ -315,7 +315,7 @@ export default function RecycleBin() {
                     {/* Restore Button */}
                     <button
                       onClick={() => handleRestore(item.id)}
-                      className="p-2 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all"
+                      className="p-2 rounded-xl bg-success-light text-success hover:bg-success-light transition-all"
                       title="Restore to stock"
                     >
                       <RotateCcw className="w-4 h-4" />
@@ -324,7 +324,7 @@ export default function RecycleBin() {
                     {/* Permanent Delete */}
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-all"
+                      className="p-2 rounded-xl bg-destructive/10 text-destructive hover:bg-red-100 transition-all"
                       title="Permanently delete"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -333,7 +333,7 @@ export default function RecycleBin() {
                     {/* Expand */}
                     <button
                       onClick={() => setExpandItem(expandItem === item.id ? null : item.id)}
-                      className="p-1 text-gray-400"
+                      className="p-1 text-muted-foreground/60"
                     >
                       {expandItem === item.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
@@ -342,22 +342,22 @@ export default function RecycleBin() {
 
                 {/* Expanded Details */}
                 {expandItem === item.id && (
-                  <div className="mt-3 pt-3 border-t border-gray-100 ml-7">
+                  <div className="mt-3 pt-3 border-t border-border ml-7">
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                      <div><span className="text-gray-400">MRP:</span> <span className="font-medium">₹{item.mrp?.toFixed(2) || '0.00'}</span></div>
-                      <div><span className="text-gray-400">Purchase:</span> <span className="font-medium">₹{item.purchase_price?.toFixed(2) || '0.00'}</span></div>
-                      <div><span className="text-gray-400">Selling:</span> <span className="font-medium">₹{item.selling_price?.toFixed(2) || '0.00'}</span></div>
-                      <div><span className="text-gray-400">HSN:</span> <span className="font-mono">{item.hsn_code || '-'}</span></div>
-                      <div><span className="text-gray-400">Expiry:</span> <span className="font-medium">{item.expiry_date || '-'}</span></div>
-                      <div><span className="text-gray-400">Schedule:</span> <span className="font-medium">{item.schedule_type || 'General'}</span></div>
-                      <div><span className="text-gray-400">Rack:</span> <span className="font-medium">{item.rack_location || '-'}</span></div>
-                      <div><span className="text-gray-400">Barcode:</span> <span className="font-mono">{item.barcode || '-'}</span></div>
+                      <div><span className="text-muted-foreground/60">MRP:</span> <span className="font-medium">₹{item.mrp?.toFixed(2) || '0.00'}</span></div>
+                      <div><span className="text-muted-foreground/60">Purchase:</span> <span className="font-medium">₹{item.purchase_price?.toFixed(2) || '0.00'}</span></div>
+                      <div><span className="text-muted-foreground/60">Selling:</span> <span className="font-medium">₹{item.selling_price?.toFixed(2) || '0.00'}</span></div>
+                      <div><span className="text-muted-foreground/60">HSN:</span> <span className="font-mono">{item.hsn_code || '-'}</span></div>
+                      <div><span className="text-muted-foreground/60">Expiry:</span> <span className="font-medium">{item.expiry_date || '-'}</span></div>
+                      <div><span className="text-muted-foreground/60">Schedule:</span> <span className="font-medium">{item.schedule_type || 'General'}</span></div>
+                      <div><span className="text-muted-foreground/60">Rack:</span> <span className="font-medium">{item.rack_location || '-'}</span></div>
+                      <div><span className="text-muted-foreground/60">Barcode:</span> <span className="font-mono">{item.barcode || '-'}</span></div>
                     </div>
                     <div className="flex items-center gap-2 mt-3 justify-end">
-                      <button onClick={() => handleRestore(item.id)} className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 text-xs font-medium transition-all flex items-center gap-1.5">
+                      <button onClick={() => handleRestore(item.id)} className="px-4 py-2 bg-success-light text-success rounded-xl hover:bg-success-light text-xs font-medium transition-all flex items-center gap-1.5">
                         <RotateCcw className="w-3.5 h-3.5" /> Restore to Stock
                       </button>
-                      <button onClick={() => handleDelete(item.id)} className="px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 text-xs font-medium transition-all flex items-center gap-1.5">
+                      <button onClick={() => handleDelete(item.id)} className="px-4 py-2 bg-destructive/10 text-destructive rounded-xl hover:bg-red-100 text-xs font-medium transition-all flex items-center gap-1.5">
                         <Trash2 className="w-3.5 h-3.5" /> Delete Forever
                       </button>
                     </div>
@@ -374,12 +374,12 @@ export default function RecycleBin() {
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-500" />
+              <AlertTriangle className="w-5 h-5 text-destructive" />
               Empty Recycle Bin?
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               This will permanently delete <strong>all {deletedItems.length} item(s)</strong> in the bin.
               This action <strong>cannot be undone</strong>.
             </p>
@@ -398,12 +398,12 @@ export default function RecycleBin() {
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-red-500" />
+              <ShieldAlert className="w-5 h-5 text-destructive" />
               Permanently Delete?
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Permanently delete <strong>{selectedIds.size} item(s)</strong>? 
               This action <strong>cannot be undone</strong> and these items cannot be restored.
             </p>
@@ -427,7 +427,7 @@ export default function RecycleBin() {
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Restore <strong>{selectedIds.size} item(s)</strong> back to main stock?
             </p>
           </div>

@@ -263,15 +263,15 @@ export default function ColumnManager({ open, onOpenChange, onClose, columns: ex
       {/* Legend */}
       <div className="flex items-center gap-4 text-xs text-slate-600 bg-slate-50 p-3 rounded-lg">
         <div className="flex items-center gap-1.5">
-          <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+          <AlertTriangle className="w-3.5 h-3.5 text-warning" />
           <span>Default columns (cannot delete)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <Plus className="w-3.5 h-3.5 text-blue-500" />
+          <Plus className="w-3.5 h-3.5 text-info" />
           <span>Custom columns (can delete)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <Eye className="w-3.5 h-3.5 text-emerald-500" />
+          <Eye className="w-3.5 h-3.5 text-success" />
           <span>Visible in stock</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -292,7 +292,7 @@ export default function ColumnManager({ open, onOpenChange, onClose, columns: ex
             onDragEnd={handleDragEnd}
             className={cn(
               'flex items-center gap-3 p-3 rounded-xl border transition-all duration-200',
-              'bg-white hover:border-slate-300 hover:shadow-sm',
+              'bg-background hover:border-slate-300 hover:shadow-sm',
               dragIndex === index && 'opacity-50',
               dragOverIndex === index && 'border-t-2 border-t-emerald-500'
             )}
@@ -307,7 +307,7 @@ export default function ColumnManager({ open, onOpenChange, onClose, columns: ex
               onClick={() => toggleVisibility(col.key)}
               className={cn(
                 'p-1.5 rounded-lg transition-colors',
-                col.isVisible ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 bg-slate-100'
+                col.isVisible ? 'text-success bg-success-light' : 'text-slate-400 bg-slate-100'
               )}
               title={col.isVisible ? 'Hide column' : 'Show column'}
             >
@@ -329,17 +329,17 @@ export default function ColumnManager({ open, onOpenChange, onClose, columns: ex
                     className="h-8 text-xs"
                   />
                   <Button size="icon" variant="ghost" onClick={saveEdit} className="h-8 w-8">
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <Check className="w-3.5 h-3.5 text-success" />
                   </Button>
                   <Button size="icon" variant="ghost" onClick={cancelEdit} className="h-8 w-8">
-                    <X className="w-3.5 h-3.5 text-red-600" />
+                    <X className="w-3.5 h-3.5 text-destructive" />
                   </Button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-slate-700">{col.label}</span>
                   {col.isDefault && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-warning font-medium">
                       Default
                     </span>
                   )}
@@ -376,7 +376,7 @@ export default function ColumnManager({ open, onOpenChange, onClose, columns: ex
                   className="h-8 w-8"
                   title="Delete"
                 >
-                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                  <Trash2 className="w-3.5 h-3.5 text-destructive" />
                 </Button>
               )}
             </div>
@@ -436,8 +436,8 @@ export default function ColumnManager({ open, onOpenChange, onClose, columns: ex
       )}
 
       {/* Info */}
-      <div className="text-xs text-slate-500 bg-blue-50 p-3 rounded-lg border border-blue-100">
-        <strong>💡 Tip:</strong> Drag columns to reorder. Click eye icon to show/hide. 
+      <div className="text-xs text-slate-500 bg-info-light p-3 rounded-lg border border-blue-100">
+        <strong>Tip:</strong> Drag columns to reorder. Click eye icon to show/hide. 
         Click edit icon to rename. Default columns (like Medicine Name, Batch, Quantity) cannot be deleted, 
         but you can rename them or hide them. Add custom columns for extra data like Cold Storage, Doctor Scheme, etc.
       </div>

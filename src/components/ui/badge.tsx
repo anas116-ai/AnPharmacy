@@ -8,30 +8,30 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-slate-900 text-white border-transparent dark:bg-slate-700 dark:text-white',
+          'bg-primary text-primary-foreground border-transparent',
         secondary:
-          'bg-slate-100 text-slate-600 border-transparent dark:bg-slate-800 dark:text-slate-300',
+          'bg-muted text-muted-foreground border-transparent',
         destructive:
-          'bg-rose-50 text-rose-600 border-transparent dark:bg-rose-950/30 dark:text-rose-400',
+          'bg-destructive/10 text-destructive border-transparent',
         outline:
           'border-border text-foreground bg-transparent',
         success:
-          'bg-emerald-50 text-emerald-700 border-transparent dark:bg-emerald-950/30 dark:text-emerald-300',
+          'bg-success-light text-success border-transparent',
         warning:
-          'bg-amber-50 text-amber-700 border-transparent dark:bg-amber-950/30 dark:text-amber-300',
+          'bg-warning-light text-warning border-transparent',
         info:
-          'bg-sky-50 text-sky-700 border-transparent dark:bg-sky-950/30 dark:text-sky-300',
+          'bg-info-light text-info border-transparent',
         subtle:
           'bg-transparent text-foreground border-border hover:bg-muted',
 
         'outline-teal':
-          'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800/30 dark:bg-emerald-950/20 dark:text-emerald-400 font-medium',
+          'border-accent/30 bg-accent-light text-accent dark:border-accent/30 dark:bg-accent/10 dark:text-accent font-medium',
         expired:
-          'bg-slate-500/15 text-slate-600 border-transparent dark:text-slate-400 font-medium',
+          'bg-muted text-muted-foreground border-transparent',
         critical:
-          'bg-rose-50 text-rose-600 border-transparent dark:bg-rose-950/30 dark:text-rose-400 font-semibold',
+          'bg-destructive/10 text-destructive border-transparent font-semibold',
         safe:
-          'bg-emerald-50 text-emerald-700 border-transparent dark:bg-emerald-950/30 dark:text-emerald-300 font-semibold',
+          'bg-success-light text-success border-transparent font-semibold',
         glass:
           'glass-enterprise text-foreground',
       },

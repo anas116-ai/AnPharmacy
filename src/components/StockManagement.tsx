@@ -12,8 +12,6 @@ import { useToast } from '../hooks/useToast';
 import FileImportDialog from './FileImportDialog';
 import { ImportedMedicineRow } from '../lib/fileImporter';
 import StockEditor from './StockEditor';
-import ColumnManager from './ColumnManager';
-import { Settings2 } from 'lucide-react';
 
 export default function StockManagement() {
   const { medicines, setMedicines } = useStockStore();
@@ -22,7 +20,6 @@ export default function StockManagement() {
   const [activeTab, setActiveTab] = useState<'all' | 'near-expiry' | 'expired'>('all');
   const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(null);
   const [isImportOpen, setIsImportOpen] = useState(false);
-  const [isColumnManagerOpen, setIsColumnManagerOpen] = useState(false);
   const [sortBy, setSortBy] = useState('default');
   const [manufacturerFilter, setManufacturerFilter] = useState('all');
   const [scheduleFilter, setScheduleFilter] = useState('all');
@@ -244,11 +241,11 @@ export default function StockManagement() {
 
   const getStatusDot = (status: string) => {
     switch (status) {
-      case 'expired': return 'bg-gray-500';
-      case 'critical': return 'bg-red-500 animate-pulse';
-      case 'warning': return 'bg-orange-500';
-      case 'safe': return 'bg-green-500';
-      default: return 'bg-gray-400';
+      case 'expired': return 'bg-muted-foreground';
+      case 'critical': return 'bg-destructive animate-pulse';
+      case 'warning': return 'bg-warning';
+      case 'safe': return 'bg-accent';
+      default: return 'bg-muted-foreground/50';
     }
   };
 
@@ -267,45 +264,45 @@ export default function StockManagement() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card variant="bordered" className="p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900/40 rounded-xl flex items-center justify-center">
-              <Package className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <div className="w-10 h-10 bg-accent-light rounded-xl flex items-center justify-center">
+              <Package className="w-5 h-5 text-accent" />
             </div>
             <div>
-              <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Total</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{medicines.length}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Total</p>
+              <p className="text-lg font-bold text-foreground">{medicines.length}</p>
             </div>
           </div>
         </Card>
         <Card variant="bordered" className="p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-xl flex items-center justify-center">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <div className="w-10 h-10 bg-destructive/10 rounded-xl flex items-center justify-center">
+              <AlertCircle className="w-5 h-5 text-destructive" />
             </div>
             <div>
-              <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Critical</p>
-              <p className="text-lg font-bold text-red-600 dark:text-red-400">{medicines.filter(m => m.status === 'critical').length}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Critical</p>
+              <p className="text-lg font-bold text-destructive">{medicines.filter(m => m.status === 'critical').length}</p>
             </div>
           </div>
         </Card>
         <Card variant="bordered" className="p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/40 rounded-xl flex items-center justify-center">
-              <Package className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+            <div className="w-10 h-10 bg-warning-light rounded-xl flex items-center justify-center">
+              <Package className="w-5 h-5 text-warning" />
             </div>
             <div>
-              <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Warning</p>
-              <p className="text-lg font-bold text-orange-600 dark:text-orange-400">{medicines.filter(m => m.status === 'warning').length}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Warning</p>
+              <p className="text-lg font-bold text-warning">{medicines.filter(m => m.status === 'warning').length}</p>
             </div>
           </div>
         </Card>
         <Card variant="bordered" className="p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 dark:bg-slate-700 rounded-xl flex items-center justify-center">
-              <Box className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center">
+              <Box className="w-5 h-5 text-muted-foreground" />
             </div>
             <div>
-              <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Expired</p>
-              <p className="text-lg font-bold text-gray-600 dark:text-gray-300">{medicines.filter(m => m.status === 'expired').length}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Expired</p>
+              <p className="text-lg font-bold text-muted-foreground">{medicines.filter(m => m.status === 'expired').length}</p>
             </div>
           </div>
         </Card>
@@ -316,7 +313,7 @@ export default function StockManagement() {
         <CardContent className="p-4 space-y-4">
           <div className="flex items-center gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -326,7 +323,7 @@ export default function StockManagement() {
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -334,14 +331,14 @@ export default function StockManagement() {
             </div>
             
             {/* View Mode Toggle */}
-            <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-700 rounded-xl p-1">
+            <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
               <button
                 onClick={() => setViewMode('editor')}
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200',
                   viewMode === 'editor'
-                    ? 'bg-white dark:bg-slate-600 text-navy-700 dark:text-navy-300 shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 <Table2 className="w-3.5 h-3.5" />
@@ -352,8 +349,8 @@ export default function StockManagement() {
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200',
                   viewMode === 'cards'
-                    ? 'bg-white dark:bg-slate-600 text-navy-700 dark:text-navy-300 shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
@@ -370,17 +367,7 @@ export default function StockManagement() {
               <Upload className="w-4 h-4" />
               Import
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsColumnManagerOpen(true)}
-              className="gap-2 h-11 px-4 flex-shrink-0"
-              title="Manage Columns - Rename, Reorder, Hide, Add"
-            >
-              <Settings2 className="w-4 h-4" />
-              Columns
-            </Button>
-          </div>
+            </div>
 
           {/* Tabs & Sort Row */}
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -393,10 +380,9 @@ export default function StockManagement() {
                   aria-selected={activeTab === tab}
                   className={cn(
                     'px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
-                    'hover:scale-105 active:scale-95',
                     activeTab === tab
-                      ? 'bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-md shadow-teal-500/20'
-                      : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                      ? 'bg-accent text-accent-foreground shadow-md shadow-accent/20'
+                      : 'bg-muted text-muted-foreground hover:bg-secondary'
                   )}
                 >
                   {tab === 'all' ? 'All' :
@@ -413,17 +399,17 @@ export default function StockManagement() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="h-9 px-3 text-xs font-medium border border-gray-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400"
+                className="h-9 px-3 text-xs font-medium border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-accent/30 focus:border-accent"
               >
-                <option value="default">📌 Default</option>
-                <option value="stock_high">📦 Stock: High → Low</option>
-                <option value="stock_low">📦 Stock: Low → High</option>
-                <option value="price_low">💰 Price: Low → High</option>
-                <option value="price_high">💰 Price: High → Low</option>
-                <option value="name_asc">🔤 Name: A → Z</option>
-                <option value="name_desc">🔤 Name: Z → A</option>
-                <option value="expiry_soon">⏳ Expiry: Soonest</option>
-                <option value="expiry_later">⏳ Expiry: Latest</option>
+                <option value="default">Default Sort</option>
+                <option value="stock_high">Stock: High to Low</option>
+                <option value="stock_low">Stock: Low to High</option>
+                <option value="price_low">Price: Low to High</option>
+                <option value="price_high">Price: High to Low</option>
+                <option value="name_asc">Name: A to Z</option>
+                <option value="name_desc">Name: Z to A</option>
+                <option value="expiry_soon">Expiry: Soonest</option>
+                <option value="expiry_later">Expiry: Latest</option>
               </select>
 
               <button
@@ -431,14 +417,14 @@ export default function StockManagement() {
                 className={cn(
                   'h-9 px-3 rounded-xl text-xs font-medium border transition-all duration-200 flex items-center gap-1.5',
                   showFilters
-                    ? 'bg-teal-50 border-teal-300 text-teal-700'
-                    : 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-gray-600 dark:text-gray-300 hover:border-gray-300'
+                    ? 'bg-accent/10 border-accent/40 text-accent'
+                    : 'bg-background border-border text-muted-foreground hover:border-accent/40'
                 )}
               >
                 <Filter className="w-3.5 h-3.5" />
                 Filters
                 {(manufacturerFilter !== 'all' || scheduleFilter !== 'all' || stockLevelFilter !== 'all' || priceMin !== '' || priceMax !== '') && (
-                  <span className="w-2 h-2 rounded-full bg-teal-500" />
+                  <span className="w-2 h-2 rounded-full bg-accent" />
                 )}
               </button>
             </div>
@@ -446,15 +432,15 @@ export default function StockManagement() {
 
           {/* Advanced Filters Panel */}
           {showFilters && (
-            <div className="p-4 bg-gray-50 dark:bg-slate-700/30 border border-gray-100 dark:border-slate-600 rounded-xl space-y-3 animate-fade-in">
+            <div className="p-4 bg-muted/40 border border-border rounded-xl space-y-3 animate-fade-in">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div>
-                  <label htmlFor="stock-filter-manufacturer" className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Manufacturer</label>
+                  <label htmlFor="stock-filter-manufacturer" className="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Manufacturer</label>
                   <select
                     id="stock-filter-manufacturer"
                     value={manufacturerFilter}
                     onChange={(e) => setManufacturerFilter(e.target.value)}
-                    className="w-full h-9 px-2.5 text-xs border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200"
+                    className="w-full h-9 px-2.5 text-xs border border-border rounded-lg bg-background text-foreground"
                   >
                     <option value="all">All Manufacturers</option>
                     {[...new Set(medicines.map(m => m.company).filter(Boolean))].map(company => (
@@ -463,12 +449,12 @@ export default function StockManagement() {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="stock-filter-schedule" className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Schedule Type</label>
+                  <label htmlFor="stock-filter-schedule" className="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Schedule Type</label>
                   <select
                     id="stock-filter-schedule"
                     value={scheduleFilter}
                     onChange={(e) => setScheduleFilter(e.target.value)}
-                    className="w-full h-9 px-2.5 text-xs border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200"
+                    className="w-full h-9 px-2.5 text-xs border border-border rounded-lg bg-background text-foreground"
                   >
                     <option value="all">All Types</option>
                     {[...new Set(medicines.map(m => m.schedule_type).filter(Boolean))].map(type => (
@@ -477,22 +463,22 @@ export default function StockManagement() {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="stock-filter-level" className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Stock Level</label>
+                  <label htmlFor="stock-filter-level" className="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Stock Level</label>
                   <select
                     id="stock-filter-level"
                     value={stockLevelFilter}
                     onChange={(e) => setStockLevelFilter(e.target.value)}
-                    className="w-full h-9 px-2.5 text-xs border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200"
+                    className="w-full h-9 px-2.5 text-xs border border-border rounded-lg bg-background text-foreground"
                   >
                     <option value="all">All Levels</option>
-                    <option value="low_stock">⚠️ Low Stock</option>
-                    <option value="overstock">📦 Overstock</option>
-                    <option value="out_of_stock">❌ Out of Stock</option>
-                    <option value="in_stock">✅ In Stock</option>
+                    <option value="low_stock">Low Stock</option>
+                    <option value="overstock">Overstock</option>
+                    <option value="out_of_stock">Out of Stock</option>
+                    <option value="in_stock">In Stock</option>
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="stock-filter-price-min" className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Price Range (₹)</label>
+                  <label htmlFor="stock-filter-price-min" className="block text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Price Range (Rs)</label>
                   <div className="flex items-center gap-1">
                     <input
                       id="stock-filter-price-min"
@@ -500,50 +486,50 @@ export default function StockManagement() {
                       value={priceMin}
                       onChange={(e) => setPriceMin(e.target.value)}
                       placeholder="Min"
-                      className="w-full h-9 px-2.5 text-xs border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 placeholder:text-gray-400"
+                      className="w-full h-9 px-2.5 text-xs border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground"
                     />
-                    <span className="text-gray-400 text-xs">—</span>
+                    <span className="text-muted-foreground text-xs">—</span>
                     <input
                       id="stock-filter-price-max"
                       type="number"
                       value={priceMax}
                       onChange={(e) => setPriceMax(e.target.value)}
                       placeholder="Max"
-                      className="w-full h-9 px-2.5 text-xs border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 placeholder:text-gray-400"
+                      className="w-full h-9 px-2.5 text-xs border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
                 </div>
               </div>
               {(manufacturerFilter !== 'all' || scheduleFilter !== 'all' || stockLevelFilter !== 'all' || priceMin !== '' || priceMax !== '') && (
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="text-[10px] text-gray-400 font-medium">Active:</span>
+                  <span className="text-[10px] text-muted-foreground font-medium">Active:</span>
                   {manufacturerFilter !== 'all' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-lg text-[10px] font-medium">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/10 text-accent rounded-lg text-[10px] font-medium">
                       {manufacturerFilter}
                       <button onClick={() => setManufacturerFilter('all')}><X className="w-2.5 h-2.5" /></button>
                     </span>
                   )}
                   {scheduleFilter !== 'all' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-[10px] font-medium">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-info/10 text-info rounded-lg text-[10px] font-medium">
                       {scheduleFilter}
                       <button onClick={() => setScheduleFilter('all')}><X className="w-2.5 h-2.5" /></button>
                     </span>
                   )}
                   {stockLevelFilter !== 'all' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-lg text-[10px] font-medium">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-warning/10 text-warning rounded-lg text-[10px] font-medium">
                       {stockLevelFilter}
                       <button onClick={() => setStockLevelFilter('all')}><X className="w-2.5 h-2.5" /></button>
                     </span>
                   )}
                   {(priceMin || priceMax) && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-lg text-[10px] font-medium">
-                      ₹{priceMin || '0'} – ₹{priceMax || '∞'}
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-secondary text-secondary-foreground rounded-lg text-[10px] font-medium">
+                      Rs {priceMin || '0'} - Rs {priceMax || 'inf'}
                       <button onClick={() => { setPriceMin(''); setPriceMax(''); }}><X className="w-2.5 h-2.5" /></button>
                     </span>
                   )}
                   <button
                     onClick={() => { setManufacturerFilter('all'); setScheduleFilter('all'); setStockLevelFilter('all'); setPriceMin(''); setPriceMax(''); }}
-                    className="text-[10px] text-red-500 hover:text-red-700 underline font-medium ml-1"
+                    className="text-[10px] text-destructive hover:text-destructive underline font-medium ml-1"
                   >
                     Clear All
                   </button>
@@ -556,13 +542,13 @@ export default function StockManagement() {
 
       {/* Main Content Area */}
       {viewMode === 'editor' ? (
-        <StockEditor medicines={medicines} onUpdate={handleStockEditorUpdate} />
+        <StockEditor medicines={medicines} onUpdate={handleStockEditorUpdate} externalSearchQuery={searchQuery} />
       ) : (
         <>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              Showing <span className="font-semibold text-gray-700 dark:text-gray-200">{filteredMedicines.length}</span>
-              {' '}of <span className="font-semibold text-gray-700 dark:text-gray-200">{medicines.length}</span> items
+            <span className="text-xs text-muted-foreground">
+              Showing <span className="font-semibold text-foreground">{filteredMedicines.length}</span>
+              {' '}of <span className="font-semibold text-foreground">{medicines.length}</span> items
             </span>
             {(activeTab !== 'all' || sortBy !== 'default' || manufacturerFilter !== 'all' || scheduleFilter !== 'all' || stockLevelFilter !== 'all' || priceMin !== '' || priceMax !== '' || searchQuery) && (
               <button
@@ -576,7 +562,7 @@ export default function StockManagement() {
                   setPriceMin('');
                   setPriceMax('');
                 }}
-                className="text-[10px] text-red-500 hover:text-red-700 underline font-medium"
+                className="text-[10px] text-destructive hover:text-destructive underline font-medium"
               >
                 Reset All
               </button>
@@ -588,9 +574,9 @@ export default function StockManagement() {
             {filteredMedicines.length === 0 ? (
               <Card variant="bordered" role="status">
                 <CardContent className="p-12 text-center">
-                  <Package className="w-16 h-16 text-gray-200 dark:text-slate-600 mx-auto mb-4" />
-                  <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">No medicines found</p>
-                  <p className="text-gray-400 dark:text-slate-500 text-xs mt-1">Try adjusting your search or filter</p>
+                  <Package className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                  <p className="text-muted-foreground text-sm font-medium">No medicines found</p>
+                  <p className="text-muted-foreground/70 text-xs mt-1">Try adjusting your search or filter</p>
                 </CardContent>
               </Card>
             ) : (
@@ -599,8 +585,8 @@ export default function StockManagement() {
                   key={medicine.id}
                   onClick={() => setSelectedMedicine(medicine)}
                   className={cn(
-                    'bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-soft p-5 cursor-pointer',
-                    'hover:border-teal-200 dark:hover:border-teal-700 hover:shadow-medium transition-all duration-200',
+                    'bg-card rounded-2xl border border-border shadow-sm p-5 cursor-pointer',
+                    'hover:border-accent/40 hover:shadow-md transition-all duration-200',
                     'group'
                   )}
                 >
@@ -608,15 +594,15 @@ export default function StockManagement() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2.5 flex-wrap">
                         <span className={cn('w-2.5 h-2.5 rounded-full flex-shrink-0', getStatusDot(medicine.status))} />
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{medicine.name}</h3>
+                        <h3 className="font-semibold text-foreground">{medicine.name}</h3>
                         <Badge variant={medicine.status as any} size="sm">
                           {getStatusLabel(medicine.status)}
                         </Badge>
                       </div>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500 dark:text-gray-400 ml-5">
+                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground ml-5">
                         <span className="flex items-center gap-1">
                           <Package className="w-3 h-3" />
-                          Batch: <span className="font-mono text-gray-600 dark:text-gray-300">{medicine.batch_number}</span>
+                          Batch: <span className="font-mono text-foreground/80">{medicine.batch_number}</span>
                         </span>
                         {medicine.company && (
                           <span className="flex items-center gap-1">
@@ -627,11 +613,11 @@ export default function StockManagement() {
                         {medicine.rack_location && (
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
-                            <span className="font-mono text-gray-600 dark:text-gray-300">{medicine.rack_location}</span>
+                            <span className="font-mono text-foreground/80">{medicine.rack_location}</span>
                           </span>
                         )}
                         {medicine.low_stock_alert != null && medicine.quantity > 0 && medicine.quantity <= medicine.low_stock_alert && medicine.status !== 'expired' && (
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded text-[9px] font-semibold">
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-warning/10 text-warning rounded text-[9px] font-semibold">
                             <AlertTriangle className="w-2.5 h-2.5" />
                             Low Stock: {medicine.quantity}/{medicine.low_stock_alert}
                           </span>
@@ -639,19 +625,19 @@ export default function StockManagement() {
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
-                      <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{medicine.quantity}</p>
-                      <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider">units</p>
+                      <p className="text-xl font-bold text-foreground">{medicine.quantity}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">units</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-50 dark:border-slate-700 ml-5">
+                  <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border ml-5">
                     {medicine.expiry_date && (
-                      <span className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Calendar className="w-3 h-3" />
-                        Expires: <span className="font-medium text-gray-700 dark:text-gray-300">{formatDate(medicine.expiry_date)}</span>
+                        Expires: <span className="font-medium text-foreground/80">{formatDate(medicine.expiry_date)}</span>
                         {medicine.days_remaining !== null && (
                           <span className={cn(
                             'font-semibold',
-                            medicine.days_remaining <= 0 && 'text-red-500',
+                            medicine.days_remaining <= 0 && 'text-destructive',
                             medicine.days_remaining > 0 && medicine.days_remaining <= 90 && 'text-orange-500',
                             medicine.days_remaining > 90 && 'text-green-500 dark:text-green-400',
                           )}>
@@ -661,7 +647,7 @@ export default function StockManagement() {
                       </span>
                     )}
                     {medicine.selling_price && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-xs text-muted-foreground">
                         ₹{medicine.selling_price}/unit
                       </span>
                     )}
@@ -679,7 +665,7 @@ export default function StockManagement() {
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Package className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                <Package className="w-5 h-5 text-accent" />
                 Medicine Details
               </DialogTitle>
               <DialogClose onClick={() => setSelectedMedicine(null)} />
@@ -687,17 +673,17 @@ export default function StockManagement() {
             <div className="space-y-5">
               <div className={cn(
                 'rounded-2xl p-4 text-center',
-                selectedMedicine.status === 'expired' && 'bg-gray-100 dark:bg-slate-700',
-                selectedMedicine.status === 'critical' && 'bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800',
-                selectedMedicine.status === 'warning' && 'bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800',
-                selectedMedicine.status === 'safe' && 'bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800',
+                selectedMedicine.status === 'expired' && 'bg-muted',
+                selectedMedicine.status === 'critical' && 'bg-destructive/10 border border-destructive/20',
+                selectedMedicine.status === 'warning' && 'bg-warning/10 border border-warning/20',
+                selectedMedicine.status === 'safe' && 'bg-accent/10 border border-accent/20',
               )}>
                 <span className={cn(
                   'text-sm font-bold',
-                  selectedMedicine.status === 'expired' && 'text-gray-700 dark:text-gray-200',
-                  selectedMedicine.status === 'critical' && 'text-red-700 dark:text-red-300',
-                  selectedMedicine.status === 'warning' && 'text-orange-700 dark:text-orange-300',
-                  selectedMedicine.status === 'safe' && 'text-green-700 dark:text-green-300',
+                  selectedMedicine.status === 'expired' && 'text-muted-foreground',
+                  selectedMedicine.status === 'critical' && 'text-destructive',
+                  selectedMedicine.status === 'warning' && 'text-warning',
+                  selectedMedicine.status === 'safe' && 'text-accent',
                 )}>
                   {getStatusLabel(selectedMedicine.status)}
                   {selectedMedicine.days_remaining !== null && (
@@ -707,54 +693,54 @@ export default function StockManagement() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3">
-                  <label className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Medicine Name</label>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 mt-1">{selectedMedicine.name}</p>
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Medicine Name</label>
+                  <p className="font-semibold text-foreground mt-1">{selectedMedicine.name}</p>
                 </div>
-                <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3">
-                  <label className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Batch Number</label>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 mt-1 font-mono">{selectedMedicine.batch_number}</p>
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Batch Number</label>
+                  <p className="font-semibold text-foreground mt-1 font-mono">{selectedMedicine.batch_number}</p>
                 </div>
-                <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3">
-                  <label className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Company</label>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 mt-1">{selectedMedicine.company || 'N/A'}</p>
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Company</label>
+                  <p className="font-semibold text-foreground mt-1">{selectedMedicine.company || 'N/A'}</p>
                 </div>
-                <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3">
-                  <label className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Quantity</label>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 mt-1">{selectedMedicine.quantity} units</p>
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Quantity</label>
+                  <p className="font-semibold text-foreground mt-1">{selectedMedicine.quantity} units</p>
                 </div>
-                <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3">
-                  <label className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Purchase Price</label>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 mt-1">{formatCurrency(selectedMedicine.purchase_price)}</p>
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Purchase Price</label>
+                  <p className="font-semibold text-foreground mt-1">{formatCurrency(selectedMedicine.purchase_price)}</p>
                 </div>
-                <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3">
-                  <label className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Selling Price</label>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 mt-1">{formatCurrency(selectedMedicine.selling_price)}</p>
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Selling Price</label>
+                  <p className="font-semibold text-foreground mt-1">{formatCurrency(selectedMedicine.selling_price)}</p>
                 </div>
-                <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3">
-                  <label className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Mfg Date</label>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 mt-1">{formatDate(selectedMedicine.mfg_date)}</p>
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Mfg Date</label>
+                  <p className="font-semibold text-foreground mt-1">{formatDate(selectedMedicine.mfg_date)}</p>
                 </div>
-                <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3">
-                  <label className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Expiry Date</label>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 mt-1">{formatDate(selectedMedicine.expiry_date)}</p>
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Expiry Date</label>
+                  <p className="font-semibold text-foreground mt-1">{formatDate(selectedMedicine.expiry_date)}</p>
                 </div>
               </div>
 
               {selectedMedicine.days_remaining !== null && (
                 <div>
-                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
                     <span>Days until expiry</span>
-                    <span className="font-semibold text-gray-700 dark:text-gray-200">{Math.round(selectedMedicine.days_remaining)}d</span>
+                    <span className="font-semibold text-foreground">{Math.round(selectedMedicine.days_remaining)}d</span>
                   </div>
-                  <div className="h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className={cn(
                         'h-full rounded-full transition-all duration-700',
-                        selectedMedicine.days_remaining <= 0 && 'bg-gray-500',
-                        selectedMedicine.days_remaining > 0 && selectedMedicine.days_remaining <= 90 && 'bg-red-500',
-                        selectedMedicine.days_remaining > 90 && selectedMedicine.days_remaining <= 180 && 'bg-orange-500',
-                        selectedMedicine.days_remaining > 180 && 'bg-green-500',
+                        selectedMedicine.days_remaining <= 0 && 'bg-muted-foreground',
+                        selectedMedicine.days_remaining > 0 && selectedMedicine.days_remaining <= 90 && 'bg-destructive',
+                        selectedMedicine.days_remaining > 90 && selectedMedicine.days_remaining <= 180 && 'bg-warning',
+                        selectedMedicine.days_remaining > 180 && 'bg-accent',
                       )}
                       style={{
                         width: `${Math.min(100, Math.max(0, (selectedMedicine.days_remaining / 365) * 100))}%`
@@ -775,20 +761,6 @@ export default function StockManagement() {
         onImport={handleFileImport}
         existingMedicines={medicines}
       />
-
-      {/* Column Manager Dialog */}
-      <Dialog open={isColumnManagerOpen} onOpenChange={setIsColumnManagerOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Settings2 className="w-5 h-5 text-teal-600" />
-              Manage Stock Columns
-            </DialogTitle>
-            <DialogClose onClick={() => setIsColumnManagerOpen(false)} />
-          </DialogHeader>
-          <ColumnManager onClose={() => setIsColumnManagerOpen(false)} />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

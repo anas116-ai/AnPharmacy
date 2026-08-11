@@ -149,15 +149,15 @@ export default function ImportSummaryDialog({
   }, [rows, existingMedicines, duplicates]);
 
   const getQualityColor = (score: number) => {
-    if (score >= 85) return 'text-emerald-600 bg-emerald-50 border-emerald-200';
-    if (score >= 65) return 'text-amber-600 bg-amber-50 border-amber-200';
-    return 'text-red-600 bg-red-50 border-red-200';
+    if (score >= 85) return 'text-success bg-success-light border-success/40';
+    if (score >= 65) return 'text-warning bg-warning-light border-amber-200';
+    return 'text-destructive bg-destructive/10 border-destructive/20';
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isImporting && onClose()}>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b border-gray-200 flex-shrink-0">
+        <DialogHeader className="px-6 py-4 border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3 text-lg">
               <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
@@ -165,11 +165,11 @@ export default function ImportSummaryDialog({
               </div>
               <div>
                 <span>Review & Confirm Import</span>
-                <p className="text-xs font-normal text-gray-500 mt-0.5">{fileName}</p>
+                <p className="text-xs font-normal text-muted-foreground mt-0.5">{fileName}</p>
               </div>
             </DialogTitle>
-            <button onClick={onClose} disabled={isImporting} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <X className="w-5 h-5 text-gray-400" />
+            <button onClick={onClose} disabled={isImporting} className="p-2 rounded-lg hover:bg-muted transition-colors">
+              <X className="w-5 h-5 text-muted-foreground/60" />
             </button>
           </div>
         </DialogHeader>
@@ -178,25 +178,25 @@ export default function ImportSummaryDialog({
           {/* Quality Score Banner */}
           <div className={cn(
             'p-4 rounded-xl border flex items-center gap-3',
-            qualityScore >= 85 ? 'bg-emerald-50 border-emerald-200' :
-            qualityScore >= 65 ? 'bg-amber-50 border-amber-200' :
-            'bg-red-50 border-red-200'
+            qualityScore >= 85 ? 'bg-success-light border-success/40' :
+            qualityScore >= 65 ? 'bg-warning-light border-amber-200' :
+            'bg-destructive/10 border-destructive/20'
           )}>
             <div className={cn(
               'w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold',
-              qualityScore >= 85 ? 'bg-emerald-100 text-emerald-600' :
-              qualityScore >= 65 ? 'bg-amber-100 text-amber-600' :
-              'bg-red-100 text-red-600'
+              qualityScore >= 85 ? 'bg-success-light text-success' :
+              qualityScore >= 65 ? 'bg-amber-100 text-warning' :
+              'bg-red-100 text-destructive'
             )}>
               {qualityScore}%
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-900">
-                {qualityScore >= 85 ? '✅ High Quality Data' :
-                 qualityScore >= 65 ? '⚠️ Needs Review' :
-                 '❌ Poor Quality Data'}
+              <p className="font-semibold text-foreground">
+                {qualityScore >= 85 ? 'High Quality Data' :
+                 qualityScore >= 65 ? 'Needs Review' :
+                 'Poor Quality Data'}
               </p>
-              <p className="text-xs text-gray-600 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {qualityScore >= 85 ? 'All required fields are filled. Ready for import.' :
                  qualityScore >= 65 ? 'Some fields are missing. Review highlighted items before importing.' :
                  'Many required fields are missing. Consider editing before import.'}
@@ -206,7 +206,7 @@ export default function ImportSummaryDialog({
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card className="border-0 bg-gradient-to-br from-teal-500 to-emerald-600">
+            <Card className="border-0 bg-gradient-to-br from-accent to-success">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-medium text-white/80 uppercase">Total Items</p>
@@ -228,7 +228,7 @@ export default function ImportSummaryDialog({
                 <p className="text-[10px] text-white/60">Purchase value</p>
               </CardContent>
             </Card>
-            <Card className="border-0 bg-gradient-to-br from-purple-500 to-violet-600">
+            <Card className="border-0 bg-gradient-to-br from-accent to-accent/80">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-medium text-white/80 uppercase">MRP Value</p>
@@ -259,50 +259,50 @@ export default function ImportSummaryDialog({
           </div>
 
           {/* Stock Impact */}
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
-            <p className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-teal-600" />
+          <div className="p-4 bg-muted/50 border border-border rounded-xl">
+            <p className="text-xs font-semibold text-foreground/80 mb-2 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-accent" />
               Stock Impact Summary
             </p>
             <div className="grid grid-cols-3 gap-3 text-center">
               <div>
-                <p className="text-2xl font-bold text-emerald-600">{stockImpact.newItems}</p>
-                <p className="text-[10px] text-gray-500">New Items</p>
+                <p className="text-2xl font-bold text-success">{stockImpact.newItems}</p>
+                <p className="text-[10px] text-muted-foreground">New Items</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-blue-600">{stockImpact.updates}</p>
-                <p className="text-[10px] text-gray-500">Quantity Updates</p>
+                <p className="text-2xl font-bold text-info">{stockImpact.updates}</p>
+                <p className="text-[10px] text-muted-foreground">Quantity Updates</p>
               </div>
               <div>
                 <p className={cn(
                   'text-2xl font-bold',
-                  stockImpact.duplicates > 0 ? 'text-amber-600' : 'text-green-600'
+                  stockImpact.duplicates > 0 ? 'text-warning' : 'text-green-600'
                 )}>
                   {stockImpact.duplicates}
                 </p>
-                <p className="text-[10px] text-gray-500">Duplicates</p>
+                <p className="text-[10px] text-muted-foreground">Duplicates</p>
               </div>
             </div>
           </div>
 
           {/* Duplicates Warning */}
           {duplicates.length > 0 && (
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <div className="p-4 bg-warning-light border border-amber-200 rounded-xl">
               <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                <AlertTriangle className="w-4 h-4 text-warning" />
                 <p className="text-xs font-semibold text-amber-800">
                   {duplicates.length} Duplicate{duplicates.length > 1 ? 's' : ''} Detected
                 </p>
               </div>
               <div className="space-y-1 max-h-24 overflow-y-auto">
                 {duplicates.map((dup, i) => (
-                  <div key={i} className="flex items-center justify-between text-xs text-amber-700 bg-amber-100/50 rounded-lg px-3 py-1.5">
+                  <div key={i} className="flex items-center justify-between text-xs text-warning bg-amber-100/50 rounded-lg px-3 py-1.5">
                     <span className="font-medium">{dup.medicineName}</span>
                     <span>Batch: {dup.existingBatch} (Existing: {dup.existingQty} units)</span>
                   </div>
                 ))}
               </div>
-              <p className="text-[10px] text-amber-600 mt-2">
+              <p className="text-[10px] text-warning mt-2">
                 Duplicates will increase existing stock quantity. Review before confirming.
               </p>
             </div>
@@ -310,14 +310,15 @@ export default function ImportSummaryDialog({
 
           {/* Expiry Warnings */}
           {expiryWarnings.expired.length > 0 && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+            <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
               <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="w-4 h-4 text-red-600" />
+                <AlertCircle className="w-4 h-4 text-destructive" />
                 <p className="text-xs font-semibold text-red-800">
-                  ⚠️ {expiryWarnings.expired.length} Item{expiryWarnings.expired.length > 1 ? 's' : ''} Already Expired
+                  <AlertCircle className="w-3.5 h-3.5 inline mr-1" />
+                  {expiryWarnings.expired.length} Item{expiryWarnings.expired.length > 1 ? 's' : ''} Already Expired
                 </p>
               </div>
-              <ul className="space-y-1 text-xs text-red-600 ml-5 list-disc">
+              <ul className="space-y-1 text-xs text-destructive ml-5 list-disc">
                 {expiryWarnings.expired.slice(0, 5).map((row, i) => (
                   <li key={i}>{row.name} — Expired on {row.expiryDate}</li>
                 ))}
@@ -326,14 +327,14 @@ export default function ImportSummaryDialog({
           )}
 
           {expiryWarnings.soon.length > 0 && (
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <div className="p-4 bg-warning-light border border-amber-200 rounded-xl">
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-amber-600" />
+                <Calendar className="w-4 h-4 text-warning" />
                 <p className="text-xs font-semibold text-amber-800">
                   {expiryWarnings.soon.length} Item{expiryWarnings.soon.length > 1 ? 's' : ''} Expiring Within 6 Months
                 </p>
               </div>
-              <ul className="space-y-1 text-xs text-amber-600 ml-5 list-disc">
+              <ul className="space-y-1 text-xs text-warning ml-5 list-disc">
                 {expiryWarnings.soon.slice(0, 5).map((row, i) => (
                   <li key={i}>{row.name} — Expires on {row.expiryDate}</li>
                 ))}
@@ -342,9 +343,9 @@ export default function ImportSummaryDialog({
           )}
 
           {/* Column Usage */}
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
-            <p className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-              <Columns className="w-3.5 h-3.5 text-teal-600" />
+          <div className="p-4 bg-muted/50 border border-border rounded-xl">
+            <p className="text-xs font-semibold text-foreground/80 mb-2 flex items-center gap-1.5">
+              <Columns className="w-3.5 h-3.5 text-accent" />
               Columns Being Imported ({keptColumns.length})
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -361,12 +362,12 @@ export default function ImportSummaryDialog({
             const totalMissing = rows.reduce((s, r) => s + r._missingFields.length, 0);
             if (totalMissing === 0) return null;
             return (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <div className="p-4 bg-warning-light border border-amber-200 rounded-xl">
                 <p className="text-xs font-semibold text-amber-800 flex items-center gap-1.5">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   {totalMissing} Empty Cell{totalMissing > 1 ? 's' : ''} — Will be left blank
                 </p>
-                <p className="text-[10px] text-amber-600 mt-1">
+                <p className="text-[10px] text-warning mt-1">
                   Empty cells will be imported as blank. You can fill them later in Stock Management.
                 </p>
               </div>
@@ -374,10 +375,10 @@ export default function ImportSummaryDialog({
           })()}
         </div>
 
-        <DialogFooter className="px-6 py-4 border-t border-gray-200 bg-gray-50/80 flex-shrink-0">
+        <DialogFooter className="px-6 py-4 border-t border-border bg-muted/50/80 flex-shrink-0">
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Shield className="w-3.5 h-3.5 text-teal-500" />
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Shield className="w-3.5 h-3.5 text-accent" />
               <span>Stock will update <b>only</b> after you click Confirm</span>
             </div>
             <div className="flex gap-2">

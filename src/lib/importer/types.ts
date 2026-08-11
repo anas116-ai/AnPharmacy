@@ -440,9 +440,10 @@ export const FIELD_SYNONYMS: Record<string, string[]> = {
   'name': [
     'medicine name', 'medicine', 'product name', 'product', 'drug name', 'drug', 'item name', 'item', 'description', 'particulars', 'particular', 'medication', 'pharmaceutical',
     'tablet name', 'tablet', 'cap name', 'capsule name', 'inj name', 'injection name', 'syr name', 'syrup name', 'cream name', 'oint name',
-    'brand name', 'brand', 'product desc', 'item desc', 'med name', 'med', 'product desc', 'desc', 'product/item', 'product item',
+    'product desc', 'item desc', 'med name', 'med', 'product desc', 'desc', 'product/item', 'product item',
     'medicine description', 'product description', 'item description',
-    'special name', 'formulation', 'prod name', 'prod desc', 'title', 'product title'
+    'special name', 'formulation', 'prod name', 'prod desc', 'title', 'product title',
+    'brand name', 'brand'
   ],
   'generic_name': [
     'generic name', 'generic', 'salt', 'composition', 'salt name', 'molecule', 'active ingredient', 'api', 'substance',
@@ -518,10 +519,10 @@ export const FIELD_SYNONYMS: Record<string, string[]> = {
     'complimentary qty', 'gift qty', 'scheme bonus'
   ],
   'company': [
-    'company', 'manufacturer', 'brand', 'mfr', 'maker', 'supplier', 'vendor', 'pharma', 'manufactured by', 'marketed by',
-    'company name', 'manufacturer name', 'brand name', 'supplier name', 'vendor name', 'maker name',
+    'company', 'manufacturer', 'mfr', 'maker', 'pharma', 'manufactured by', 'marketed by',
+    'company name', 'manufacturer name', 'maker name',
     'marketed by', 'manufactured by', 'made by', 'produced by', 'mfg company', 'product company',
-    'pharma company', 'pharmaceutical company', 'supplier firm', 'distribution company'
+    'pharma company', 'pharmaceutical company', 'distribution company'
   ],
   'warehouse': [
     'warehouse', 'godown', 'store', 'location', 'depot', 'branch',

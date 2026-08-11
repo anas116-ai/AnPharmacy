@@ -27,22 +27,22 @@ export default function Warehouses() {
   const handleDelete = async (id: number) => { if (!window.electronAPI) return; const res = await window.electronAPI.deleteWarehouse({ id }); if (res.success) { toast.success('Deleted', 'Warehouse removed.'); await loadData(); } else toast.error('Error', res.error || 'Delete failed'); };
   const filtered = items.filter(w => w.name.toLowerCase().includes(search.toLowerCase()) || w.location?.toLowerCase().includes(search.toLowerCase()));
   return (<div className="space-y-5">
-    <div className="flex items-center justify-between"><div><h2 className="text-xl font-bold text-gray-900">Warehouses</h2><p className="text-sm text-gray-500 mt-1">Manage warehouse locations</p></div>
+    <div className="flex items-center justify-between"><div><h2 className="text-xl font-bold text-foreground">Warehouses</h2><p className="text-sm text-muted-foreground mt-1">Manage warehouse locations</p></div>
       <Button onClick={() => { setEditing(null); setForm({ name: '', location: '', manager_name: '', phone: '', capacity: '' }); setShowDialog(true); }} size="sm" className="gap-2"><Plus className="w-4 h-4" /> Add Warehouse</Button></div>
-    <Card variant="bordered"><CardContent className="p-4"><div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" /><Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search warehouses..." className="pl-10 h-11" /></div></CardContent></Card>
+    <Card variant="bordered"><CardContent className="p-4"><div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" /><Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search warehouses..." className="pl-10 h-11" /></div></CardContent></Card>
     {isLoading ? <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="skeleton h-20 rounded-2xl" />)}</div> : filtered.length === 0 ? (
-      <Card variant="bordered"><CardContent className="p-12 text-center"><Building2 className="w-12 h-12 text-gray-300 mx-auto mb-3" /><p className="text-sm text-gray-500">No warehouses found</p></CardContent></Card>
+      <Card variant="bordered"><CardContent className="p-12 text-center"><Building2 className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" /><p className="text-sm text-muted-foreground">No warehouses found</p></CardContent></Card>
     ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {filtered.map(warehouse => (
-          <Card key={warehouse.id} variant="bordered" className="hover:shadow-medium transition-all">
+          <Card key={warehouse.id} variant="bordered" className="hover:shadow-md transition-all">
             <CardContent className="p-4"><div className="flex items-start justify-between">
-              <div><div className="flex items-center gap-2"><h3 className="font-semibold text-gray-900">{warehouse.name}</h3>{warehouse.is_active ? <Badge variant="safe" size="sm">Active</Badge> : <Badge variant="expired" size="sm">Inactive</Badge>}</div>
-                <p className="text-xs text-gray-500 mt-1">{warehouse.location && <span className="mr-3">{warehouse.location}</span>}{warehouse.manager_name && <span>Mgr: {warehouse.manager_name}</span>}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Stock: {warehouse.current_stock} {warehouse.capacity && `/ ${warehouse.capacity} capacity`}</p>
+              <div><div className="flex items-center gap-2"><h3 className="font-semibold text-foreground">{warehouse.name}</h3>{warehouse.is_active ? <Badge variant="safe" size="sm">Active</Badge> : <Badge variant="expired" size="sm">Inactive</Badge>}</div>
+                <p className="text-xs text-muted-foreground mt-1">{warehouse.location && <span className="mr-3">{warehouse.location}</span>}{warehouse.manager_name && <span>Mgr: {warehouse.manager_name}</span>}</p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5">Stock: {warehouse.current_stock} {warehouse.capacity && `/ ${warehouse.capacity} capacity`}</p>
               </div>
-              <div className="flex gap-1"><button onClick={() => { setEditing(warehouse); setForm({ name: warehouse.name, location: warehouse.location || '', manager_name: warehouse.manager_name || '', phone: warehouse.phone || '', capacity: String(warehouse.capacity || '') }); setShowDialog(true); }} className="p-1.5 rounded hover:bg-gray-100"><Edit className="w-3.5 h-3.5 text-gray-400" /></button>
-                <button onClick={() => handleDelete(warehouse.id)} className="p-1.5 rounded hover:bg-red-50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button></div>
+              <div className="flex gap-1"><button onClick={() => { setEditing(warehouse); setForm({ name: warehouse.name, location: warehouse.location || '', manager_name: warehouse.manager_name || '', phone: warehouse.phone || '', capacity: String(warehouse.capacity || '') }); setShowDialog(true); }} className="p-1.5 rounded hover:bg-gray-100"><Edit className="w-3.5 h-3.5 text-muted-foreground/60" /></button>
+                <button onClick={() => handleDelete(warehouse.id)} className="p-1.5 rounded hover:bg-destructive/10"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button></div>
             </div></CardContent></Card>
         ))}
       </div>
@@ -50,9 +50,9 @@ export default function Warehouses() {
     <Dialog open={showDialog} onOpenChange={o => { if (!o) { setShowDialog(false); setEditing(null); } }}>
       <DialogContent><DialogHeader><DialogTitle>{editing ? 'Edit' : 'Add'} Warehouse</DialogTitle></DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div><label htmlFor="wh-name" className="block text-sm font-medium text-gray-700 mb-1">Name *</label><Input id="wh-name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required className="h-11" /></div>
-          <div className="grid grid-cols-2 gap-4"><div><label htmlFor="wh-location" className="block text-sm font-medium text-gray-700 mb-1">Location</label><Input id="wh-location" value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="h-11" /></div><div><label htmlFor="wh-capacity" className="block text-sm font-medium text-gray-700 mb-1">Capacity</label><Input id="wh-capacity" type="number" value={form.capacity} onChange={e => setForm({...form, capacity: e.target.value})} className="h-11" /></div></div>
-          <div className="grid grid-cols-2 gap-4"><div><label htmlFor="wh-manager" className="block text-sm font-medium text-gray-700 mb-1">Manager</label><Input id="wh-manager" value={form.manager_name} onChange={e => setForm({...form, manager_name: e.target.value})} className="h-11" /></div><div><label htmlFor="wh-phone" className="block text-sm font-medium text-gray-700 mb-1">Phone</label><Input id="wh-phone" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="h-11" /></div></div>
+          <div><label htmlFor="wh-name" className="block text-sm font-medium text-foreground/80 mb-1">Name *</label><Input id="wh-name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required className="h-11" /></div>
+          <div className="grid grid-cols-2 gap-4"><div><label htmlFor="wh-location" className="block text-sm font-medium text-foreground/80 mb-1">Location</label><Input id="wh-location" value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="h-11" /></div><div><label htmlFor="wh-capacity" className="block text-sm font-medium text-foreground/80 mb-1">Capacity</label><Input id="wh-capacity" type="number" value={form.capacity} onChange={e => setForm({...form, capacity: e.target.value})} className="h-11" /></div></div>
+          <div className="grid grid-cols-2 gap-4"><div><label htmlFor="wh-manager" className="block text-sm font-medium text-foreground/80 mb-1">Manager</label><Input id="wh-manager" value={form.manager_name} onChange={e => setForm({...form, manager_name: e.target.value})} className="h-11" /></div><div><label htmlFor="wh-phone" className="block text-sm font-medium text-foreground/80 mb-1">Phone</label><Input id="wh-phone" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="h-11" /></div></div>
           <DialogFooter><Button type="button" variant="outline" onClick={() => { setShowDialog(false); setEditing(null); }}>Cancel</Button><Button type="submit" disabled={!form.name.trim()}>{editing ? 'Update' : 'Create'}</Button></DialogFooter>
         </form>
       </DialogContent>

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { formatDate, cn } from '../lib/utils';
 import { Printer, X, FileText, CheckCircle, Download } from 'lucide-react';
+import { BrandTile } from '../lib/Logo';
 
 interface CartItem {
   id: string;
@@ -179,11 +180,9 @@ export default function InvoicePreview({
       <div className="invoice-page">
         <div className="invoice-header">
           <div className="invoice-header-main">
-            <div className="invoice-brand">
-              <div className="invoice-logo">
-                <div className="w-14 h-14 bg-teal-600 rounded-xl flex items-center justify-center text-white text-xl font-bold shadow-lg">AP</div>
-              </div>
-              <div className="invoice-title-group">
+              <div className="invoice-brand">
+                <BrandTile className="w-14 h-14 rounded-lg" markClassName="w-8 h-8" />
+                <div className="invoice-title-group">
                 <h1 className="invoice-pharmacy-name">{PHARMACY.name}</h1>
                 <p className="invoice-tagline">{PHARMACY.tagline}</p>
               </div>
@@ -195,9 +194,9 @@ export default function InvoicePreview({
           </div>
           <div className="invoice-address-bar">
             <div className="flex flex-wrap justify-between gap-x-8 gap-y-1 text-xs">
-              <span>📍 {PHARMACY.address}</span>
-              <span>📞 {PHARMACY.phone}</span>
-              <span>✉️ {PHARMACY.email}</span>
+              <span>{PHARMACY.address}</span>
+              <span>{PHARMACY.phone}</span>
+              <span>{PHARMACY.email}</span>
               <span>GST: {PHARMACY.gstin}</span>
               <span>DL: {PHARMACY.dlNo}</span>
             </div>
@@ -208,11 +207,11 @@ export default function InvoicePreview({
           <div className="invoice-meta-block">
             <h3 className="invoice-meta-heading">Bill To:</h3>
             <p className="invoice-customer-name">{customerName}</p>
-            {shopName && shopName !== customerName && <p className="invoice-meta-text">🏪 {shopName}</p>}
-            {customerPhone && <p className="invoice-meta-text">📞 {customerPhone}</p>}
-            {alternatePhone && <p className="invoice-meta-text">📞 Alt: {alternatePhone}</p>}
+            {shopName && shopName !== customerName && <p className="invoice-meta-text">{shopName}</p>}
+            {customerPhone && <p className="invoice-meta-text">{customerPhone}</p>}
+            {alternatePhone && <p className="invoice-meta-text">Alt: {alternatePhone}</p>}
             {(customerAddress || customerArea) && (
-              <p className="invoice-meta-text">📍 {customerAddress}{customerArea && ', ' + customerArea}</p>
+              <p className="invoice-meta-text">{customerAddress}{customerArea && ', ' + customerArea}</p>
             )}
             {customerGstin && <p className="invoice-meta-text">GST: {customerGstin}</p>}
           </div>
@@ -246,12 +245,12 @@ export default function InvoicePreview({
 
         {(doctorName || doctorRegNo || prescriptionType) && (
           <div className="invoice-doctor-bar">
-            {doctorName && <span>👨‍⚕️ <strong>Dr.</strong> {doctorName}</span>}
-            {doctorRegNo && <span>📋 Reg: {doctorRegNo}</span>}
+            {doctorName && <span><strong>Dr.</strong> {doctorName}</span>}
+            {doctorRegNo && <span>Reg: {doctorRegNo}</span>}
             {prescriptionType && (
               <span className={cn(
                 'invoice-rx-badge',
-                prescriptionType === 'OTC' && 'bg-emerald-100 text-emerald-800',
+                prescriptionType === 'OTC' && 'bg-success-light text-success',
                 prescriptionType === 'H' && 'bg-amber-100 text-amber-800',
                 prescriptionType === 'H1' && 'bg-red-100 text-red-800',
                 prescriptionType === 'X' && 'bg-purple-100 text-purple-800',
@@ -285,28 +284,28 @@ export default function InvoicePreview({
                 const gstRate = item.taxableValue > 0 ? (totalGstItem / item.taxableValue) * 100 : 0;
                 return (
                   <tr key={item.id} className={idx % 2 === 0 ? 'even-row' : ''}>
-                    <td className="text-center text-gray-500">{idx + 1}</td>
+                    <td className="text-center text-muted-foreground">{idx + 1}</td>
                     <td>
-                      <div className="font-medium text-gray-800">{item.medicineName}</div>
-                      {item.itemCode && <div className="text-[9px] text-gray-400">Code: {item.itemCode}</div>}
+                      <div className="font-medium text-foreground">{item.medicineName}</div>
+                      {item.itemCode && <div className="text-[9px] text-muted-foreground/60">Code: {item.itemCode}</div>}
                     </td>
-                    <td className="text-center font-mono text-[10px] text-gray-500">{item.hsnCode || item.itemCode || '-'}</td>
-                    <td className="text-center font-mono text-[10px] text-gray-600">{item.batchNumber}</td>
-                    <td className="text-center text-[10px] text-gray-500">{formatDate(item.expiryDate)}</td>
-                    <td className="text-center font-bold text-gray-800">{item.quantity}</td>
+                    <td className="text-center font-mono text-[10px] text-muted-foreground">{item.hsnCode || item.itemCode || '-'}</td>
+                    <td className="text-center font-mono text-[10px] text-muted-foreground">{item.batchNumber}</td>
+                    <td className="text-center text-[10px] text-muted-foreground">{formatDate(item.expiryDate)}</td>
+                    <td className="text-center font-bold text-foreground">{item.quantity}</td>
                     <td className="text-right font-medium">{item.sellingPrice.toFixed(2)}</td>
-                    <td className="text-center text-gray-600">{item.discountPercent > 0 ? item.discountPercent + '%' : '-'}</td>
+                    <td className="text-center text-muted-foreground">{item.discountPercent > 0 ? item.discountPercent + '%' : '-'}</td>
                     <td className="text-right font-medium">{item.taxableValue.toFixed(2)}</td>
                     <td className="text-center text-[10px]">
-                      {item.cgstAmount > 0 ? <span>{item.cgstAmount.toFixed(2)}<br/><span className="text-[8px] text-gray-400">({(gstRate / 2).toFixed(1)}%)</span></span> : '\u2014'}
+                      {item.cgstAmount > 0 ? <span>{item.cgstAmount.toFixed(2)}<br/><span className="text-[8px] text-muted-foreground/60">({(gstRate / 2).toFixed(1)}%)</span></span> : '\u2014'}
                     </td>
                     <td className="text-center text-[10px]">
-                      {item.sgstAmount > 0 ? <span>{item.sgstAmount.toFixed(2)}<br/><span className="text-[8px] text-gray-400">({(gstRate / 2).toFixed(1)}%)</span></span> : '\u2014'}
+                      {item.sgstAmount > 0 ? <span>{item.sgstAmount.toFixed(2)}<br/><span className="text-[8px] text-muted-foreground/60">({(gstRate / 2).toFixed(1)}%)</span></span> : '\u2014'}
                     </td>
                     <td className="text-center text-[10px]">
-                      {item.igstAmount > 0 ? <span>{item.igstAmount.toFixed(2)}<br/><span className="text-[8px] text-gray-400">({gstRate.toFixed(1)}%)</span></span> : '\u2014'}
+                      {item.igstAmount > 0 ? <span>{item.igstAmount.toFixed(2)}<br/><span className="text-[8px] text-muted-foreground/60">({gstRate.toFixed(1)}%)</span></span> : '\u2014'}
                     </td>
-                    <td className="text-right font-bold text-gray-800">{item.netAmount.toFixed(2)}</td>
+                    <td className="text-right font-bold text-foreground">{item.netAmount.toFixed(2)}</td>
                   </tr>
                 );
               })}
@@ -325,20 +324,20 @@ export default function InvoicePreview({
             <table className="w-full text-[9px]">
               <thead>
                 <tr>
-                  <th className="text-left px-1 py-1 border-b border-gray-300 font-semibold">HSN</th>
-                  <th className="text-center px-1 py-1 border-b border-gray-300 font-semibold">Items</th>
-                  <th className="text-right px-1 py-1 border-b border-gray-300 font-semibold">Qty</th>
-                  <th className="text-right px-1 py-1 border-b border-gray-300 font-semibold">Taxable</th>
-                  <th className="text-right px-1 py-1 border-b border-gray-300 font-semibold">CGST</th>
-                  <th className="text-right px-1 py-1 border-b border-gray-300 font-semibold">SGST</th>
-                  <th className="text-right px-1 py-1 border-b border-gray-300 font-semibold">IGST</th>
+                  <th className="text-left px-1 py-1 border-b border-border font-semibold">HSN</th>
+                  <th className="text-center px-1 py-1 border-b border-border font-semibold">Items</th>
+                  <th className="text-right px-1 py-1 border-b border-border font-semibold">Qty</th>
+                  <th className="text-right px-1 py-1 border-b border-border font-semibold">Taxable</th>
+                  <th className="text-right px-1 py-1 border-b border-border font-semibold">CGST</th>
+                  <th className="text-right px-1 py-1 border-b border-border font-semibold">SGST</th>
+                  <th className="text-right px-1 py-1 border-b border-border font-semibold">IGST</th>
                 </tr>
               </thead>
               <tbody>
                 {hsnSummary.map((h, i) => (
                   <tr key={i}>
                     <td className="font-mono px-1 py-0.5">{h.hsn}</td>
-                    <td className="text-center px-1 py-0.5 text-gray-500">{h.items.length}</td>
+                    <td className="text-center px-1 py-0.5 text-muted-foreground">{h.items.length}</td>
                     <td className="text-right px-1 py-0.5">{h.qty}</td>
                     <td className="text-right px-1 py-0.5">{h.taxable.toFixed(2)}</td>
                     <td className="text-right px-1 py-0.5">{h.cgst.toFixed(2)}</td>
@@ -360,13 +359,13 @@ export default function InvoicePreview({
               <span>₹{summary.totalAmount.toFixed(2)}</span>
             </div>
             {summary.totalDiscount > 0 && (
-              <div className="invoice-total-row text-red-600">
+              <div className="invoice-total-row text-destructive">
                 <span>Item Discount:</span>
                 <span className="font-semibold">-₹{summary.totalDiscount.toFixed(2)}</span>
               </div>
             )}
             {billDiscount > 0 && (
-              <div className="invoice-total-row text-red-600">
+              <div className="invoice-total-row text-destructive">
                 <span>Bill Discount:</span>
                 <span className="font-semibold">-₹{billDiscount.toFixed(2)}</span>
               </div>
@@ -376,23 +375,23 @@ export default function InvoicePreview({
               <span className="font-semibold">₹{summary.taxableAmount.toFixed(2)}</span>
             </div>
             {gstBreakup.map((g, i) => (
-              <div key={i} className="invoice-total-row text-xs text-gray-500 pl-4">
+              <div key={i} className="invoice-total-row text-xs text-muted-foreground pl-4">
                 <span>  {g.rate} GST (CGST: ₹{g.cgst.toFixed(2)} SGST: ₹{g.sgst.toFixed(2)}{g.igst > 0 ? ' IGST: ₹' + g.igst.toFixed(2) : ''})</span>
                 <span>₹{(g.cgst + g.sgst + g.igst).toFixed(2)}</span>
               </div>
             ))}
-            <div className="invoice-total-row text-xs font-medium border-t border-gray-300 pt-1">
+            <div className="invoice-total-row text-xs font-medium border-t border-border pt-1">
               <span>Total GST:</span>
               <span>₹{totalGst.toFixed(2)}</span>
             </div>
             {previousBalance > 0 && (
-              <div className="invoice-total-row bg-amber-50 rounded px-2 py-1">
-                <span className="text-amber-700 font-medium">Previous Balance:</span>
-                <span className="text-amber-700 font-bold">₹{previousBalance.toFixed(2)}</span>
+              <div className="invoice-total-row bg-warning-light rounded px-2 py-1">
+                <span className="text-warning font-medium">Previous Balance:</span>
+                <span className="text-warning font-bold">₹{previousBalance.toFixed(2)}</span>
               </div>
             )}
             {roundOff !== 0 && (
-              <div className="invoice-total-row text-xs text-gray-500">
+              <div className="invoice-total-row text-xs text-muted-foreground">
                 <span>Round Off:</span>
                 <span>{roundOff > 0 ? '+' : ''}₹{roundOff.toFixed(2)}</span>
               </div>
@@ -406,8 +405,8 @@ export default function InvoicePreview({
 
         <div className="invoice-payment-section">
           <div className="invoice-bank-details">
-            <h4 className="text-xs font-bold text-gray-700 mb-1">🏦 Payment Details:</h4>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 text-[10px] text-gray-600">
+            <h4 className="text-xs font-bold text-foreground/80 mb-1">Payment Details:</h4>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 text-[10px] text-muted-foreground">
               <span>Bank: {PHARMACY.bankName}</span>
               <span>Branch: {PHARMACY.bankBranch}</span>
               <span>A/C No: {PHARMACY.bankAccountNo}</span>
@@ -417,14 +416,14 @@ export default function InvoicePreview({
           </div>
           {paymentMode === 'upi' && (
             <div className="invoice-qr-placeholder">
-              <div className="w-16 h-16 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-[8px] text-gray-400 text-center leading-tight">UPI QR<br/>Scan</div>
+              <div className="w-16 h-16 bg-muted/50 border-2 border-dashed border-border rounded-lg flex items-center justify-center text-[8px] text-muted-foreground/60 text-center leading-tight">UPI QR<br/>Scan</div>
             </div>
           )}
         </div>
 
         <div className="invoice-terms">
-          <h4 className="text-xs font-bold text-gray-700 mb-1">📋 Terms & Conditions:</h4>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 text-[10px] text-gray-600">
+          <h4 className="text-xs font-bold text-foreground/80 mb-1">Terms & Conditions:</h4>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 text-[10px] text-muted-foreground">
             <span>1. Goods once sold will not be taken back.</span>
             <span>2. Check all medicines before leaving the store.</span>
             <span>3. Expired/expiring medicines are non-returnable.</span>
@@ -436,28 +435,28 @@ export default function InvoicePreview({
 
         <div className="invoice-signature-grid">
           <div className="invoice-signature-block">
-            <p className="text-xs font-semibold text-gray-700 mb-1">Authorized Signatory / Dispensing Pharmacist</p>
+            <p className="text-xs font-semibold text-foreground/80 mb-1">Authorized Signatory / Dispensing Pharmacist</p>
             <div className="invoice-signature-line">
-              <p className="text-xs font-medium text-teal-700">{pharmacistName}</p>
-              <p className="text-[9px] text-gray-400">(Dispensing Pharmacist)</p>
+              <p className="text-xs font-medium text-accent">{pharmacistName}</p>
+              <p className="text-[9px] text-muted-foreground/60">(Dispensing Pharmacist)</p>
             </div>
           </div>
           <div className="invoice-signature-block">
-            <p className="text-xs font-semibold text-gray-700 mb-1">Customer Acknowledgement</p>
+            <p className="text-xs font-semibold text-foreground/80 mb-1">Customer Acknowledgement</p>
             <div className="invoice-signature-line">
-              <p className="text-xs text-gray-400 italic">Signature / Thumb</p>
+              <p className="text-xs text-muted-foreground/60 italic">Signature / Thumb</p>
             </div>
           </div>
           <div className="invoice-signature-block text-right">
-            <p className="text-[9px] text-gray-500 font-mono">{PHARMACY.digitalSignature}</p>
-            <p className="text-[8px] text-gray-400">License: {PHARMACY.licenseNo} | CIN: {PHARMACY.cin}</p>
+            <p className="text-[9px] text-muted-foreground font-mono">{PHARMACY.digitalSignature}</p>
+            <p className="text-[8px] text-muted-foreground/60">License: {PHARMACY.licenseNo} | CIN: {PHARMACY.cin}</p>
           </div>
         </div>
 
         <div className="invoice-footer">
-          <p className="font-semibold">🙏 Thank you for your purchase! Visit Again 🙏</p>
+          <p className="font-semibold">Thank you for your purchase! Visit Again</p>
           {previousBalance > 0 && (
-            <p className="text-[9px] text-amber-200 mt-0.5">⚠️ Please clear outstanding balance of ₹{previousBalance.toFixed(2)}</p>
+            <p className="text-[9px] text-amber-200 mt-0.5">Please clear outstanding balance of ₹{previousBalance.toFixed(2)}</p>
           )}
           <p className="invoice-footer-meta">This is a computer-generated invoice | {PHARMACY.website} | Invoice: {billNumber}</p>
         </div>
@@ -469,37 +468,37 @@ export default function InvoicePreview({
     <>
       {!showPrintPreview && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-[900px] w-full max-h-[92vh] flex flex-col overflow-hidden animate-scale-in">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white no-print">
+          <div className="bg-background rounded-2xl shadow-2xl max-w-[900px] w-full max-h-[92vh] flex flex-col overflow-hidden animate-scale-in">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-gray-50 to-white no-print">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="w-10 h-10 bg-gradient-to-br from-accent to-success rounded-xl flex items-center justify-center shadow-lg">
                   <FileText className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900">Tax Invoice Preview</h2>
-                  <p className="text-xs text-gray-500">{billNumber}</p>
+                  <h2 className="text-lg font-bold text-foreground">Tax Invoice Preview</h2>
+                  <p className="text-xs text-muted-foreground">{billNumber}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={handlePrint} className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-all text-sm font-medium shadow-md shadow-teal-200">
+                <button onClick={handlePrint} className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-xl hover:bg-accent/90 transition-all text-sm font-medium shadow-md shadow-accent/20">
                   <Printer className="w-4 h-4" /> Print
                 </button>
-                <button onClick={handlePrint} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all text-sm font-medium shadow-md shadow-emerald-200">
+                <button onClick={handlePrint} className="flex items-center gap-2 px-4 py-2 bg-success text-white rounded-xl hover:bg-success/90 transition-all text-sm font-medium shadow-md shadow-success/20">
                   <Download className="w-4 h-4" /> Save PDF
                 </button>
-                <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-600">
+                <button onClick={onClose} className="p-2 hover:bg-muted rounded-xl transition-colors text-muted-foreground/60 hover:text-muted-foreground">
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto bg-gray-100 p-6">{invoiceContent}</div>
-            <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-gray-50 to-white border-t border-gray-200 no-print">
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <CheckCircle className="w-3.5 h-3.5 text-teal-600" /> Ready to print on A4 / thermal paper
+            <div className="flex-1 overflow-y-auto bg-muted/50 p-6">{invoiceContent}</div>
+            <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-gray-50 to-white border-t border-border no-print">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CheckCircle className="w-3.5 h-3.5 text-accent" /> Ready to print on A4 / thermal paper
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-colors">Close</button>
-                <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-2 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition-all text-sm font-medium">
+                <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors">Close</button>
+                <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all text-sm font-medium">
                   <Printer className="w-4 h-4" /> Print Invoice
                 </button>
               </div>
@@ -508,7 +507,7 @@ export default function InvoicePreview({
         </div>
       )}
       {showPrintPreview && (
-        <div className="fixed inset-0 z-[9999] bg-white print-only-render">{invoiceContent}</div>
+        <div className="fixed inset-0 z-[9999] bg-background print-only-render">{invoiceContent}</div>
       )}
     </>
   );

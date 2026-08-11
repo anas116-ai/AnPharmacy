@@ -234,6 +234,7 @@ export interface NavigationItem {
   index: number;
   path: string;
   roles?: ('admin' | 'sales' | 'purchase_mgr' | 'pharmacist')[];
+  group?: 'overview' | 'stock' | 'sales' | 'returns' | 'people' | 'operations' | 'admin' | 'insights';
 }
 
 export interface BackupInfo {
@@ -244,37 +245,37 @@ export interface BackupInfo {
 }
 
 export const NAV_ITEMS: NavigationItem[] = [
-  { icon: '📊', label: 'Dashboard', index: 0, path: 'dashboard', roles: ['admin', 'sales', 'purchase_mgr', 'pharmacist'] },
-  { icon: '📦', label: 'Stock', index: 1, path: 'stock', roles: ['admin', 'sales', 'purchase_mgr', 'pharmacist'] },
-  { icon: '➕', label: 'Add Stock', index: 2, path: 'add-stock', roles: ['admin', 'purchase_mgr'] },
-  { icon: '🛒', label: 'Purchases', index: 3, path: 'purchases', roles: ['admin', 'purchase_mgr'] },
-  { icon: '💰', label: 'Sales', index: 4, path: 'sales', roles: ['admin', 'sales', 'pharmacist'] },
-  { icon: '📈', label: 'Reports', index: 5, path: 'reports', roles: ['admin', 'sales', 'purchase_mgr'] },
-  { icon: '📷', label: 'Scan Invoice', index: 6, path: 'scan-invoice', roles: ['admin', 'purchase_mgr'] },
-  { icon: '👥', label: 'User Mgmt', index: 7, path: 'users', roles: ['admin'] },
-  { icon: '🔒', label: 'Backup', index: 8, path: 'backup', roles: ['admin'] },
-  { icon: '⚙️', label: 'Settings', index: 9, path: 'settings', roles: ['admin'] },
-  { icon: '🏢', label: 'Suppliers', index: 10, path: 'suppliers', roles: ['admin', 'purchase_mgr'] },
-  { icon: '🏭', label: 'Manufacturers', index: 11, path: 'manufacturers', roles: ['admin', 'purchase_mgr'] },
-  { icon: '💊', label: 'Generic Med.', index: 12, path: 'generic-medicines', roles: ['admin', 'purchase_mgr'] },
-  { icon: '👤', label: 'Customers', index: 13, path: 'customers', roles: ['admin', 'sales'] },
-  { icon: '🔄', label: 'Purchase Ret.', index: 14, path: 'purchase-returns', roles: ['admin', 'purchase_mgr'] },
-  { icon: '↩️', label: 'Sales Returns', index: 15, path: 'sales-returns', roles: ['admin', 'sales'] },
-  { icon: '🏠', label: 'Warehouses', index: 16, path: 'warehouses', roles: ['admin'] },
-  { icon: '🚚', label: 'Stock Transf.', index: 17, path: 'stock-transfers', roles: ['admin'] },
-  { icon: '💸', label: 'Expenses', index: 18, path: 'expenses', roles: ['admin'] },
-  { icon: '🏷️', label: 'Pricing', index: 19, path: 'pricing', roles: ['admin'] },
-  { icon: '🎯', label: 'Discounts', index: 20, path: 'discounts', roles: ['admin'] },
-  { icon: '🧾', label: 'GST/HSN', index: 21, path: 'gst-hsn', roles: ['admin'] },
-  { icon: '🤖', label: 'AI Insights', index: 22, path: 'ai-insights', roles: ['admin'] },
-  { icon: '📁', label: 'Documents', index: 23, path: 'documents', roles: ['admin'] },
-  { icon: '📅', label: 'Reminders', index: 24, path: 'reminders', roles: ['admin'] },
-  { icon: '🔔', label: 'Notifications', index: 25, path: 'notifications', roles: ['admin'] },
-  { icon: '📋', label: 'Sales History', index: 26, path: 'sales-history', roles: ['admin', 'sales', 'pharmacist'] },
-  { icon: '🏗️', label: 'Data Import', index: 27, path: 'data-import', roles: ['admin', 'purchase_mgr'] },
-  { icon: '🧠', label: 'AI Learning', index: 28, path: 'ai-learning', roles: ['admin'] },
-  { icon: '📥', label: 'Import History', index: 29, path: 'import-history', roles: ['admin', 'purchase_mgr'] },
-  { icon: '🗑️', label: 'Recycle Bin', index: 30, path: 'recycle-bin', roles: ['admin', 'purchase_mgr'] },
+  { icon: '📊', label: 'Dashboard', index: 0, path: 'dashboard', roles: ['admin', 'sales', 'purchase_mgr', 'pharmacist'], group: 'overview' },
+  { icon: '📦', label: 'Stock', index: 1, path: 'stock', roles: ['admin', 'sales', 'purchase_mgr', 'pharmacist'], group: 'stock' },
+  { icon: '➕', label: 'Add Stock', index: 2, path: 'add-stock', roles: ['admin', 'purchase_mgr'], group: 'stock' },
+  { icon: '🛒', label: 'Purchases', index: 3, path: 'purchases', roles: ['admin', 'purchase_mgr'], group: 'stock' },
+  { icon: '💰', label: 'Sales', index: 4, path: 'sales', roles: ['admin', 'sales', 'pharmacist'], group: 'sales' },
+  { icon: '📈', label: 'Reports', index: 5, path: 'reports', roles: ['admin', 'sales', 'purchase_mgr'], group: 'sales' },
+  { icon: '📷', label: 'Scan Invoice', index: 6, path: 'scan-invoice', roles: ['admin', 'purchase_mgr'], group: 'stock' },
+  { icon: '👥', label: 'User Management', index: 7, path: 'users', roles: ['admin'], group: 'admin' },
+  { icon: '🔒', label: 'Backup & Restore', index: 8, path: 'backup', roles: ['admin'], group: 'admin' },
+  { icon: '⚙️', label: 'Settings', index: 9, path: 'settings', roles: ['admin'], group: 'admin' },
+  { icon: '🏢', label: 'Suppliers', index: 10, path: 'suppliers', roles: ['admin', 'purchase_mgr'], group: 'people' },
+  { icon: '🏭', label: 'Manufacturers', index: 11, path: 'manufacturers', roles: ['admin', 'purchase_mgr'], group: 'people' },
+  { icon: '💊', label: 'Generic Medicines', index: 12, path: 'generic-medicines', roles: ['admin', 'purchase_mgr'], group: 'people' },
+  { icon: '👤', label: 'Customers', index: 13, path: 'customers', roles: ['admin', 'sales'], group: 'people' },
+  { icon: '🔄', label: 'Purchase Returns', index: 14, path: 'purchase-returns', roles: ['admin', 'purchase_mgr'], group: 'returns' },
+  { icon: '↩️', label: 'Sales Returns', index: 15, path: 'sales-returns', roles: ['admin', 'sales'], group: 'returns' },
+  { icon: '🏠', label: 'Warehouses', index: 16, path: 'warehouses', roles: ['admin'], group: 'operations' },
+  { icon: '🚚', label: 'Stock Transfers', index: 17, path: 'stock-transfers', roles: ['admin'], group: 'operations' },
+  { icon: '💸', label: 'Expenses', index: 18, path: 'expenses', roles: ['admin'], group: 'operations' },
+  { icon: '🏷️', label: 'Pricing', index: 19, path: 'pricing', roles: ['admin'], group: 'admin' },
+  { icon: '🎯', label: 'Discounts', index: 20, path: 'discounts', roles: ['admin'], group: 'sales' },
+  { icon: '🧾', label: 'GST/HSN', index: 21, path: 'gst-hsn', roles: ['admin'], group: 'admin' },
+  { icon: '🤖', label: 'AI Insights', index: 22, path: 'ai-insights', roles: ['admin'], group: 'insights' },
+  { icon: '📁', label: 'Documents', index: 23, path: 'documents', roles: ['admin'], group: 'admin' },
+  { icon: '📅', label: 'Reminders', index: 24, path: 'reminders', roles: ['admin'], group: 'insights' },
+  { icon: '🔔', label: 'Notifications', index: 25, path: 'notifications', roles: ['admin'], group: 'insights' },
+  { icon: '📋', label: 'Sales History', index: 26, path: 'sales-history', roles: ['admin', 'sales', 'pharmacist'], group: 'sales' },
+  { icon: '🏗️', label: 'Data Import', index: 27, path: 'data-import', roles: ['admin', 'purchase_mgr'], group: 'stock' },
+  { icon: '🧠', label: 'AI Learning', index: 28, path: 'ai-learning', roles: ['admin'], group: 'insights' },
+  { icon: '📥', label: 'Import History', index: 29, path: 'import-history', roles: ['admin', 'purchase_mgr'], group: 'stock' },
+  { icon: '🗑️', label: 'Recycle Bin', index: 30, path: 'recycle-bin', roles: ['admin', 'purchase_mgr'], group: 'admin' },
 ];
 
 export interface Notification {

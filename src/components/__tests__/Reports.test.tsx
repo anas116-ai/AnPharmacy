@@ -277,7 +277,7 @@ describe('Reports Component', () => {
       fireEvent.click(screen.getByText('Email'));
       await waitFor(() => {
         expect(window.electronAPI.openExternal).toHaveBeenCalled();
-        const url = window.electronAPI.openExternal.mock.calls[0][0];
+        const url = (window.electronAPI.openExternal as any).mock.calls[0][0];
         expect(url).toContain('mailto:');
         expect(url).toContain('subject=');
         expect(url).toContain('body=');

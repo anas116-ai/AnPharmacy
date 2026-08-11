@@ -145,8 +145,8 @@ export default function SalesHistory() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Sales History</h2>
-          <p className="text-sm text-gray-500 mt-1">View, search, and reprint past invoices</p>
+          <h2 className="text-xl font-bold text-foreground">Sales History</h2>
+          <p className="text-sm text-muted-foreground mt-1">View, search, and reprint past invoices</p>
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="safe" size="md">
@@ -165,7 +165,7 @@ export default function SalesHistory() {
         <CardContent className="p-4">
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
               <Input
                 value={searchQuery}
                 onChange={e => { setSearchQuery(e.target.value); setPage(1); }}
@@ -174,14 +174,14 @@ export default function SalesHistory() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-gray-400" />
+              <Calendar className="w-4 h-4 text-muted-foreground/60" />
               <Input
                 type="date"
                 value={dateFrom}
                 onChange={e => setDateFrom(e.target.value)}
                 className="h-10 w-36 text-xs"
               />
-              <span className="text-gray-400 text-xs">to</span>
+              <span className="text-muted-foreground/60 text-xs">to</span>
               <Input
                 type="date"
                 value={dateTo}
@@ -201,72 +201,72 @@ export default function SalesHistory() {
         <CardContent className="p-0">
           {loading ? (
             <div className="py-16 text-center">
-              <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-sm text-gray-500">Loading sales history...</p>
+              <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">Loading sales history...</p>
             </div>
           ) : paginatedSales.length === 0 ? (
             <div className="py-16 text-center">
-              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-              <p className="text-sm text-gray-500 font-medium">No sales found</p>
-              <p className="text-xs text-gray-400 mt-1">Complete a sale to see it here</p>
+              <FileText className="w-16 h-16 text-muted-foreground/40 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground font-medium">No sales found</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Complete a sale to see it here</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-100">
+                <thead className="bg-muted/50 border-b border-border">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">#</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">Invoice / Bill ID</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">Customer</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">Items</th>
-                    <th className="px-4 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wider cursor-pointer select-none" onClick={() => toggleSort('amount')}>
+                    <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider">#</th>
+                    <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider">Invoice / Bill ID</th>
+                    <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider">Customer</th>
+                    <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider">Items</th>
+                    <th className="px-4 py-3 text-right font-semibold text-muted-foreground text-xs uppercase tracking-wider cursor-pointer select-none" onClick={() => toggleSort('amount')}>
                       <span className="inline-flex items-center gap-1">Amount <ArrowUpDown className="w-3 h-3" /></span>
                     </th>
-                    <th className="px-4 py-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wider cursor-pointer select-none" onClick={() => toggleSort('date')}>
+                    <th className="px-4 py-3 text-center font-semibold text-muted-foreground text-xs uppercase tracking-wider cursor-pointer select-none" onClick={() => toggleSort('date')}>
                       <span className="inline-flex items-center gap-1">Date <ArrowUpDown className="w-3 h-3" /></span>
                     </th>
-                    <th className="px-4 py-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wider">Cashier</th>
-                    <th className="px-4 py-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wider">Actions</th>
+                    <th className="px-4 py-3 text-center font-semibold text-muted-foreground text-xs uppercase tracking-wider">Cashier</th>
+                    <th className="px-4 py-3 text-center font-semibold text-muted-foreground text-xs uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {paginatedSales.map((sale, idx) => (
-                    <tr key={sale.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-4 py-3 text-gray-400 font-mono text-xs">{(page - 1) * perPage + idx + 1}</td>
+                    <tr key={sale.id} className="hover:bg-muted/50/50 transition-colors">
+                      <td className="px-4 py-3 text-muted-foreground/60 font-mono text-xs">{(page - 1) * perPage + idx + 1}</td>
                       <td className="px-4 py-3">
-                        <span className="font-mono text-xs font-medium text-teal-700 bg-teal-50 px-2 py-1 rounded-lg">
+                        <span className="font-mono text-xs font-medium text-accent bg-accent/10 px-2 py-1 rounded-lg">
                           {sale.id?.slice(0, 8).toUpperCase()}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <User className="w-3.5 h-3.5 text-gray-400" />
-                          <span className="font-medium text-gray-800">{sale.customer_name}</span>
+                          <User className="w-3.5 h-3.5 text-muted-foreground/60" />
+                          <span className="font-medium text-foreground">{sale.customer_name}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-gray-600">{sale.medicine_name?.slice(0, 40)}{(sale.medicine_name?.length || 0) > 40 ? '...' : ''}</span>
-                        <span className="text-gray-400 ml-1">×{sale.quantity}</span>
+                        <span className="text-muted-foreground">{sale.medicine_name?.slice(0, 40)}{(sale.medicine_name?.length || 0) > 40 ? '...' : ''}</span>
+                        <span className="text-muted-foreground/60 ml-1">×{sale.quantity}</span>
                       </td>
-                      <td className="px-4 py-3 text-right font-semibold text-gray-800">
+                      <td className="px-4 py-3 text-right font-semibold text-foreground">
                         ₹{sale.total_amount?.toFixed(2)}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-1.5">
-                          <Calendar className="w-3 h-3 text-gray-400" />
-                          <span className="text-gray-600 text-xs">{formatDate(sale.sale_date)}</span>
+                          <Calendar className="w-3 h-3 text-muted-foreground/60" />
+                          <span className="text-muted-foreground text-xs">{formatDate(sale.sale_date)}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span className="text-xs text-gray-500">{sale.processed_by_name || '—'}</span>
+                        <span className="text-xs text-muted-foreground">{sale.processed_by_name || '—'}</span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => viewInvoice(sale)}
-                          className="p-1.5 hover:bg-teal-50 rounded-lg transition-colors group"
+                          className="p-1.5 hover:bg-accent/10 rounded-lg transition-colors group"
                           title="View & Reprint"
                         >
-                          <Eye className="w-4 h-4 text-gray-400 group-hover:text-teal-600" />
+                          <Eye className="w-4 h-4 text-muted-foreground/60 group-hover:text-accent" />
                         </button>
                       </td>
                     </tr>
@@ -278,15 +278,15 @@ export default function SalesHistory() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50/50">
-              <p className="text-xs text-gray-500">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/50/50">
+              <p className="text-xs text-muted-foreground">
                 Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, filteredSales.length)} of {filteredSales.length}
               </p>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="p-1.5 rounded-lg hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="p-1.5 rounded-lg hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -300,8 +300,8 @@ export default function SalesHistory() {
                       onClick={() => setPage(pageNum)}
                       className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
                         pageNum === page
-                          ? 'bg-teal-600 text-white'
-                          : 'text-gray-600 hover:bg-gray-100'
+                          ? 'bg-accent text-white'
+                          : 'text-muted-foreground hover:bg-muted'
                       }`}
                     >
                       {pageNum}
@@ -311,7 +311,7 @@ export default function SalesHistory() {
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="p-1.5 rounded-lg hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="p-1.5 rounded-lg hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>

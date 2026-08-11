@@ -35,7 +35,20 @@ export class ValidationEngine {
    */
   validateAll(context: ValidationContext): ValidationRecord[] {
     const { rows, columnMappings, existingMedicines, skipRequiredCheck } = context;
-    return rows.map((row, index) => this.validateRow(row, index, columnMappings, existingMedicines, skipRequiredCheck));
+    // Index existing stock once so duplicate detection is O(1) per lookup, not O(stock) per row.
+    // ponytail: plain Maps keyed on normalized values; upgrade to a real index only if stock > ~1M.
+    const byBatch = new Map<string, any>();
+    const byBarcode = new Map<string, any>();
+    const byName = new Map<string, any>();
+    for (const m of existingMedicines || []) {
+      const b = (m.batch_number || '').toUpperCase();
+      if (b && !byBatch.has(b)) byBatch.set(b, m);
+      const bc = (m.barcode || '').toUpperCase();
+      if (bc && !byBarcode.has(bc)) byBarcode.set(bc, m);
+      const n = (m.name || '').toLowerCase();
+      if (n && !byName.has(n)) byName.set(n, m);
+    }
+    return rows.map((row, index) => this.validateRow(row, index, columnMappings, existingMedicines, skipRequiredCheck, { byBatch, byBarcode, byName }));
   }
 
   /**
@@ -46,7 +59,8 @@ export class ValidationEngine {
     rowIndex: number,
     columnMappings: ColumnMapping[],
     existingMedicines?: any[],
-    skipRequiredCheck?: boolean
+    skipRequiredCheck?: boolean,
+    index?: { byBatch: Map<string, any>; byBarcode: Map<string, any>; byName: Map<string, any> }
   ): ValidationRecord {
     const fieldErrors: FieldError[] = [];
     const globalErrors: string[] = [];
@@ -153,34 +167,45 @@ export class ValidationEngine {
     // 3. Duplicate detection against existing stock
     let duplicateInfo: DuplicateInfo | null = null;
     if (existingMedicines && existingMedicines.length > 0) {
-      const batchNumber = row.batch_number || row.batchNumber || '';
-      const medicineName = row.name || row.medicineName || '';
-      const barcode = row.barcode || '';
+      // Rows carry source-column keys (e.g. "Batch No"), so resolve mapped values
+      const getMapped = (field: string): string => {
+        const mapping = columnMappings.find(m => m.targetField === field);
+        if (!mapping) return '';
+        const v = row[mapping.sourceColumn];
+        return v === undefined || v === null ? '' : String(v);
+      };
+      const batchNumber = row.batch_number || row.batchNumber || getMapped('batch_number') || '';
+      const medicineName = row.name || row.medicineName || getMapped('name') || '';
+      const barcode = row.barcode || getMapped('barcode') || '';
 
       // Check duplicate batch
       if (batchNumber) {
-        const existingBatch = existingMedicines.find((m: any) => {
-          const mBatch = (m.batch_number || '').toUpperCase();
-          const inBatch = batchNumber.toUpperCase();
-          return mBatch === inBatch;
-        });
+        const existingBatch = index
+          ? index.byBatch.get(batchNumber.toUpperCase())
+          : existingMedicines.find((m: any) => {
+              const mBatch = (m.batch_number || '').toUpperCase();
+              const inBatch = batchNumber.toUpperCase();
+              return mBatch === inBatch;
+            });
         if (existingBatch) {
           duplicateInfo = {
             type: 'batch',
             existingIds: [existingBatch.id],
             existingValues: [existingBatch.batch_number],
-            suggestion: 'increase_qty',
+            suggestion: 'replace',
           };
-          globalWarnings.push(`Row ${rowIndex + 1}: Batch "${batchNumber}" already exists in stock (${existingBatch.name}). Will increase quantity.`);
+          globalWarnings.push(`Row ${rowIndex + 1}: Batch "${batchNumber}" already exists in stock (${existingBatch.name}). Will update with file values.`);
         }
       }
 
       // Check duplicate barcode
       if (barcode && !duplicateInfo) {
-        const existingBarcode = existingMedicines.find((m: any) => {
-          const mBarcode = (m.barcode || '').toUpperCase();
-          return mBarcode === barcode.toUpperCase();
-        });
+        const existingBarcode = index
+          ? index.byBarcode.get(barcode.toUpperCase())
+          : existingMedicines.find((m: any) => {
+              const mBarcode = (m.barcode || '').toUpperCase();
+              return mBarcode === barcode.toUpperCase();
+            });
         if (existingBarcode) {
           duplicateInfo = {
             type: 'barcode',
@@ -194,10 +219,12 @@ export class ValidationEngine {
 
       // Check duplicate medicine name
       if (medicineName && !duplicateInfo) {
-        const existingName = existingMedicines.find((m: any) => {
-          const mName = (m.name || '').toLowerCase();
-          return mName === medicineName.toLowerCase();
-        });
+        const existingName = index
+          ? index.byName.get(medicineName.toLowerCase())
+          : existingMedicines.find((m: any) => {
+              const mName = (m.name || '').toLowerCase();
+              return mName === medicineName.toLowerCase();
+            });
         if (existingName) {
           duplicateInfo = {
             type: 'medicine',

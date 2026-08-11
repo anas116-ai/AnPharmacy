@@ -207,7 +207,7 @@ export default function FileImportDialog({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200 flex-shrink-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3 text-xl">
               <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
@@ -215,11 +215,11 @@ export default function FileImportDialog({
               </div>
               Import Stock from File
             </DialogTitle>
-            <button onClick={handleClose} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <X className="w-5 h-5 text-gray-400" />
+            <button onClick={handleClose} className="p-2 rounded-lg hover:bg-muted transition-colors">
+              <X className="w-5 h-5 text-muted-foreground/60" />
             </button>
           </div>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             Import pharmacy stock data from any file format — CSV, Excel, Word, PDF, or Image (OCR)
           </p>
         </DialogHeader>
@@ -230,12 +230,12 @@ export default function FileImportDialog({
             <div className="space-y-4">
               {/* Supported formats */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <Badge variant="outline" size="sm">📊 CSV</Badge>
-                <Badge variant="outline" size="sm">📗 Excel (.xlsx/.xls)</Badge>
-                <Badge variant="outline" size="sm">📘 Word (.doc/.docx)</Badge>
-                <Badge variant="outline" size="sm">📕 PDF</Badge>
-                <Badge variant="outline" size="sm">🖼️ Images (OCR)</Badge>
-                <Badge variant="outline-teal" size="sm">♾️ No size limit</Badge>
+                <Badge variant="outline" size="sm"><FileSpreadsheet className="w-3 h-3 mr-1" />CSV</Badge>
+                <Badge variant="outline" size="sm"><FileSpreadsheet className="w-3 h-3 mr-1" />Excel (.xlsx/.xls)</Badge>
+                <Badge variant="outline" size="sm"><FileText className="w-3 h-3 mr-1" />Word (.doc/.docx)</Badge>
+                <Badge variant="outline" size="sm"><FileText className="w-3 h-3 mr-1" />PDF</Badge>
+                <Badge variant="outline" size="sm"><FileImage className="w-3 h-3 mr-1" />Images (OCR)</Badge>
+                <Badge variant="outline-teal" size="sm"><Upload className="w-3 h-3 mr-1" />No size limit</Badge>
               </div>
 
               {/* Drag & Drop Zone */}
@@ -247,8 +247,8 @@ export default function FileImportDialog({
                 className={cn(
                   'border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all duration-200',
                   dragOver
-                    ? 'border-teal-400 bg-teal-50 scale-[1.01]'
-                    : 'border-gray-300 hover:border-teal-400 hover:bg-teal-50/50'
+                    ? 'border-accent bg-accent/10 scale-[1.01]'
+                    : 'border-border hover:border-accent hover:bg-accent/10/50'
                 )}
               >
                 <input
@@ -259,12 +259,12 @@ export default function FileImportDialog({
                   className="hidden"
                 />
                 <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <FileUp className="w-10 h-10 text-teal-600" />
+                  <FileUp className="w-10 h-10 text-accent" />
                 </div>
-                <p className="text-lg font-semibold text-gray-900 mb-2">
+                <p className="text-lg font-semibold text-foreground mb-2">
                   {dragOver ? 'Drop to Import' : 'Upload or Drop File'}
                 </p>
-                <p className="text-sm text-gray-500 mb-3 max-w-md mx-auto">
+                <p className="text-sm text-muted-foreground mb-3 max-w-md mx-auto">
                   Drag & drop your invoice, stock list, or purchase order file here
                 </p>
                 <div className="flex items-center gap-2 justify-center mt-4">
@@ -282,22 +282,16 @@ export default function FileImportDialog({
               {/* Field auto-mapping info */}
               <Card variant="bordered">
                 <CardContent className="p-4">
-                  <p className="text-xs font-semibold text-gray-600 uppercase mb-2">Auto-Detected Fields</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 text-xs text-gray-600">
-                    <span>✅ Medicine Name</span>
-                    <span>✅ Batch Number</span>
-                    <span>✅ Company/Manufacturer</span>
-                    <span>✅ Quantity</span>
-                    <span>✅ MRP / Price</span>
-                    <span>✅ Expiry Date</span>
-                    <span>✅ HSN Code</span>
-                    <span>✅ GST %</span>
-                    <span>✅ Free Qty / Scheme</span>
-                    <span>✅ Strength / Pack Size</span>
-                    <span>✅ Invoice / PO Details</span>
-                    <span>✅ Barcode / Rack</span>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Auto-Detected Fields</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 text-xs text-muted-foreground">
+                    {['Medicine Name','Batch Number','Company/Manufacturer','Quantity','MRP / Price','Expiry Date','HSN Code','GST %','Free Qty / Scheme','Strength / Pack Size','Invoice / PO Details','Barcode / Rack'].map(field => (
+                      <span key={field} className="flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5 text-success shrink-0" />
+                        {field}
+                      </span>
+                    ))}
                   </div>
-                  <p className="text-[10px] text-gray-400 mt-2">
+                  <p className="text-[10px] text-muted-foreground/60 mt-2">
                     The system automatically detects column headers using a synonym database with 100+ recognized header patterns.
                   </p>
                 </CardContent>
@@ -308,12 +302,12 @@ export default function FileImportDialog({
           {/* ── Processing Indicator ── */}
           {isProcessing && (
             <div className="flex flex-col items-center justify-center py-16">
-              <div className="w-20 h-20 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mb-6" />
-              <p className="text-base font-semibold text-gray-700">Processing File...</p>
-              <p className="text-sm text-gray-500 mt-1">
+              <div className="w-20 h-20 border-4 border-accent border-t-transparent rounded-full animate-spin mb-6" />
+              <p className="text-base font-semibold text-foreground/80">Processing File...</p>
+              <p className="text-sm text-muted-foreground mt-1">
                 {selectedFile && `${selectedFile.name} (${formatFileSize(selectedFile.size)})`}
               </p>
-              <div className="mt-6 w-64 bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="mt-6 w-64 bg-muted rounded-full h-2 overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full animate-pulse" style={{ width: '60%' }} />
               </div>
             </div>
@@ -326,11 +320,11 @@ export default function FileImportDialog({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-xl flex items-center justify-center text-2xl">
-                    {getFileIcon(importResult.detectedFormat as any)}
+                    {(() => { const Icon = getFileIcon(importResult.detectedFormat as any); return <Icon className="w-6 h-6 text-teal-600" />; })()}
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-sm">{importResult.fileName}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="font-semibold text-foreground text-sm">{importResult.fileName}</p>
+                    <p className="text-xs text-muted-foreground">
                       {getFormatLabel(importResult.detectedFormat as any)} · {formatFileSize(importResult.fileSize)}
                     </p>
                   </div>
@@ -343,34 +337,34 @@ export default function FileImportDialog({
               {/* Stats Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-3 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-xl border border-teal-100">
-                  <p className="text-[10px] font-semibold text-teal-600 uppercase">Total Rows</p>
-                  <p className="text-2xl font-bold text-teal-700">{importResult.totalRows}</p>
+                  <p className="text-[10px] font-semibold text-accent uppercase">Total Rows</p>
+                  <p className="text-2xl font-bold text-accent">{importResult.totalRows}</p>
                 </div>
                 <div className="p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
                   <p className="text-[10px] font-semibold text-green-600 uppercase">Valid</p>
                   <p className="text-2xl font-bold text-green-700">{importResult.validRows}</p>
                 </div>
                 <div className="p-3 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-100">
-                  <p className="text-[10px] font-semibold text-red-600 uppercase">Invalid</p>
-                  <p className="text-2xl font-bold text-red-700">{importResult.invalidRows}</p>
+                  <p className="text-[10px] font-semibold text-destructive uppercase">Invalid</p>
+                  <p className="text-2xl font-bold text-destructive">{importResult.invalidRows}</p>
                 </div>
                 <div className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100"
                   onClick={selectAllValid}>
-                  <p className="text-[10px] font-semibold text-blue-600 uppercase">Selected</p>
-                  <p className="text-2xl font-bold text-blue-700 cursor-pointer">{selectedRows.size}</p>
+                  <p className="text-[10px] font-semibold text-info uppercase">Selected</p>
+                  <p className="text-2xl font-bold text-info cursor-pointer">{selectedRows.size}</p>
                 </div>
               </div>
 
               {/* Field Mapping Info */}
               {Object.keys(importResult.fieldMapping).length > 0 && (
-                <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl">
-                  <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Auto-Mapped Columns ({Object.keys(importResult.fieldMapping).length})</p>
+                <div className="p-3 bg-muted/50 border border-border rounded-xl">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Auto-Mapped Columns ({Object.keys(importResult.fieldMapping).length})</p>
                   <div className="flex flex-wrap gap-1.5">
                     {Object.entries(importResult.fieldMapping).map(([header, field]) => (
                       <Badge key={header} variant="outline" size="sm" className="text-[10px]">
-                        <span className="text-gray-500">{header}</span>
-                        <span className="text-teal-600 mx-1">→</span>
-                        <span className="text-gray-700 font-medium">{field}</span>
+                        <span className="text-muted-foreground">{header}</span>
+                        <span className="text-accent mx-1">→</span>
+                        <span className="text-foreground/80 font-medium">{field}</span>
                       </Badge>
                     ))}
                   </div>
@@ -379,14 +373,14 @@ export default function FileImportDialog({
 
               {/* Warnings */}
               {importResult.warnings.length > 0 && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                <div className="p-3 bg-warning-light border border-amber-200 rounded-xl">
                   <div className="flex items-center gap-2 mb-1">
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
-                    <p className="text-xs font-semibold text-amber-700">Warnings</p>
+                    <AlertTriangle className="w-4 h-4 text-warning" />
+                    <p className="text-xs font-semibold text-warning">Warnings</p>
                   </div>
                   <ul className="space-y-0.5 ml-6 list-disc">
                     {importResult.warnings.map((w, i) => (
-                      <li key={i} className="text-xs text-amber-600">{w}</li>
+                      <li key={i} className="text-xs text-warning">{w}</li>
                     ))}
                   </ul>
                 </div>
@@ -394,14 +388,14 @@ export default function FileImportDialog({
 
               {/* Errors */}
               {importResult.errors.length > 0 && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl max-h-32 overflow-y-auto">
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl max-h-32 overflow-y-auto">
                   <div className="flex items-center gap-2 mb-1">
-                    <AlertCircle className="w-4 h-4 text-red-600" />
-                    <p className="text-xs font-semibold text-red-700">Errors ({importResult.errors.length})</p>
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-xs font-semibold text-destructive">Errors ({importResult.errors.length})</p>
                   </div>
                   <ul className="space-y-0.5 ml-6 list-disc">
                     {importResult.errors.slice(0, 20).map((e, i) => (
-                      <li key={i} className="text-xs text-red-600">{e}</li>
+                      <li key={i} className="text-xs text-destructive">{e}</li>
                     ))}
                   </ul>
                 </div>
@@ -411,28 +405,28 @@ export default function FileImportDialog({
               {importResult.rows.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-semibold text-gray-700">
+                    <p className="text-sm font-semibold text-foreground/80">
                       Preview ({importResult.rows.length} items)
                     </p>
-                    <Button variant="ghost" size="sm" onClick={selectAllValid} className="text-teal-600">
+                    <Button variant="ghost" size="sm" onClick={selectAllValid} className="text-accent">
                       <CheckCircle className="w-3.5 h-3.5 mr-1" /> Select All Valid
                     </Button>
                   </div>
-                  <div className="border border-gray-200 rounded-xl overflow-hidden max-h-96 overflow-y-auto">
+                  <div className="border border-border rounded-xl overflow-hidden max-h-96 overflow-y-auto">
                     <table className="w-full text-xs">
-                      <thead className="bg-gray-50 sticky top-0">
+                      <thead className="bg-muted/50 sticky top-0">
                         <tr>
                           <th className="w-8 px-2 py-2"></th>
-                          <th className="px-2 py-2 text-left font-semibold text-gray-600">#</th>
-                          <th className="px-2 py-2 text-left font-semibold text-gray-600">Medicine Name</th>
-                          <th className="px-2 py-2 text-left font-semibold text-gray-600">Batch</th>
-                          <th className="px-2 py-2 text-left font-semibold text-gray-600">Company</th>
-                          <th className="px-2 py-2 text-right font-semibold text-gray-600">Qty</th>
-                          <th className="px-2 py-2 text-right font-semibold text-gray-600">MRP</th>
-                          <th className="px-2 py-2 text-right font-semibold text-gray-600">Price</th>
-                          <th className="px-2 py-2 text-center font-semibold text-gray-600">GST%</th>
-                          <th className="px-2 py-2 text-left font-semibold text-gray-600">Expiry</th>
-                          <th className="px-2 py-2 text-center font-semibold text-gray-600">Conf</th>
+                          <th className="px-2 py-2 text-left font-semibold text-muted-foreground">#</th>
+                          <th className="px-2 py-2 text-left font-semibold text-muted-foreground">Medicine Name</th>
+                          <th className="px-2 py-2 text-left font-semibold text-muted-foreground">Batch</th>
+                          <th className="px-2 py-2 text-left font-semibold text-muted-foreground">Company</th>
+                          <th className="px-2 py-2 text-right font-semibold text-muted-foreground">Qty</th>
+                          <th className="px-2 py-2 text-right font-semibold text-muted-foreground">MRP</th>
+                          <th className="px-2 py-2 text-right font-semibold text-muted-foreground">Price</th>
+                          <th className="px-2 py-2 text-center font-semibold text-muted-foreground">GST%</th>
+                          <th className="px-2 py-2 text-left font-semibold text-muted-foreground">Expiry</th>
+                          <th className="px-2 py-2 text-center font-semibold text-muted-foreground">Conf</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-50">
@@ -443,9 +437,9 @@ export default function FileImportDialog({
                             <tr
                               key={row._rowNumber}
                               className={cn(
-                                'hover:bg-teal-50/30 transition-colors cursor-pointer',
+                                'hover:bg-accent/10/30 transition-colors cursor-pointer',
                                 !isSelected && 'opacity-50',
-                                hasErrors && 'bg-red-50/30'
+                                hasErrors && 'bg-destructive/10/30'
                               )}
                               onClick={() => !hasErrors && toggleRow(row._rowNumber)}
                             >
@@ -455,23 +449,23 @@ export default function FileImportDialog({
                                   checked={isSelected}
                                   disabled={hasErrors}
                                   onChange={() => !hasErrors && toggleRow(row._rowNumber)}
-                                  className="w-3.5 h-3.5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                                  className="w-3.5 h-3.5 rounded border-border text-accent focus:ring-accent"
                                 />
                               </td>
-                              <td className="px-2 py-2 text-gray-400 font-mono">{row._rowNumber}</td>
-                              <td className="px-2 py-2 font-medium text-gray-800 max-w-[180px] truncate">
+                              <td className="px-2 py-2 text-muted-foreground/60 font-mono">{row._rowNumber}</td>
+                              <td className="px-2 py-2 font-medium text-foreground max-w-[180px] truncate">
                                 <div className="flex items-center gap-1">
-                                  <span className="truncate">{row.name || <span className="text-red-400 italic">Missing</span>}</span>
-                                  {row.strength && <span className="text-gray-400 flex-shrink-0">({row.strength})</span>}
+                                  <span className="truncate">{row.name || <span className="text-destructive/80 italic">Missing</span>}</span>
+                                  {row.strength && <span className="text-muted-foreground/60 flex-shrink-0">({row.strength})</span>}
                                 </div>
                               </td>
-                              <td className="px-2 py-2 font-mono text-gray-600 uppercase">{row.batchNumber || <span className="text-red-400 italic">-</span>}</td>
-                              <td className="px-2 py-2 text-gray-600 max-w-[100px] truncate">{row.company || <span className="text-gray-300">-</span>}</td>
-                              <td className="px-2 py-2 text-right font-bold text-gray-800">{row.quantity > 0 ? row.quantity : <span className="text-red-400">0</span>}</td>
-                              <td className="px-2 py-2 text-right text-gray-700">{row.mrp > 0 ? `₹${row.mrp.toFixed(2)}` : '-'}</td>
-                              <td className="px-2 py-2 text-right text-gray-700">{row.purchasePrice > 0 ? `₹${row.purchasePrice.toFixed(2)}` : '-'}</td>
-                              <td className="px-2 py-2 text-center text-gray-600">{row.purchaseGstPercent > 0 ? `${row.purchaseGstPercent}%` : '-'}</td>
-                              <td className="px-2 py-2 text-gray-500 text-[10px]">{row.expiryDate || <span className="text-amber-400">-</span>}</td>
+                              <td className="px-2 py-2 font-mono text-muted-foreground uppercase">{row.batchNumber || <span className="text-destructive/80 italic">-</span>}</td>
+                              <td className="px-2 py-2 text-muted-foreground max-w-[100px] truncate">{row.company || <span className="text-muted-foreground/40">-</span>}</td>
+                              <td className="px-2 py-2 text-right font-bold text-foreground">{row.quantity > 0 ? row.quantity : <span className="text-destructive/80">0</span>}</td>
+                              <td className="px-2 py-2 text-right text-foreground/80">{row.mrp > 0 ? `₹${row.mrp.toFixed(2)}` : '-'}</td>
+                              <td className="px-2 py-2 text-right text-foreground/80">{row.purchasePrice > 0 ? `₹${row.purchasePrice.toFixed(2)}` : '-'}</td>
+                              <td className="px-2 py-2 text-center text-muted-foreground">{row.purchaseGstPercent > 0 ? `${row.purchaseGstPercent}%` : '-'}</td>
+                              <td className="px-2 py-2 text-muted-foreground text-[10px]">{row.expiryDate || <span className="text-warning/80">-</span>}</td>
                               <td className="px-2 py-2 text-center">{getConfidenceBadge(row._confidence)}</td>
                             </tr>
                           );
@@ -484,12 +478,12 @@ export default function FileImportDialog({
 
               {/* Unmapped columns warning */}
               {importResult.fieldMapping && Object.keys(importResult.fieldMapping).length === 0 && importResult.rows.length > 0 && (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                  <p className="text-xs font-semibold text-amber-700 flex items-center gap-1.5">
+                <div className="p-4 bg-warning-light border border-amber-200 rounded-xl">
+                  <p className="text-xs font-semibold text-warning flex items-center gap-1.5">
                     <AlertTriangle className="w-4 h-4" />
                     Column mapping could not be auto-detected
                   </p>
-                  <p className="text-[10px] text-amber-600 mt-1">
+                  <p className="text-[10px] text-warning mt-1">
                     Ensure your file has recognizable headers like "Medicine Name", "Batch No", "Quantity", etc.
                   </p>
                 </div>
@@ -511,26 +505,26 @@ export default function FileImportDialog({
                 
                 return (
                   <details className="group">
-                    <summary className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl cursor-pointer hover:bg-amber-100/50 transition-colors list-none">
+                    <summary className="flex items-center gap-2 p-3 bg-warning-light border border-amber-200 rounded-xl cursor-pointer hover:bg-amber-100/50 transition-colors list-none">
                       <div className="flex items-center gap-2 flex-1">
                         <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <AlertTriangle className="w-4 h-4 text-amber-600" />
+                          <AlertTriangle className="w-4 h-4 text-warning" />
                         </div>
                         <div>
                           <p className="text-xs font-semibold text-amber-800">
-                            ⚠️ {allMissing.length} Empty Cells Detected
+                            {allMissing.length} Empty Cells Detected
                           </p>
-                          <p className="text-[10px] text-amber-600">
+                          <p className="text-[10px] text-warning">
                             Click to see exact row & column locations — fill these manually after import
                           </p>
                         </div>
                       </div>
-                      <span className="text-amber-500 text-xs group-open:rotate-180 transition-transform">▼</span>
+                      <span className="text-warning text-xs group-open:rotate-180 transition-transform">▼</span>
                     </summary>
-                    <div className="mt-2 bg-white border border-amber-200 rounded-xl overflow-hidden">
+                    <div className="mt-2 bg-background border border-amber-200 rounded-xl overflow-hidden">
                       {/* Summary by field */}
-                      <div className="p-3 border-b border-amber-100 bg-amber-50/50">
-                        <p className="text-[10px] font-semibold text-amber-700 uppercase mb-1.5">Missing Fields Summary</p>
+                      <div className="p-3 border-b border-warning/20 bg-warning-light/50">
+                        <p className="text-[10px] font-semibold text-warning uppercase mb-1.5">Missing Fields Summary</p>
                         <div className="flex flex-wrap gap-1.5">
                           {Object.entries(byField).map(([field, count]) => (
                             <Badge key={field} variant="warning" size="sm">
@@ -542,25 +536,25 @@ export default function FileImportDialog({
                       {/* Detail table */}
                       <div className="max-h-48 overflow-y-auto">
                         <table className="w-full text-[10px]">
-                          <thead className="bg-gray-50 sticky top-0">
+                          <thead className="bg-muted/50 sticky top-0">
                             <tr>
-                              <th className="px-2 py-1.5 text-left font-semibold text-gray-500">#</th>
-                              <th className="px-2 py-1.5 text-left font-semibold text-gray-500">Row</th>
-                              <th className="px-2 py-1.5 text-left font-semibold text-gray-500">Column</th>
-                              <th className="px-2 py-1.5 text-left font-semibold text-gray-500">Field Type</th>
-                              <th className="px-2 py-1.5 text-left font-semibold text-gray-500">Cell</th>
+                              <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground">#</th>
+                              <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground">Row</th>
+                              <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground">Column</th>
+                              <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground">Field Type</th>
+                              <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground">Cell</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-50">
                             {allMissing.slice(0, 50).map((mf, idx) => (
-                              <tr key={idx} className="hover:bg-amber-50/30">
-                                <td className="px-2 py-1 text-gray-400">{idx + 1}</td>
-                                <td className="px-2 py-1 font-mono text-gray-700 font-medium">Row {mf.row}</td>
+                              <tr key={idx} className="hover:bg-warning-light/30">
+                                <td className="px-2 py-1 text-muted-foreground/60">{idx + 1}</td>
+                                <td className="px-2 py-1 font-mono text-foreground/80 font-medium">Row {mf.row}</td>
                                 <td className="px-2 py-1">
                                   <Badge variant="outline" size="sm" className="font-mono text-[9px]">
                                     {getColumnLetter(mf.columnIndex)}
                                   </Badge>
-                                  <span className="ml-1 text-gray-600">{mf.column}</span>
+                                  <span className="ml-1 text-muted-foreground">{mf.column}</span>
                                 </td>
                                 <td className="px-2 py-1">
                                   <Badge variant="warning" size="sm" className="text-[9px]">
@@ -568,13 +562,13 @@ export default function FileImportDialog({
                                   </Badge>
                                 </td>
                                 <td className="px-2 py-1">
-                                  <code className="text-red-400 bg-red-50 px-1 py-0.5 rounded text-[9px]">[empty]</code>
+                                  <code className="text-destructive/80 bg-destructive/10 px-1 py-0.5 rounded text-[9px]">[empty]</code>
                                 </td>
                               </tr>
                             ))}
                             {allMissing.length > 50 && (
                               <tr>
-                                <td colSpan={5} className="px-2 py-2 text-center text-gray-400 text-[9px]">
+                                <td colSpan={5} className="px-2 py-2 text-center text-muted-foreground/60 text-[9px]">
                                   ...and {allMissing.length - 50} more empty cells
                                 </td>
                               </tr>
@@ -582,9 +576,9 @@ export default function FileImportDialog({
                           </tbody>
                         </table>
                       </div>
-                      <div className="p-2 bg-gray-50 border-t border-amber-100 text-center">
-                        <p className="text-[9px] text-gray-500">
-                          ℹ️ These cells were empty in the file. After import, go to Stock Management to fill missing data.
+                      <div className="p-2 bg-muted/50 border-t border-warning/20 text-center">
+                        <p className="text-[9px] text-muted-foreground">
+                          These cells were empty in the file. After import, go to Stock Management to fill missing data.
                         </p>
                       </div>
                     </div>
@@ -597,17 +591,17 @@ export default function FileImportDialog({
 
         {/* ── Footer ── */}
         {importResult && !isProcessing && (
-          <DialogFooter className="px-6 py-4 border-t border-gray-200 bg-gray-50/80 flex-shrink-0">
+          <DialogFooter className="px-6 py-4 border-t border-border bg-muted/50/80 flex-shrink-0">
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 {selectedRows.size > 0 ? (
                   <>
                     <CheckCircle className="w-4 h-4 text-green-600" />
                     <span className="font-medium text-green-700">{selectedRows.size} items</span>
-                    <span className="text-gray-400">selected for import</span>
+                    <span className="text-muted-foreground/60">selected for import</span>
                   </>
                 ) : (
-                  <span className="text-amber-600">No valid items selected</span>
+                  <span className="text-warning">No valid items selected</span>
                 )}
               </div>
               <div className="flex gap-2">

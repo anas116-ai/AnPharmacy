@@ -40,7 +40,7 @@ export default function KeyboardShortcutsHelp({ isOpen, onClose, shortcuts }: Ke
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border dark:border-border">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3 text-xl">
               <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
@@ -50,13 +50,13 @@ export default function KeyboardShortcutsHelp({ isOpen, onClose, shortcuts }: Ke
             </DialogTitle>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+              className="p-2 rounded-lg hover:bg-muted dark:hover:bg-slate-700 transition-colors"
               aria-label="Close"
             >
-              <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              <X className="w-5 h-5 text-muted-foreground dark:text-muted-foreground/60" />
             </button>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground/60 mt-2">
             Boost your productivity with these keyboard shortcuts
           </p>
         </DialogHeader>
@@ -64,23 +64,23 @@ export default function KeyboardShortcutsHelp({ isOpen, onClose, shortcuts }: Ke
         <div className="overflow-y-auto max-h-[60vh] px-6 py-4">
           {Object.entries(groupedShortcuts).map(([category, categoryShortcuts]) => (
             <div key={category} className="mb-6">
-              <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/60 uppercase tracking-wider mb-3">
                 {category}
               </h3>
               <div className="space-y-2">
                 {categoryShortcuts.map((shortcut, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-slate-800/50 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-xl bg-muted/50 dark:bg-muted/40/50 hover:bg-muted dark:hover:bg-slate-800 transition-colors"
                   >
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                    <span className="text-sm text-foreground/80 dark:text-muted-foreground/40">
                       {shortcut.description}
                     </span>
                     <div className="flex items-center gap-1">
                       {getShortcutDisplay(shortcut).split(' + ').map((key, keyIndex) => (
                         <Fragment key={keyIndex}>
-                          {keyIndex > 0 && <span className="text-gray-400 dark:text-gray-500 text-xs">+</span>}
-                          <kbd className="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-mono font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg shadow-sm min-w-[2rem]">
+                          {keyIndex > 0 && <span className="text-muted-foreground/60 dark:text-muted-foreground text-xs">+</span>}
+                          <kbd className="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-mono font-medium text-foreground/80 dark:text-muted-foreground/40 bg-background dark:bg-muted/60 border border-border dark:border-border rounded-lg shadow-sm min-w-[2rem]">
                             {key}
                           </kbd>
                         </Fragment>
@@ -93,9 +93,9 @@ export default function KeyboardShortcutsHelp({ isOpen, onClose, shortcuts }: Ke
           ))}
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            Press <kbd className="inline-flex items-center justify-center px-2 py-1 text-xs font-mono font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg shadow-sm">Esc</kbd> to close this dialog
+        <div className="px-6 py-4 border-t border-border dark:border-border bg-muted/50 dark:bg-muted/40/50">
+          <p className="text-xs text-muted-foreground dark:text-muted-foreground/60 text-center">
+            Press <kbd className="inline-flex items-center justify-center px-2 py-1 text-xs font-mono font-medium text-foreground/80 dark:text-muted-foreground/40 bg-background dark:bg-muted/60 border border-border dark:border-border rounded-lg shadow-sm">Esc</kbd> to close this dialog
           </p>
         </div>
       </DialogContent>

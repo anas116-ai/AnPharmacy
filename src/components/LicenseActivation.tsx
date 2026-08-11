@@ -73,9 +73,9 @@ export default function LicenseActivation({ onActivated }: LicenseActivationProp
     <div className="min-h-screen bg-gradient-to-br from-teal-900 via-teal-700 to-cyan-800 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-teal-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '0s' }} />
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '0s' }} />
         <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-teal-500/5 rounded-full blur-3xl animate-pulse-soft" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-accent/100/5 rounded-full blur-3xl animate-pulse-soft" />
       </div>
 
       {/* Grid Pattern */}
@@ -85,7 +85,7 @@ export default function LicenseActivation({ onActivated }: LicenseActivationProp
       }} />
 
       <div className="w-full max-w-md relative z-10">
-        <div className="bg-white/10 backdrop-blur-2xl rounded-3xl p-8 shadow-2xl border border-white/20 animate-fade-in-up">
+        <div className="bg-background/10 backdrop-blur-2xl rounded-3xl p-8 shadow-2xl border border-white/20 animate-fade-in-up">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="relative inline-block">
@@ -94,7 +94,7 @@ export default function LicenseActivation({ onActivated }: LicenseActivationProp
               </div>
             </div>
             <h1 className="text-2xl font-bold text-white">{t('license.title')}</h1>
-            <p className="text-teal-200/60 mt-1 text-sm">{t('app.tagline')}</p>
+            <p className="text-accent/60 mt-1 text-sm">{t('app.tagline')}</p>
           </div>
 
           {success ? (
@@ -106,17 +106,17 @@ export default function LicenseActivation({ onActivated }: LicenseActivationProp
             <>
               {/* Device ID */}
               <div className="mb-6">
-                <label className="flex items-center gap-2 text-sm font-medium text-teal-200 mb-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-accent/90 mb-2">
                   <Fingerprint className="w-4 h-4" />
                   {t('license.deviceId')}
                 </label>
                 <div className="flex gap-2">
-                  <div className="flex-1 bg-white/5 rounded-xl px-4 py-3 text-sm font-mono text-white/90 border border-white/10 select-all truncate">
+                  <div className="flex-1 bg-background/5 rounded-xl px-4 py-3 text-sm font-mono text-white/90 border border-white/10 select-all truncate">
                     {deviceId}
                   </div>
                   <button
                     onClick={handleCopyDeviceId}
-                    className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-200 border border-white/10 hover:scale-105 active:scale-95 flex-shrink-0"
+                    className="px-3 py-2 bg-background/10 hover:bg-background/20 rounded-xl transition-all duration-200 border border-white/10 hover:scale-105 active:scale-95 flex-shrink-0"
                     title="Copy Device ID"
                   >
                     {copied ? (
@@ -130,7 +130,7 @@ export default function LicenseActivation({ onActivated }: LicenseActivationProp
 
               {/* License Key Input */}
               <div className="mb-6">
-                <label htmlFor="license-key" className="flex items-center gap-2 text-sm font-medium text-teal-200 mb-2">
+                <label htmlFor="license-key" className="flex items-center gap-2 text-sm font-medium text-accent/90 mb-2">
                   <Key className="w-4 h-4" />
                   {t('license.key')}
                 </label>
@@ -139,13 +139,13 @@ export default function LicenseActivation({ onActivated }: LicenseActivationProp
                   value={licenseKey}
                   onChange={(e) => setLicenseKey(e.target.value.toUpperCase())}
                   placeholder={t('license.placeholder')}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-12 rounded-xl focus:bg-white/15 font-mono tracking-wider dark:bg-white/10 dark:border-white/20 dark:text-white"
+                  className="bg-background/10 border-white/20 text-white placeholder:text-white/40 h-12 rounded-xl focus:bg-background/15 font-mono tracking-wider dark:bg-background/10 dark:border-white/20 dark:text-white"
                 />
               </div>
 
               {/* Error */}
               {error && (
-                <div className="mb-4 flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+                <div className="mb-4 flex items-center gap-2 bg-destructive/100/10 border border-red-500/20 rounded-xl px-4 py-3">
                   <XCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
                   <span className="text-red-300 text-sm">{error}</span>
                 </div>
@@ -173,7 +173,7 @@ export default function LicenseActivation({ onActivated }: LicenseActivationProp
 
               {/* Help */}
               <div className="mt-6 text-center">
-                <p className="text-teal-300/40 text-xs">
+                <p className="text-accent/40 text-xs">
                   {t('license.help')}
                 </p>
               </div>

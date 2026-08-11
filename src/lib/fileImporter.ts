@@ -5,6 +5,9 @@
  * Auto-extracts fields: medicine name, batch, company, qty, prices, GST, HSN, dates
  */
 
+import type { ElementType } from 'react';
+import { File, FileImage, FileSpreadsheet, FileText } from 'lucide-react';
+
 // ── Imported Record Types ──────────────────────────────────────────────
 
 export interface MissingFieldInfo {
@@ -98,9 +101,9 @@ export type SupportedFormat = 'csv' | 'xlsx' | 'xls' | 'docx' | 'pdf' | 'image' 
 // ── Standard field names for auto-mapping ─────────────────────────────
 
 const STANDARD_FIELDS: Record<string, string[]> = {
-  name: ['medicine name', 'medicine', 'product name', 'product', 'drug name', 'drug', 'item name', 'item', 'description', 'particulars', 'particular'],
+  name: ['medicine name', 'medicine', 'product name', 'product', 'drug name', 'drug', 'item name', 'item', 'description', 'particulars', 'particular', 'brand name', 'brand'],
   strength: ['strength', 'dosage', 'dose', 'mg', 'ml', 'iu', 'unit'],
-  company: ['company', 'manufacturer', 'brand', 'mfr', 'maker', 'supplier', 'vendor', 'pharma'],
+  company: ['company', 'manufacturer', 'mfr', 'maker', 'pharma'],
   genericName: ['generic', 'generic name', 'salt', 'composition', 'salt name'],
   batchNumber: ['batch no', 'batch number', 'batch', 'bat no', 'bat', 'lot no', 'lot', 'b.no', 'b/no', 'batch#', 'batch #'],
   barcode: ['barcode', 'ean', 'upc', 'gtin', 'code', 'bar code', 'sku'],
@@ -180,26 +183,48 @@ export function detectFieldMappings(headers: string[]): Record<string, string> {
 
 // ── CSV Parser ─────────────────────────────────────────────────────────
 
+function detectDelimiter(line: string): string {
+  const candidates = [',', ';', '\t', '|'];
+  let best = ',';
+  let bestCount = 0;
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') i++;
+      else inQuotes = !inQuotes;
+    } else if (!inQuotes && candidates.includes(ch)) {
+      const count = line.split(ch).length - 1;
+      if (count > bestCount) {
+        bestCount = count;
+        best = ch;
+      }
+    }
+  }
+  return best;
+}
+
 function parseCSVFile(text: string): { headers: string[]; rows: string[][] } {
   const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
   if (lines.length === 0) return { headers: [], rows: [] };
-  
-  const headers = parseCSVLine(lines[0]);
+
+  const delimiter = detectDelimiter(lines[0]);
+  const headers = parseCSVLine(lines[0], delimiter);
   const rows: string[][] = [];
-  
+
   for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i]);
+    const values = parseCSVLine(lines[i], delimiter);
     rows.push(values);
   }
-  
+
   return { headers, rows };
 }
 
-function parseCSVLine(line: string): string[] {
+function parseCSVLine(line: string, delimiter = ','): string[] {
   const result: string[] = [];
   let current = '';
   let inQuotes = false;
-  
+
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
     if (char === '"') {
@@ -209,7 +234,7 @@ function parseCSVLine(line: string): string[] {
       } else {
         inQuotes = !inQuotes;
       }
-    } else if (char === ',' && !inQuotes) {
+    } else if (char === delimiter && !inQuotes) {
       result.push(current.trim());
       current = '';
     } else {
@@ -224,7 +249,7 @@ function parseCSVLine(line: string): string[] {
 
 async function parseExcelFile(arrayBuffer: ArrayBuffer): Promise<{ headers: string[]; rows: string[][] }> {
   const XLSX = await import('xlsx');
-  const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+  const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array', cellDates: true });
   
   if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
     return { headers: [], rows: [] };
@@ -264,6 +289,9 @@ async function parseExcelFile(arrayBuffer: ArrayBuffer): Promise<{ headers: stri
     const row = originalIndices.map(origIdx => {
       const val = rawRow[origIdx];
       if (val === null || val === undefined) return '';
+      if (val instanceof Date && !isNaN(val.getTime())) {
+        return `${val.getFullYear()}-${String(val.getMonth() + 1).padStart(2, '0')}-${String(val.getDate()).padStart(2, '0')}`;
+      }
       return String(val).trim();
     });
     
@@ -791,14 +819,14 @@ async function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
   });
 }
 
-export function getFileIcon(format: SupportedFormat): string {
+export function getFileIcon(format: SupportedFormat): ElementType {
   switch (format) {
-    case 'csv': return '📊';
-    case 'xlsx': case 'xls': return '📗';
-    case 'docx': return '📘';
-    case 'pdf': return '📕';
-    case 'image': return '🖼️';
-    default: return '📄';
+    case 'csv': return FileSpreadsheet;
+    case 'xlsx': case 'xls': return FileSpreadsheet;
+    case 'docx': return FileText;
+    case 'pdf': return FileText;
+    case 'image': return FileImage;
+    default: return File;
   }
 }
 

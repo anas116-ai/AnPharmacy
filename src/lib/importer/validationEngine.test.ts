@@ -249,6 +249,33 @@ describe('ValidationEngine', () => {
       expect(results[0].globalWarnings.some(w => w.includes('already exists'))).toBe(true);
     });
 
+    it('should detect duplicate batch when rows only have source-column keys (real runValidation shape)', () => {
+      const existingMedicines = [
+        { id: 1, name: 'Paracetamol', batch_number: 'BT24001', barcode: '8901234567890' },
+      ];
+
+      const context: ValidationContext = {
+        rows: [
+          {
+            'Medicine Name': 'Paracetamol 650',
+            'Batch No': 'BT24001',
+            Quantity: '100',
+            Expiry: '2026-12-31',
+            MRP: '100.00',
+            HSN: '3004',
+            GST: '12',
+          },
+        ],
+        columnMappings: baseMappings,
+        existingMedicines,
+      };
+
+      const results = engine.validateAll(context);
+      expect(results[0].duplicateInfo).not.toBeNull();
+      expect(results[0].duplicateInfo!.type).toBe('batch');
+      expect(results[0].duplicateInfo!.suggestion).toBe('replace');
+    });
+
     it('should detect invalid number format', () => {
       const context: ValidationContext = {
         rows: [

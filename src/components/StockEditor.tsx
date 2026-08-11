@@ -9,7 +9,7 @@ import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
 import { Select, SelectItem } from './ui/select';
-import { Search, Plus, Trash2, Download, Upload, Columns, Filter, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, Check, AlertTriangle, Save, Undo2, Redo2 } from 'lucide-react';
+import { Search, Plus, Trash2, Download, Upload, Columns, Filter, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, Check, AlertTriangle, Save, Undo2, Redo2, EyeOff, Eye, PaintBucket, Grid3x3 } from 'lucide-react';
 import ColumnManager from './ColumnManager';
 import FilterPanel from './FilterPanel';
 import { exportToCSV, parseCSV } from '../lib/csvParser';
@@ -91,7 +91,23 @@ const STORAGE_KEY_FILTERS = 'anpharm_stock_filters';
 const STORAGE_VERSION_KEY = 'anpharm_stock_version';
 const CURRENT_STORAGE_VERSION = 2; // Bump when DEFAULT_COLUMNS changes significantly
 
-export default function StockEditor({ medicines: initialMedicines, onUpdate }: { medicines: Medicine[]; onUpdate: (medicines: Medicine[]) => void }) {
+// Excel-style highlight colors for column fills
+const HIGHLIGHT_COLORS = [
+  '#FFF2CC', '#FCE4D6', '#DDEBF7', '#E2EFDA',
+  '#FFE699', '#F8CBAD', '#BDD7EE', '#A9D08E',
+  '#FFD966', '#F4B183', '#9DC3E6', '#70AD47',
+  '#FFE4E1', '#E1D5E7', '#D9D9D9', '#B4C6E7',
+];
+
+// Excel-style text (font) colors
+const TEXT_COLORS = [
+  '#000000', '#7F7F7F', '#595959', '#C00000',
+  '#FF0000', '#ED7D31', '#FFC000', '#FFD966',
+  '#7030A0', '#0070C0', '#2E75B6', '#00B0F0',
+  '#548235', '#92D050', '#FFFF00', '#FFFFFF',
+];
+
+export default function StockEditor({ medicines: initialMedicines, onUpdate, externalSearchQuery = '' }: { medicines: Medicine[]; onUpdate: (medicines: Medicine[]) => void; externalSearchQuery?: string }) {
   const { medicines: storeMedicines, setMedicines, setDashboardStats } = useStockStore();
   const toast = useToast();
   const tableRef = useRef<HTMLDivElement>(null);
@@ -112,9 +128,16 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const resizingColKey = useRef<string | null>(null);
+  const [headerMenu, setHeaderMenu] = useState<{ colKey: string; x: number; y: number; submenu: 'color' | 'borders' | 'unhide' | null } | null>(null);
+  const headerMenuRef = useRef<HTMLDivElement>(null);
+  const [autoFilter, setAutoFilter] = useState<{ colKey: string; left: number; top: number } | null>(null);
+  const autoFilterRef = useRef<HTMLDivElement>(null);
+  const [selectedCols, setSelectedCols] = useState<Set<string>>(new Set());
+  const lastSelectedCol = useRef<string | null>(null);
 
-  // History state for undo/redo
-  const [history, setHistory] = useState<Medicine[][]>([]);
+  // History state for undo/redo (snapshots both data rows and column formatting)
+  const [history, setHistory] = useState<{ medicines: Medicine[]; columns: ColumnDef[] }[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
   const initializedRef = useRef(false);
@@ -125,7 +148,7 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
     if (!initializedRef.current) {
       setLocalMedicines(initialMedicines);
       if (initialMedicines.length > 0) {
-        setHistory([[...initialMedicines]]);
+        setHistory([{ medicines: [...initialMedicines], columns: DEFAULT_COLUMNS.map(c => ({ ...c })) }]);
         setHistoryIndex(0);
       }
       initializedRef.current = true;
@@ -228,6 +251,197 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
     localStorage.setItem(STORAGE_KEY_COLUMNS, JSON.stringify(columns));
   }, [columns]);
 
+  // Excel-style column width drag resize
+  const startColumnResize = useCallback((e: React.MouseEvent, colKey: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resizingColKey.current = colKey;
+    const startX = e.clientX;
+    const startWidth = columns.find(c => c.key === colKey)?.width || 120;
+    const onMove = (ev: MouseEvent) => {
+      const newWidth = Math.max(50, startWidth + (ev.clientX - startX));
+      setColumns(prev => prev.map(c => c.key === colKey ? { ...c, width: newWidth } : c));
+    };
+    const onUp = () => {
+      document.body.style.cursor = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      resizingColKey.current = null;
+    };
+    document.body.style.cursor = 'col-resize';
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }, [columns]);
+
+  // Close the Excel-style header menu on outside click / Escape / scroll
+  useEffect(() => {
+    if (!headerMenu) return;
+    const onDown = (e: MouseEvent) => {
+      if (headerMenuRef.current && !headerMenuRef.current.contains(e.target as Node)) {
+        setHeaderMenu(null);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setHeaderMenu(null); };
+    const onWheel = (e: WheelEvent) => {
+      if (headerMenuRef.current && !headerMenuRef.current.contains(e.target as Node)) {
+        setHeaderMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('wheel', onWheel, true);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('wheel', onWheel, true);
+    };
+  }, [headerMenu]);
+
+  // Close the autofilter dropdown on outside click / Escape
+  useEffect(() => {
+    if (!autoFilter) return;
+    const onDown = (e: MouseEvent) => {
+      if (autoFilterRef.current && !autoFilterRef.current.contains(e.target as Node)) {
+        setAutoFilter(null);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setAutoFilter(null); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [autoFilter]);
+
+  // Open the Excel-style header context menu
+  const openHeaderMenu = useCallback((e: React.MouseEvent, colKey: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setHeaderMenu({ colKey, x: e.clientX, y: e.clientY, submenu: null });
+  }, []);
+
+  // Distinct values in a column, for the header autofilter dropdown
+  const uniqueValues = useCallback((colKey: string): { value: string; count: number }[] => {
+    const counts = new Map<string, number>();
+    for (const m of localMedicines) {
+      const v = String(getMedicineField(m, colKey) ?? '');
+      if (v.trim() !== '') counts.set(v, (counts.get(v) ?? 0) + 1);
+    }
+    const arr = [...counts.entries()];
+    arr.sort((a, b) => a[0].localeCompare(b[0]));
+    return arr.map(([value, count]) => ({ value, count }));
+  }, [localMedicines]);
+
+  // Toggle an equals filter on a column (Excel: autofilter). Replaces the column's
+  // existing equals filter, or clears it when the same value is picked again.
+  const toggleAutoFilter = useCallback((colKey: string, value: string) => {
+    setFilters(prev => {
+      const active = prev.some(f => f.columnKey === colKey && f.value === value);
+      const rest = prev.filter(f => f.columnKey !== colKey);
+      if (active) return rest;
+      return [...rest, { columnKey: colKey, condition: 'equals', value }];
+    });
+    setAutoFilter(null);
+  }, []);
+
+  const MAX_HISTORY = 50;
+
+  const pushHistory = useCallback((newMedicines: Medicine[], newColumns?: ColumnDef[]) => {
+    setHistory(prev => {
+      const newHistory = prev.slice(0, historyIndex + 1);
+      newHistory.push({ medicines: [...newMedicines], columns: newColumns ? newColumns.map(c => ({ ...c })) : columns.map(c => ({ ...c })) });
+      if (newHistory.length > MAX_HISTORY) {
+        newHistory.shift();
+      }
+      return newHistory;
+    });
+    setHistoryIndex(prev => Math.min(prev + 1, MAX_HISTORY - 1));
+  }, [historyIndex, columns]);
+
+  const undo = useCallback(() => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setLocalMedicines(history[newIndex].medicines);
+      setColumns(history[newIndex].columns);
+      setHistoryIndex(newIndex);
+      setHasUnsavedChanges(true);
+    }
+  }, [history, historyIndex]);
+
+  const redo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setLocalMedicines(history[newIndex].medicines);
+      setColumns(history[newIndex].columns);
+      setHistoryIndex(newIndex);
+      setHasUnsavedChanges(true);
+    }
+  }, [history, historyIndex]);
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        redo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo]);
+
+  const updateColumn = useCallback((colKey: string, patch: Partial<ColumnDef>) => {
+    const next = columns.map(c => c.key === colKey ? { ...c, ...patch } : c);
+    setColumns(next);
+    pushHistory(localMedicines, next);
+  }, [columns, localMedicines, pushHistory]);
+
+  // Update multiple columns at once (Excel: apply formatting to a selection)
+  const updateColumns = useCallback((colKeys: string[], patch: Partial<ColumnDef>) => {
+    const keys = new Set(colKeys);
+    const next = columns.map(c => keys.has(c.key) ? { ...c, ...patch } : c);
+    setColumns(next);
+    pushHistory(localMedicines, next);
+  }, [columns, localMedicines, pushHistory]);
+
+  // Resolve which columns an action should apply to: the current selection if the
+  // right-clicked column is part of it, otherwise just that column.
+  const targetColsForMenu = useCallback((colKey: string): string[] => {
+    if (selectedCols.has(colKey) && selectedCols.size > 0) return [...selectedCols];
+    return [colKey];
+  }, [selectedCols]);
+
+  // Excel-style column selection: plain click selects one, ctrl/cmd toggles,
+  // shift selects a range from the last anchor.
+  const handleHeaderSelect = useCallback((e: React.MouseEvent, colKey: string) => {
+    e.stopPropagation();
+    const visible = columns.filter(c => c.visible);
+    const keys = visible.map(c => c.key);
+    if (e.shiftKey && lastSelectedCol.current) {
+      const from = keys.indexOf(lastSelectedCol.current);
+      const to = keys.indexOf(colKey);
+      if (from >= 0 && to >= 0) {
+        const range = keys.slice(Math.min(from, to), Math.max(from, to) + 1);
+        setSelectedCols(new Set(range));
+      }
+    } else if (e.ctrlKey || e.metaKey) {
+      setSelectedCols(prev => {
+        const next = new Set(prev);
+        if (next.has(colKey)) next.delete(colKey);
+        else next.add(colKey);
+        return next;
+      });
+    } else {
+      setSelectedCols(new Set([colKey]));
+    }
+    lastSelectedCol.current = colKey;
+  }, [columns]);
+
   // Save filters to localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_FILTERS, JSON.stringify(filters));
@@ -237,9 +451,11 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
   const processedData = useMemo(() => {
     let data = [...localMedicines];
 
-    // Apply search (includes custom_fields values)
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
+    // Apply search (includes custom_fields values). The Stock Management page's
+    // own search box feeds in via externalSearchQuery so both boxes stay in sync.
+    const rawQuery = (searchQuery || externalSearchQuery || '').trim();
+    if (rawQuery) {
+      const query = rawQuery.toLowerCase();
       data = data.filter(m => {
         // Search direct fields
         const directMatch = Object.values(m).some(val => 
@@ -300,7 +516,7 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
     }
 
     return data;
-  }, [localMedicines, filters, sort, searchQuery]);
+  }, [localMedicines, filters, sort, searchQuery, externalSearchQuery]);
 
   // Get cell value (supports both direct Medicine fields and custom_fields)
   const getCellValue = (medicine: Medicine, colKey: string): string => {
@@ -316,54 +532,6 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
     setEditingCell({ rowId, colKey });
     setEditValue(currentValue);
   };
-
-  const MAX_HISTORY = 50;
-
-  const pushHistory = useCallback((newMedicines: Medicine[]) => {
-    setHistory(prev => {
-      const newHistory = prev.slice(0, historyIndex + 1);
-      newHistory.push([...newMedicines]);
-      if (newHistory.length > MAX_HISTORY) {
-        newHistory.shift();
-      }
-      return newHistory;
-    });
-    setHistoryIndex(prev => Math.min(prev + 1, MAX_HISTORY - 1));
-  }, [historyIndex]);
-
-  const undo = useCallback(() => {
-    if (historyIndex > 0) {
-      const newIndex = historyIndex - 1;
-      setLocalMedicines(history[newIndex]);
-      setHistoryIndex(newIndex);
-      setHasUnsavedChanges(true);
-    }
-  }, [history, historyIndex]);
-
-  const redo = useCallback(() => {
-    if (historyIndex < history.length - 1) {
-      const newIndex = historyIndex + 1;
-      setLocalMedicines(history[newIndex]);
-      setHistoryIndex(newIndex);
-      setHasUnsavedChanges(true);
-    }
-  }, [history, historyIndex]);
-
-  // Keyboard shortcuts for undo/redo
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        undo();
-      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
-        e.preventDefault();
-        redo();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo]);
 
   // Handle cell edit save (supports both direct Medicine fields and custom_fields)
   const handleCellEditSave = () => {
@@ -628,8 +796,12 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
   // Save changes to store
   const handleSaveToStore = async () => {
     try {
-      // In Electron mode, we would call the API for each changed item
-      // For now, update the store directly
+      // Persist to DB (full-table replace) before updating the in-memory store,
+      // otherwise edits disappear after reload.
+      if (window.electronAPI) {
+        const result = await window.electronAPI.saveAllStock({ medicines: localMedicines });
+        if (!result.success) throw new Error(result.error || 'Save failed');
+      }
       setMedicines(localMedicines);
       onUpdate(localMedicines);
       setHasUnsavedChanges(false);
@@ -760,7 +932,7 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
       <div className="flex flex-wrap items-center gap-2">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px] max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -770,7 +942,7 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4" />
             </button>
@@ -853,11 +1025,11 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
       </div>
 
       {/* Status bar */}
-      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 px-1">
+      <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
         <div className="flex items-center gap-4">
           <span>Total: {processedData.length} rows</span>
           {activeFiltersCount > 0 && (
-            <span className="text-emerald-600 dark:text-emerald-400">
+            <span className="text-accent">
               {activeFiltersCount} filter(s) active
             </span>
           )}
@@ -871,7 +1043,7 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
           {searchQuery && (
             <span>Search: "{searchQuery}"</span>
           )}
-          <span className="text-gray-400">
+          <span className="text-muted-foreground">
             Double-click cell to edit · Tab to move · Enter to save · Esc to cancel
           </span>
         </div>
@@ -880,32 +1052,46 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
       {/* Table */}
       <div 
         ref={tableRef}
-        className="glass rounded-2xl overflow-hidden border border-navy-100/50 dark:border-navy-800/30"
+        className="card-base rounded-2xl overflow-hidden"
       >
         <div className="overflow-x-auto overflow-y-auto max-h-[60vh]">
           <table className="w-full border-collapse" style={{ minWidth: `${visibleColumns.reduce((sum, c) => sum + (c.width || 120), 0)}px` }}>
             <thead className="sticky top-0 z-10">
-              <tr className="bg-navy-50/90 dark:bg-navy-900/90 backdrop-blur-sm">
-                <th className="w-10 p-2 text-center border-b border-navy-200 dark:border-navy-700">
+              <tr className="bg-muted/70 dark:bg-muted/40 backdrop-blur-sm">
+                <th className="w-10 p-2 text-center border-b border-border">
                   <input
                     type="checkbox"
                     checked={selectedRows.size === processedData.length && processedData.length > 0}
                     onChange={toggleAllRows}
-                    className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                    className="rounded border-border text-accent focus:ring-accent/50"
                   />
                 </th>
-                {visibleColumns.map(col => (
+                <th className="w-9 p-0 text-center border-b border-border text-[10px] font-semibold uppercase tracking-wider text-muted-foreground select-none">
+                  #
+                </th>
+                {visibleColumns.map(col => {
+                  const isSelected = selectedCols.has(col.key);
+                  return (
                   <th
                     key={col.key}
-                    className="p-2 text-left text-xs font-semibold text-navy-700 dark:text-navy-300 uppercase tracking-wider border-b border-navy-200 dark:border-navy-700 select-none"
-                    style={{ width: col.width, minWidth: col.width }}
+                    onClick={(e) => handleHeaderSelect(e, col.key)}
+                    onContextMenu={(e) => openHeaderMenu(e, col.key)}
+                    className={cn(
+                      'relative p-2 text-left text-xs font-semibold uppercase tracking-wider border-b border-border select-none cursor-pointer',
+                      col.borders === 'left' && 'border-l-2 border-l-slate-400/70',
+                      col.borders === 'right' && 'border-r-2 border-r-slate-400/70',
+                      col.borders === 'both' && 'border-l-2 border-r-2 border-l-slate-400/70 border-r-slate-400/70',
+                      isSelected && 'bg-accent/15 ring-1 ring-inset ring-accent/50'
+                    )}
+                    style={{ width: col.width, minWidth: col.width, backgroundColor: col.highlight || undefined, color: col.color }}
+                    title="Click to select column · Ctrl/Cmd+Click for multiple · Shift+Click for range · Right-click for options"
                   >
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => handleSort(col.key)}
+                        onClick={(e) => { e.stopPropagation(); handleSort(col.key); }}
                         className={cn(
-                          'flex items-center gap-1 hover:text-emerald-600 transition-colors rounded px-1 py-0.5 -ml-1',
-                          sort?.key === col.key && 'text-emerald-600'
+                          'flex items-center gap-1 hover:text-accent transition-colors rounded px-1 py-0.5 -ml-1',
+                          sort?.key === col.key && 'text-accent'
                         )}
                       >
                         <span className="truncate">{col.label}</span>
@@ -921,16 +1107,50 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
                           </div>
                         )}
                       </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (autoFilter?.colKey === col.key) { setAutoFilter(null); return; }
+                          const th = (e.currentTarget.closest('th'));
+                          const rect = th?.getBoundingClientRect();
+                          setAutoFilter({ colKey: col.key, left: rect ? Math.max(12, Math.min(rect.left, window.innerWidth - 268)) : 12, top: rect ? rect.bottom + 4 : 32 });
+                        }}
+                        className={cn(
+                          'p-0.5 rounded transition-colors shrink-0',
+                          filters.some(f => f.columnKey === col.key && f.value) 
+                            ? 'text-accent bg-accent/15' 
+                            : 'text-muted-foreground/50 hover:text-accent'
+                        )}
+                        title="Filter this column"
+                      >
+                        <Filter className="w-3 h-3" />
+                      </button>
+                      {col.highlight && (
+                        <span
+                          className="w-2.5 h-2.5 rounded-sm ring-1 ring-black/10 shrink-0"
+                          style={{ backgroundColor: col.highlight }}
+                          title="Highlighted column (right-click to change)"
+                        />
+                      )}
                     </div>
+                    <div
+                      onMouseDown={(e) => { e.stopPropagation(); startColumnResize(e, col.key); }}
+                      className={cn(
+                        'absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-accent/40 active:bg-accent/60 transition-colors',
+                        resizingColKey.current === col.key && 'bg-accent/60'
+                      )}
+                      title="Drag to resize column"
+                    />
                   </th>
-                ))}
-                <th className="w-12 p-2 border-b border-navy-200 dark:border-navy-700" />
+                  );
+                })}
+                <th className="w-12 p-2 border-b border-border" />
               </tr>
             </thead>
             <tbody>
               {processedData.length === 0 ? (
                 <tr>
-                  <td colSpan={visibleColumns.length + 2} className="p-12 text-center text-gray-400">
+                  <td colSpan={visibleColumns.length + 3} className="p-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
                       <Search className="w-12 h-12 opacity-20" />
                       <p>No medicines found</p>
@@ -943,9 +1163,9 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
                   <tr
                     key={medicine.id}
                     className={cn(
-                      'group border-b border-navy-100/50 dark:border-navy-800/30 transition-colors',
-                      'hover:bg-navy-50/30 dark:hover:bg-navy-800/20',
-                      selectedRows.has(medicine.id) && 'bg-emerald-50/30 dark:bg-emerald-900/10'
+                      'group border-b border-border transition-colors',
+                      'hover:bg-muted/40',
+                      selectedRows.has(medicine.id) && 'bg-accent/10'
                     )}
                   >
                     <td className="p-2 text-center">
@@ -953,8 +1173,14 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
                         type="checkbox"
                         checked={selectedRows.has(medicine.id)}
                         onChange={() => toggleRowSelection(medicine.id)}
-                        className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                        className="rounded border-border text-accent focus:ring-accent/50"
                       />
+                    </td>
+                    <td className={cn(
+                      'p-1 text-center text-[10px] font-mono border-b border-border select-none',
+                      rowIndex % 2 === 1 ? 'text-muted-foreground bg-muted/20' : 'text-muted-foreground'
+                    )}>
+                      {rowIndex + 1}
                     </td>
                     {visibleColumns.map(col => {
                       const isEditing = editingCell?.rowId === medicine.id && editingCell?.colKey === col.key;
@@ -965,9 +1191,13 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
                           key={col.key}
                           className={cn(
                             'p-1 align-middle transition-colors',
-                            col.editable && 'cursor-pointer hover:bg-navy-100/50 dark:hover:bg-navy-700/30',
-                            isEditing && 'bg-emerald-50/50 dark:bg-emerald-900/20'
+                            col.editable && 'cursor-pointer hover:bg-muted/60',
+                            isEditing && 'bg-accent/10',
+                            col.borders === 'left' && 'border-l-2 border-l-slate-400/70',
+                            col.borders === 'right' && 'border-r-2 border-r-slate-400/70',
+                            col.borders === 'both' && 'border-l-2 border-r-2 border-l-slate-400/70 border-r-slate-400/70'
                           )}
+                          style={{ backgroundColor: col.highlight, color: col.color }}
                           onDoubleClick={() => {
                             if (col.editable && !isEditing) {
                               handleCellEditStart(medicine.id, col.key, cellValue);
@@ -993,20 +1223,20 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
                                 }
                               }}
                               autoFocus
-                              className="w-full px-2 py-1.5 text-sm rounded-lg border border-emerald-400 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-body"
+                              className="w-full px-2 py-1.5 text-sm rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-accent/50 font-body"
                             />
                           ) : (
-                            <div className="px-2 py-1.5 text-sm text-gray-700 dark:text-gray-300 truncate font-body">
+                            <div className={cn('px-2 py-1.5 text-sm truncate font-body', !col.color && 'text-foreground/80')}>
                               {col.key === 'status' ? (
                                 getStatusBadge(cellValue)
                               ) : col.type === 'number' && cellValue ? (
-                                <span className="font-mono text-navy-700 dark:text-navy-300">
+                                <span className={cn('font-mono', !col.color && 'text-foreground')}>
                                   {col.key.includes('price') || col.key.includes('mrp') ? formatCurrency(parseFloat(cellValue)) : cellValue}
                                 </span>
                               ) : col.type === 'date' && cellValue ? (
                                 <span className="font-mono">{cellValue}</span>
                               ) : (
-                                cellValue || <span className="text-gray-300 dark:text-gray-600">—</span>
+                                cellValue || <span className="text-muted-foreground/60">—</span>
                               )}
                             </div>
                           )}
@@ -1053,13 +1283,209 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
         </div>
       </div>
 
+      {/* Excel-style column header context menu */}
+      {headerMenu && (() => {
+        const targetCols = targetColsForMenu(headerMenu.colKey);
+        const col = columns.find(c => c.key === headerMenu.colKey);
+        const hiddenCols = columns.filter(c => !c.visible);
+        const menuLeft = Math.max(12, Math.min(headerMenu.x, window.innerWidth - 330));
+        const menuTop = Math.max(12, Math.min(headerMenu.y, window.innerHeight - 480));
+        const applyPatch = (patch: Partial<ColumnDef>) => {
+          updateColumns(targetCols, patch);
+        };
+        return (
+          <div
+            ref={headerMenuRef}
+            className="fixed z-50 w-80 rounded-2xl border border-border bg-background shadow-2xl shadow-black/20 text-sm animate-fade-in"
+            style={{ left: menuLeft, top: menuTop }}
+          >
+            <div className="px-3 py-2 border-b border-border">
+              <p className="text-xs font-semibold text-foreground">
+                {targetCols.length > 1 ? `${targetCols.length} columns selected` : col?.label || 'Column'}
+              </p>
+              <p className="text-[10px] text-muted-foreground">Column options</p>
+            </div>
+
+            <button
+              onClick={() => { applyPatch({ visible: false }); setHeaderMenu(null); }}
+              className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted text-foreground text-left"
+            >
+              <EyeOff className="w-4 h-4 text-muted-foreground" />
+              Hide {targetCols.length > 1 ? `${targetCols.length} columns` : 'column'}
+            </button>
+
+            <button
+              onClick={() => {
+                const allVisibleKeys = columns.filter(c => c.visible).map(c => c.key);
+                setSelectedCols(new Set(allVisibleKeys));
+                setHeaderMenu(null);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted text-foreground text-left"
+            >
+              <Grid3x3 className="w-4 h-4 text-muted-foreground" />
+              Select all columns
+            </button>
+
+            {targetCols.length > 1 && (
+              <button
+                onClick={() => { setSelectedCols(new Set()); setHeaderMenu(null); }}
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted text-foreground text-left"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+                Clear selection
+              </button>
+            )}
+
+            {hiddenCols.length > 0 && (
+              <div className="border-t border-border">
+                <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Unhide columns</div>
+                {hiddenCols.map(h => (
+                  <button
+                    key={h.key}
+                    onClick={() => updateColumn(h.key, { visible: true })}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-muted text-foreground text-left"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="truncate">{h.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="border-t border-border">
+              <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Highlight colour (fill)</div>
+              <div className="grid grid-cols-8 gap-1 px-3 pb-2">
+                {HIGHLIGHT_COLORS.map(color => (
+                  <button
+                    key={color}
+                    className={cn(
+                      'h-5 w-5 rounded border transition-transform hover:scale-110',
+                      col?.highlight === color && 'border-accent ring-2 ring-accent/40'
+                    )}
+                    style={{ backgroundColor: color }}
+                    onClick={() => applyPatch({ highlight: color })}
+                  />
+                ))}
+                <button
+                  className={cn('h-5 w-5 rounded border border-border flex items-center justify-center hover:bg-muted', !col?.highlight && 'ring-2 ring-accent/40')}
+                  title="Clear highlight"
+                  onClick={() => applyPatch({ highlight: undefined })}
+                >
+                  <X className="w-3 h-3 text-muted-foreground" />
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t border-border">
+              <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Text colour</div>
+              <div className="grid grid-cols-8 gap-1 px-3 pb-2">
+                {TEXT_COLORS.map(color => (
+                  <button
+                    key={color}
+                    className={cn(
+                      'h-5 w-5 rounded border transition-transform hover:scale-110 flex items-center justify-center',
+                      col?.color === color ? 'border-accent ring-2 ring-accent/40' : 'border-border'
+                    )}
+                    style={{ backgroundColor: color }}
+                    onClick={() => applyPatch({ color })}
+                  >
+                    <span className="text-[8px] font-bold text-white drop-shadow">A</span>
+                  </button>
+                ))}
+                <button
+                  className={cn('h-5 w-5 rounded border border-border flex items-center justify-center hover:bg-muted', !col?.color && 'ring-2 ring-accent/40')}
+                  title="Reset text colour"
+                  onClick={() => applyPatch({ color: undefined })}
+                >
+                  <X className="w-3 h-3 text-muted-foreground" />
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t border-border">
+              <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Column borders</div>
+              <div className="grid grid-cols-4 gap-1 px-3 pb-2">
+                {([
+                  ['Left', 'left'],
+                  ['Right', 'right'],
+                  ['Both', 'both'],
+                  ['None', undefined],
+                ] as const).map(([label, value]) => (
+                  <button
+                    key={label}
+                    onClick={() => applyPatch({ borders: value })}
+                    className={cn(
+                      'px-1 py-1.5 rounded border text-[11px]',
+                      col?.borders === value ? 'border-accent bg-accent/10 text-accent' : 'border-border hover:bg-muted text-foreground'
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Excel-style header autofilter dropdown */}
+      {autoFilter && (() => {
+        const col = columns.find(c => c.key === autoFilter.colKey);
+        const values = uniqueValues(autoFilter.colKey);
+        const activeValue = filters.find(f => f.columnKey === autoFilter.colKey && f.value)?.value;
+        return (
+          <div
+            ref={autoFilterRef}
+            className="fixed z-50 w-64 rounded-2xl border border-border bg-background shadow-2xl shadow-black/20 text-sm animate-fade-in overflow-hidden"
+            style={{ left: autoFilter.left, top: Math.min(autoFilter.top, window.innerHeight - 320) }}
+          >
+            <div className="px-3 py-2 border-b border-border flex items-center justify-between">
+              <p className="text-xs font-semibold text-foreground truncate">{col?.label || 'Column'}</p>
+              <button
+                onClick={() => setAutoFilter(null)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="max-h-64 overflow-y-auto py-1">
+              {values.length === 0 && (
+                <p className="px-3 py-2 text-xs text-muted-foreground">No values in this column</p>
+              )}
+              {values.map(({ value, count }) => (
+                <button
+                  key={value}
+                  onClick={() => toggleAutoFilter(autoFilter.colKey, value)}
+                  className={cn(
+                    'w-full flex items-center justify-between gap-2 px-3 py-1.5 text-left hover:bg-muted transition-colors',
+                    activeValue === value && 'bg-accent/10 text-accent'
+                  )}
+                >
+                  <Check className={cn('w-3.5 h-3.5 shrink-0', activeValue === value ? 'opacity-100' : 'opacity-0')} />
+                  <span className="truncate flex-1">{value}</span>
+                  <span className="text-[10px] text-muted-foreground shrink-0">{count}</span>
+                </button>
+              ))}
+            </div>
+            <div className="border-t border-border p-2 flex gap-2">
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => toggleAutoFilter(autoFilter.colKey, '')}>
+                Clear filter
+              </Button>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Column Manager Dialog */}
-      <ColumnManager
-        open={showColumnManager}
-        onOpenChange={setShowColumnManager}
-        columns={columns}
-        onColumnsChange={setColumns}
-      />
+      <Dialog open={showColumnManager} onOpenChange={setShowColumnManager} className="max-w-4xl max-h-[90vh]">
+        <DialogContent>
+          <ColumnManager
+            columns={columns}
+            onColumnsChange={setColumns}
+            onClose={() => setShowColumnManager(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Filter Panel Dialog */}
       <FilterPanel
@@ -1075,11 +1501,11 @@ export default function StockEditor({ medicines: initialMedicines, onUpdate }: {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-500" />
+              <AlertTriangle className="w-5 h-5 text-destructive" />
               Confirm Deletion
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600 dark:text-gray-400 py-2">
+          <p className="text-sm text-muted-foreground py-2">
             Move <strong>{selectedRows.size}</strong> selected item(s) to the <strong>Recycle Bin</strong>?
             Deleted items go to the bin and can be restored later.
           </p>

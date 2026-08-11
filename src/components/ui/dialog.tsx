@@ -6,9 +6,10 @@ interface DialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
+  className?: string;
 }
 
-export function Dialog({ open, onOpenChange, children }: DialogProps) {
+export function Dialog({ open, onOpenChange, children, className }: DialogProps) {
   const [mounted, setMounted] = useState(false);
   const styleRef = useRef<HTMLStyleElement | null>(null);
 
@@ -50,7 +51,8 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
       />
       <div
         className={cn(
-          'relative z-50 w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl'
+          'relative z-50 w-full max-w-lg bg-popover border border-border rounded-2xl shadow-xl',
+          className
         )}
         style={{
           animation: open

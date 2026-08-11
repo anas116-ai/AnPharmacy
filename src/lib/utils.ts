@@ -38,14 +38,14 @@ export function getStatusColor(status: string): string {
 
 export function getStatusLabel(status: string): string {
   switch (status) {
-    case 'expired': return '🔴 Expired';
-    case 'critical': return '🔴 Critical';
-    case 'warning': return '🟠 Warning';
-    case 'safe': return '🟢 Safe';
-    case 'active': return '🟢 Active';
-    case 'inactive': return '⚪ Inactive';
-    case 'not_activated': return '🟡 Not Activated';
-    case 'needs_heartbeat': return '🟡 Needs Verification';
+    case 'expired': return 'Expired';
+    case 'critical': return 'Critical';
+    case 'warning': return 'Warning';
+    case 'safe': return 'Safe';
+    case 'active': return 'Active';
+    case 'inactive': return 'Inactive';
+    case 'not_activated': return 'Not Activated';
+    case 'needs_heartbeat': return 'Needs Verification';
     default: return status;
   }
 }

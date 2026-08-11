@@ -187,12 +187,12 @@ export default function Suppliers() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
-            <Building2 className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
+            <Building2 className="w-5 h-5 text-accent" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-gray-900">Suppliers</h2>
-            <p className="text-xs text-gray-500">{suppliers.length} suppliers registered</p>
+            <h2 className="text-lg font-bold text-foreground font-display">Suppliers</h2>
+            <p className="text-xs text-muted-foreground">{suppliers.length} suppliers registered</p>
           </div>
         </div>
         <Button onClick={openAddDialog} className="gap-1.5">
@@ -203,19 +203,19 @@ export default function Suppliers() {
 
       {/* Analytics Toggle */}
       {analytics.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-soft">
+        <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
           <button
             onClick={() => setShowAnalytics(!showAnalytics)}
-            className="w-full px-5 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
+            className="w-full px-5 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors"
           >
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <BarChart3 className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <BarChart3 className="w-4 h-4 text-primary" />
               </div>
-              <span className="font-semibold text-sm text-slate-800">Supplier Performance Analytics</span>
-              <span className="text-[10px] text-slate-400 font-medium">({analytics.length} suppliers)</span>
+              <span className="font-semibold text-sm text-foreground">Supplier Performance Analytics</span>
+              <span className="text-[10px] text-muted-foreground font-medium">({analytics.length} suppliers)</span>
             </div>
-            {showAnalytics ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+            {showAnalytics ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
           </button>
 
           {showAnalytics && (
@@ -226,54 +226,54 @@ export default function Suppliers() {
                 <>
                   {/* Summary row */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <div className="p-3 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
-                      <p className="text-[9px] font-semibold text-indigo-600 uppercase">Total Batches</p>
-                      <p className="text-lg font-bold text-indigo-700">{analytics.reduce((s: number, a: any) => s + a.batchesCount, 0)}</p>
+                    <div className="p-3 bg-accent/10 rounded-xl border border-accent/20">
+                      <p className="text-[9px] font-semibold text-accent uppercase">Total Batches</p>
+                      <p className="text-lg font-bold text-accent">{analytics.reduce((s: number, a: any) => s + a.batchesCount, 0)}</p>
                     </div>
-                    <div className="p-3 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-100">
-                      <p className="text-[9px] font-semibold text-emerald-600 uppercase">Unique Meds</p>
-                      <p className="text-lg font-bold text-emerald-700">{analytics.reduce((s: number, a: any) => s + a.uniqueMedicines, 0)}</p>
+                    <div className="p-3 bg-success-light rounded-xl border border-success/20">
+                      <p className="text-[9px] font-semibold text-success uppercase">Unique Meds</p>
+                      <p className="text-lg font-bold text-success">{analytics.reduce((s: number, a: any) => s + a.uniqueMedicines, 0)}</p>
                     </div>
-                    <div className="p-3 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-100">
-                      <p className="text-[9px] font-semibold text-amber-600 uppercase">Total Stock</p>
-                      <p className="text-lg font-bold text-amber-700">{analytics.reduce((s: number, a: any) => s + a.totalStock, 0).toLocaleString()}</p>
+                    <div className="p-3 bg-warning-light rounded-xl border border-warning/20">
+                      <p className="text-[9px] font-semibold text-warning uppercase">Total Stock</p>
+                      <p className="text-lg font-bold text-warning">{analytics.reduce((s: number, a: any) => s + a.totalStock, 0).toLocaleString()}</p>
                     </div>
-                    <div className="p-3 bg-gradient-to-br from-red-50 to-rose-50 rounded-xl border border-red-100">
-                      <p className="text-[9px] font-semibold text-red-600 uppercase">Near Expiry</p>
-                      <p className="text-lg font-bold text-red-700">{analytics.reduce((s: number, a: any) => s + a.nearExpiry, 0)}</p>
+                    <div className="p-3 bg-destructive/10 rounded-xl border border-destructive/20">
+                      <p className="text-[9px] font-semibold text-destructive uppercase">Near Expiry</p>
+                      <p className="text-lg font-bold text-destructive">{analytics.reduce((s: number, a: any) => s + a.nearExpiry, 0)}</p>
                     </div>
                   </div>
 
                   {/* Per-supplier analytics table */}
-                  <div className="border border-slate-100 rounded-xl overflow-hidden">
+                  <div className="border border-border rounded-xl overflow-hidden">
                     <div className="max-h-64 overflow-y-auto">
                       <table className="w-full text-xs">
-                        <thead className="bg-slate-50 sticky top-0">
+                        <thead className="bg-muted/70 sticky top-0">
                           <tr>
-                            <th className="px-3 py-2 text-left font-semibold text-slate-600">Supplier</th>
-                            <th className="px-3 py-2 text-center font-semibold text-slate-600">Batches</th>
-                            <th className="px-3 py-2 text-center font-semibold text-slate-600">Unique</th>
-                            <th className="px-3 py-2 text-right font-semibold text-slate-600">Total Stock</th>
-                            <th className="px-3 py-2 text-right font-semibold text-slate-600">Avg Price</th>
-                            <th className="px-3 py-2 text-right font-semibold text-slate-600">Stock Value</th>
-                            <th className="px-3 py-2 text-center font-semibold text-slate-600">⚠️ Expiry</th>
+                            <th className="px-3 py-2 text-left font-semibold text-foreground">Supplier</th>
+                            <th className="px-3 py-2 text-center font-semibold text-foreground">Batches</th>
+                            <th className="px-3 py-2 text-center font-semibold text-foreground">Unique</th>
+                            <th className="px-3 py-2 text-right font-semibold text-foreground">Total Stock</th>
+                            <th className="px-3 py-2 text-right font-semibold text-foreground">Avg Price</th>
+                            <th className="px-3 py-2 text-right font-semibold text-foreground">Stock Value</th>
+                            <th className="px-3 py-2 text-center font-semibold text-foreground">Expiry</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
+                        <tbody className="divide-y divide-border">
                           {analytics.map((a: any, idx: number) => (
-                            <tr key={a.supplierId} className="hover:bg-indigo-50/30 transition-colors">
+                            <tr key={a.supplierId} className="hover:bg-muted/40 transition-colors">
                               <td className="px-3 py-2.5">
-                                <span className="font-medium text-slate-800">{a.supplierName}</span>
+                                <span className="font-medium text-foreground">{a.supplierName}</span>
                               </td>
-                              <td className="px-3 py-2.5 text-center font-mono text-slate-600">{a.batchesCount}</td>
-                              <td className="px-3 py-2.5 text-center font-mono text-slate-600">{a.uniqueMedicines}</td>
-                              <td className="px-3 py-2.5 text-right font-mono font-bold text-slate-700">{a.totalStock.toLocaleString()}</td>
-                              <td className="px-3 py-2.5 text-right font-mono text-slate-600">{formatCurrency(a.avgPurchasePrice)}</td>
-                              <td className="px-3 py-2.5 text-right font-mono font-bold text-emerald-600">{formatCurrency(a.totalValue)}</td>
+                              <td className="px-3 py-2.5 text-center font-mono text-muted-foreground">{a.batchesCount}</td>
+                              <td className="px-3 py-2.5 text-center font-mono text-muted-foreground">{a.uniqueMedicines}</td>
+                              <td className="px-3 py-2.5 text-right font-mono font-bold text-foreground">{a.totalStock.toLocaleString()}</td>
+                              <td className="px-3 py-2.5 text-right font-mono text-muted-foreground">{formatCurrency(a.avgPurchasePrice)}</td>
+                              <td className="px-3 py-2.5 text-right font-mono font-bold text-accent">{formatCurrency(a.totalValue)}</td>
                               <td className="px-3 py-2.5 text-center">
                                 <span className={cn(
                                   'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-medium',
-                                  a.nearExpiry > 0 ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
+                                  a.nearExpiry > 0 ? 'bg-destructive/10 text-destructive' : 'bg-success-light text-success'
                                 )}>
                                   <AlertTriangle className="w-2.5 h-2.5" />
                                   {a.nearExpiry}
@@ -295,19 +295,19 @@ export default function Suppliers() {
       {/* Search */}
       <div className="relative">
         <label htmlFor="supplier-search" className="sr-only">Search suppliers</label>
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           id="supplier-search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by name, contact, phone, or GSTIN..."
-          className="pl-10 h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
+          className="pl-10 h-11 rounded-xl bg-muted/40 border-border focus:bg-background"
         />
       </div>
 
       {/* Error Display */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 flex items-center gap-2">
+        <div className="bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-3 text-sm text-destructive flex items-center gap-2">
           <X className="w-4 h-4 flex-shrink-0" />
           {error}
         </div>
@@ -317,7 +317,7 @@ export default function Suppliers() {
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+            <div key={i} className="bg-card rounded-2xl border border-border p-5 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="skeleton w-11 h-11 rounded-xl" />
                 <div className="flex-1 space-y-2">
@@ -331,8 +331,8 @@ export default function Suppliers() {
       ) : filteredSuppliers.length === 0 ? (
         <Card variant="bordered">
           <CardContent className="p-12 text-center">
-            <Building2 className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-            <p className="text-gray-500 text-sm font-medium">
+            <Building2 className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground text-sm font-medium">
               {searchQuery ? 'No suppliers match your search' : 'No suppliers registered yet'}
             </p>
             {!searchQuery && (
@@ -348,36 +348,36 @@ export default function Suppliers() {
           {filteredSuppliers.map(supplier => (
             <div
               key={supplier.id}
-              className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4 hover:border-teal-200 hover:shadow-medium transition-all duration-200"
+              className="bg-card rounded-2xl border border-border shadow-sm p-4 hover:border-accent/40 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className={cn(
                     'w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-gradient-to-br shadow-sm',
-                    'from-teal-500 to-teal-600'
+                    'from-primary to-primary-dark'
                   )}>
                     {getInitials(supplier.name)}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-gray-900">{supplier.name}</span>
-                      <Badge size="sm" className="bg-teal-50 text-teal-700">
+                      <span className="font-semibold text-foreground">{supplier.name}</span>
+                      <Badge size="sm" className="bg-accent/10 text-accent">
                         {medicineCounts[supplier.id] || 0} medicines
                       </Badge>
                     </div>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-0.5">
                       {supplier.contact_person && (
-                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
                           {supplier.contact_person}
                         </span>
                       )}
                       {supplier.phone && (
-                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Phone className="w-3 h-3" /> {supplier.phone}
                         </span>
                       )}
                       {supplier.gstin && (
-                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <FileText className="w-3 h-3" /> GSTIN: {supplier.gstin}
                         </span>
                       )}
@@ -387,27 +387,27 @@ export default function Suppliers() {
                 <div className="relative">
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowMenu(showMenu === supplier.id ? null : supplier.id); }}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-muted transition-colors"
                   >
-                    <MoreVertical className="w-4 h-4 text-gray-500" />
+                    <MoreVertical className="w-4 h-4 text-muted-foreground" />
                   </button>
                   {showMenu === supplier.id && (
-                    <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl border border-gray-100 shadow-strong z-10 py-1 animate-fade-in overflow-hidden">
+                    <div className="absolute right-0 mt-1 w-44 bg-popover rounded-xl border border-border shadow-lg z-10 py-1 animate-fade-in overflow-hidden">
                       <button
                         onClick={() => openEditDialog(supplier)}
-                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2.5 transition-colors"
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2.5 transition-colors"
                       >
-                        <Edit3 className="w-4 h-4 text-teal-600" /> Edit
+                        <Edit3 className="w-4 h-4 text-accent" /> Edit
                       </button>
                       <button
                         onClick={() => { setShowMedicines(supplier); setShowMenu(null); }}
-                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2.5 transition-colors"
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2.5 transition-colors"
                       >
-                        <Building2 className="w-4 h-4 text-gray-600" /> View Medicines
+                        <Building2 className="w-4 h-4 text-muted-foreground" /> View Medicines
                       </button>
                       <button
                         onClick={() => { setShowConfirmDelete(supplier); setShowMenu(null); }}
-                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-red-50 flex items-center gap-2.5 text-red-600 transition-colors"
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-destructive/10 flex items-center gap-2.5 text-destructive transition-colors"
                       >
                         <Trash2 className="w-4 h-4" /> Delete
                       </button>
@@ -425,15 +425,15 @@ export default function Suppliers() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-teal-600" />
+              <Building2 className="w-5 h-5 text-accent" />
               {editingSupplier ? 'Edit Supplier' : 'Add Supplier'}
             </DialogTitle>
             <DialogClose onClick={() => setShowDialog(false)} />
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
             <div>
-              <label htmlFor="sup-name" className="block text-sm font-medium text-gray-700 mb-1.5">
-                Supplier Name <span className="text-red-500">*</span>
+              <label htmlFor="sup-name" className="block text-sm font-medium text-foreground/80 mb-1.5">
+                Supplier Name <span className="text-destructive">*</span>
               </label>
               <Input
                 id="sup-name"
@@ -443,7 +443,7 @@ export default function Suppliers() {
               />
             </div>
             <div>
-              <label htmlFor="sup-contact" className="block text-sm font-medium text-gray-700 mb-1.5">Contact Person</label>
+              <label htmlFor="sup-contact" className="block text-sm font-medium text-foreground/80 mb-1.5">Contact Person</label>
               <Input
                 id="sup-contact"
                 value={formData.contact_person}
@@ -453,7 +453,7 @@ export default function Suppliers() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="sup-phone" className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+                <label htmlFor="sup-phone" className="block text-sm font-medium text-foreground/80 mb-1.5">Phone</label>
                 <Input
                   id="sup-phone"
                   value={formData.phone}
@@ -462,7 +462,7 @@ export default function Suppliers() {
                 />
               </div>
               <div>
-                <label htmlFor="sup-email" className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                <label htmlFor="sup-email" className="block text-sm font-medium text-foreground/80 mb-1.5">Email</label>
                 <Input
                   id="sup-email"
                   type="email"
@@ -473,7 +473,7 @@ export default function Suppliers() {
               </div>
             </div>
             <div>
-              <label htmlFor="sup-address" className="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
+              <label htmlFor="sup-address" className="block text-sm font-medium text-foreground/80 mb-1.5">Address</label>
               <Input
                 id="sup-address"
                 value={formData.address}
@@ -482,7 +482,7 @@ export default function Suppliers() {
               />
             </div>
             <div>
-              <label htmlFor="sup-gstin" className="block text-sm font-medium text-gray-700 mb-1.5">GSTIN</label>
+              <label htmlFor="sup-gstin" className="block text-sm font-medium text-foreground/80 mb-1.5">GSTIN</label>
               <Input
                 id="sup-gstin"
                 value={formData.gstin}
@@ -492,13 +492,13 @@ export default function Suppliers() {
               />
             </div>
             <div>
-              <label htmlFor="sup-notes" className="block text-sm font-medium text-gray-700 mb-1.5">Notes</label>
+              <label htmlFor="sup-notes" className="block text-sm font-medium text-foreground/80 mb-1.5">Notes</label>
               <textarea
                 id="sup-notes"
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 placeholder="Additional notes..."
-                className="flex w-full rounded-xl border border-gray-200 bg-white/80 px-4 py-2.5 text-sm text-gray-900 transition-all duration-200 placeholder:text-gray-400 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 focus:bg-white"
+                className="flex w-full rounded-xl border border-border bg-background/80 px-4 py-2.5 text-sm text-foreground transition-all duration-200 placeholder:text-muted-foreground/60 hover:border-border focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background"
                 rows={3}
               />
             </div>
@@ -522,14 +522,14 @@ export default function Suppliers() {
       <Dialog open={showConfirmDelete !== null} onOpenChange={(o) => !o && setShowConfirmDelete(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
+            <DialogTitle className="flex items-center gap-2 text-destructive">
               <Trash2 className="w-5 h-5" />
               Delete Supplier
             </DialogTitle>
             <DialogClose onClick={() => setShowConfirmDelete(null)} />
           </DialogHeader>
-          <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-            <p className="text-sm text-red-700">
+          <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4">
+            <p className="text-sm text-destructive">
               Are you sure you want to delete <strong>{showConfirmDelete?.name}</strong>? This action cannot be undone.
             </p>
           </div>
@@ -547,7 +547,7 @@ export default function Suppliers() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-teal-600" />
+              <Building2 className="w-5 h-5 text-accent" />
               Medicines from {showMedicines?.name}
             </DialogTitle>
             <DialogClose onClick={() => setShowMedicines(null)} />
@@ -561,16 +561,16 @@ export default function Suppliers() {
               </div>
             ) : medicinesList.length === 0 ? (
               <div className="text-center py-8">
-                <Building2 className="w-12 h-12 text-gray-200 mx-auto mb-3" />
-                <p className="text-sm text-gray-500">No medicines linked to this supplier</p>
+                <Building2 className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No medicines linked to this supplier</p>
               </div>
             ) : (
               <div className="space-y-2">
                 {medicinesList.map((med: any) => (
-                  <div key={med.id} className="bg-gray-50 rounded-xl p-3 flex items-center justify-between">
+                  <div key={med.id} className="bg-muted/50 rounded-xl p-3 flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{med.name}</p>
-                      <p className="text-xs text-gray-500">Batch: {med.batch_number} · Qty: {med.quantity}</p>
+                      <p className="text-sm font-medium text-foreground">{med.name}</p>
+                      <p className="text-xs text-muted-foreground">Batch: {med.batch_number} · Qty: {med.quantity}</p>
                     </div>
                     <Badge size="sm" className={getStatusColor(med.status || 'safe')}>
                       {med.expiry_date ? new Date(med.expiry_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}

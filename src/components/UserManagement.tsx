@@ -126,7 +126,7 @@ export default function UserManagement() {
 
   const getRoleGradient = (role: string) => {
     switch (role) {
-      case 'admin': return 'from-purple-500 to-purple-600';
+      case 'admin': return 'from-accent to-accent/80';
       case 'sales': return 'from-blue-500 to-blue-600';
       case 'purchase_mgr': return 'from-amber-500 to-amber-600';
       default: return 'from-gray-500 to-gray-600';
@@ -138,12 +138,12 @@ export default function UserManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
+          <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent/80 rounded-xl flex items-center justify-center shadow-sm">
             <Users className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">User Management</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{users.length} users · {users.filter(u => u.is_active).length} active</p>
+            <h2 className="text-lg font-bold text-foreground dark:text-foreground">User Management</h2>
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground/60">{users.length} users · {users.filter(u => u.is_active).length} active</p>
           </div>
         </div>
         <Button onClick={() => setShowAddDialog(true)} className="gap-1.5">
@@ -155,13 +155,13 @@ export default function UserManagement() {
       {/* Search */}
       <div className="relative">
         <label htmlFor="user-search" className="sr-only">Search users</label>
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60 dark:text-muted-foreground" />
         <Input
           id="user-search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search users by name or username..."
-          className="pl-10 h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-gray-100 dark:placeholder:text-gray-400 dark:focus:bg-slate-700"
+          className="pl-10 h-11 rounded-xl bg-muted/50 border-border focus:bg-background dark:bg-muted/60 dark:border-border dark:text-foreground dark:placeholder:text-muted-foreground/60 dark:focus:bg-slate-700"
         />
       </div>
 
@@ -169,7 +169,7 @@ export default function UserManagement() {
       {isLoading ? (
         <div className="space-y-3">
           {[1,2,3].map(i => (
-            <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 p-5 shadow-soft">
+            <div key={i} className="bg-background dark:bg-muted/40 rounded-2xl border border-border dark:border-border p-5 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="skeleton w-11 h-11 rounded-xl" />
                 <div className="flex-1 space-y-2">
@@ -183,8 +183,8 @@ export default function UserManagement() {
       ) : filteredUsers.length === 0 ? (
         <Card variant="bordered">
           <CardContent className="p-12 text-center">
-            <Users className="w-16 h-16 text-gray-200 dark:text-slate-700 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('common.noData')}</p>
+            <Users className="w-16 h-16 text-muted-foreground/30 dark:text-slate-700 mx-auto mb-4" />
+            <p className="text-muted-foreground dark:text-muted-foreground/60 text-sm font-medium">{t('common.noData')}</p>
           </CardContent>
         </Card>
       ) : (
@@ -192,7 +192,7 @@ export default function UserManagement() {
           {filteredUsers.map(user => (
             <div
               key={user.id}
-              className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-soft p-4 hover:border-teal-200 dark:hover:border-teal-700 hover:shadow-medium transition-all duration-200"
+              className="bg-background dark:bg-muted/40 rounded-2xl border border-border dark:border-border shadow-sm p-4 hover:border-accent/40 dark:hover:border-accent/40 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -204,7 +204,7 @@ export default function UserManagement() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-gray-900 dark:text-gray-100">{user.display_name}</span>
+                      <span className="font-semibold text-foreground dark:text-foreground">{user.display_name}</span>
                       <Badge variant={user.is_active ? 'safe' : 'destructive'} size="sm">
                         {user.is_active ? 'Active' : 'Inactive'}
                       </Badge>
@@ -212,7 +212,7 @@ export default function UserManagement() {
                         {getRoleLabel(user.role)}
                       </Badge>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground/60 mt-0.5">
                       @{user.username}
                       {user.last_login && (
                         <span className="ml-2">· Last login: {formatDate(user.last_login)}</span>
@@ -224,15 +224,15 @@ export default function UserManagement() {
                   <div className="relative">
                     <button
                       onClick={(e) => { e.stopPropagation(); setShowMenu(showMenu === user.id ? null : user.id); }}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-muted dark:hover:bg-muted transition-colors"
                       >
-                        <MoreVertical className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        <MoreVertical className="w-4 h-4 text-muted-foreground dark:text-muted-foreground/60" />
                     </button>
                     {showMenu === user.id && (
-                      <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-strong dark:shadow-slate-900/50 z-10 py-1 animate-fade-in overflow-hidden">
+                      <div className="absolute right-0 mt-1 w-44 bg-background dark:bg-muted/40 rounded-xl border border-border dark:border-border shadow-lg dark:shadow-slate-900/50 z-10 py-1 animate-fade-in overflow-hidden">
                         <button
                           onClick={() => handleToggleActive(user)}
-                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2.5 transition-colors"
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted/50 dark:hover:bg-muted flex items-center gap-2.5 transition-colors"
                         >
                           {user.is_active ? (
                             <><XCircle className="w-4 h-4 text-orange-500" /> Deactivate</>
@@ -242,7 +242,7 @@ export default function UserManagement() {
                         </button>
                         <button
                           onClick={() => setShowConfirmDelete(user.id)}
-                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2.5 text-red-600 dark:text-red-400 transition-colors"
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-destructive/10 dark:hover:bg-red-900/20 flex items-center gap-2.5 text-destructive dark:text-destructive transition-colors"
                         >
                           <Trash2 className="w-4 h-4" /> Delete User
                         </button>
@@ -261,22 +261,22 @@ export default function UserManagement() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <UserPlus className="w-5 h-5 text-teal-600" />
+              <UserPlus className="w-5 h-5 text-accent" />
               {t('users.add')}
             </DialogTitle>
             <DialogClose onClick={() => setShowAddDialog(false)} />
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label htmlFor="add-display-name" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{t('users.displayName')}</label>
+              <label htmlFor="add-display-name" className="block text-sm font-medium text-foreground/80 dark:text-muted-foreground/70 mb-1.5">{t('users.displayName')}</label>
               <Input id="add-display-name" value={newDisplayName} onChange={(e) => setNewDisplayName(e.target.value)} placeholder="e.g., John Doe" className="input-focus" />
             </div>
             <div>
-              <label htmlFor="add-username" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{t('users.username')}</label>
+              <label htmlFor="add-username" className="block text-sm font-medium text-foreground/80 dark:text-muted-foreground/70 mb-1.5">{t('users.username')}</label>
               <Input id="add-username" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} placeholder="e.g., johndoe" className="input-focus" />
             </div>
             <div>
-              <label htmlFor="add-password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">{t('users.password')}</label>
+              <label htmlFor="add-password" className="block text-sm font-medium text-foreground/80 dark:text-muted-foreground/70 mb-1.5">{t('users.password')}</label>
               <Input id="add-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" className="input-focus" />
             </div>
             <Select label={t('users.role')} value={newRole} onValueChange={setNewRole}>
@@ -306,14 +306,14 @@ export default function UserManagement() {
       <Dialog open={showConfirmDelete !== null} onOpenChange={(o) => !o && setShowConfirmDelete(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
+            <DialogTitle className="flex items-center gap-2 text-destructive">
               <Trash2 className="w-5 h-5" />
               Delete User
             </DialogTitle>
             <DialogClose onClick={() => setShowConfirmDelete(null)} />
           </DialogHeader>
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl p-4">
-            <p className="text-sm text-red-700 dark:text-red-300">
+          <div className="bg-destructive/10 dark:bg-destructive/10 border border-red-100 dark:border-red-800 rounded-xl p-4">
+            <p className="text-sm text-destructive dark:text-red-300">
               Are you sure you want to delete this user? This action cannot be undone.
             </p>
           </div>

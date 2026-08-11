@@ -20,6 +20,7 @@ function initDatabase() {
   db.pragma('foreign_keys = ON');
 
   createSchema();
+  migrateSchema();
   
   if (db.prepare('SELECT COUNT(*) as count FROM users').get().count === 0) {
     seedData();
@@ -97,6 +98,7 @@ function createSchema() {
       num_cartons INTEGER,
       cold_chain INTEGER DEFAULT 0,
       prescription_doc TEXT,
+      custom_fields TEXT,
       added_by INTEGER,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now')),
@@ -104,13 +106,31 @@ function createSchema() {
       FOREIGN KEY (manufacturer_id) REFERENCES manufacturers(id) ON DELETE SET NULL
     );
 
+    -- Deleted stock (recycle bin) - mirrors medicines, rows moved here on delete
+    CREATE TABLE IF NOT EXISTS deleted_medicines AS SELECT *, NULL as deleted_at, NULL as deleted_by FROM medicines WHERE 1 = 0;
+
     -- Purchases derived from medicines table via batch_number and supplier
     -- No separate purchases table needed - purchases are stock additions with supplier info
+
+    CREATE TABLE IF NOT EXISTS sale_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      sale_id TEXT NOT NULL,
+      medicine_name TEXT,
+      batch_id INTEGER,
+      batch_number TEXT,
+      quantity INTEGER NOT NULL DEFAULT 0,
+      purchase_price REAL NOT NULL DEFAULT 0,
+      selling_price REAL NOT NULL DEFAULT 0,
+      discount_percent REAL DEFAULT 0,
+      net_amount REAL DEFAULT 0,
+      FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE
+    );
 
     CREATE TABLE IF NOT EXISTS sales (
       id TEXT PRIMARY KEY,
       bill_number TEXT,
       customer_name TEXT,
+      customer_id INTEGER,
       customer_phone TEXT,
       customer_address TEXT,
       customer_gstin TEXT,
@@ -264,9 +284,15 @@ function createSchema() {
     id TEXT PRIMARY KEY,
     supplier_id INTEGER,
     medicine_id INTEGER,
+    batch_number TEXT,
+    expiry_date TEXT,
     quantity INTEGER NOT NULL,
     reason TEXT,
     refund_amount REAL,
+    status TEXT DEFAULT 'raised',
+    dispatch_date TEXT,
+    credit_date TEXT,
+    reject_reason TEXT,
     returned_by INTEGER,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
@@ -523,6 +549,26 @@ function getDb() {
     throw new Error('Database not initialized. Call initDatabase() first.');
   }
   return db;
+}
+
+// Migrations for existing databases created before a column was added.
+// Ponytail: idempotent ALTERs; each is a no-op on fresh DBs since the column already exists.
+function migrateSchema() {
+  const addCol = (table, col, type) => {
+    const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
+    if (!cols.includes(col)) {
+      db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`);
+    }
+  };
+  addCol('medicines', 'custom_fields', 'TEXT');
+  addCol('deleted_medicines', 'custom_fields', 'TEXT');
+  addCol('sales', 'customer_id', 'INTEGER');
+  addCol('purchase_returns', 'status', 'TEXT DEFAULT \'raised\'');
+  addCol('purchase_returns', 'batch_number', 'TEXT');
+  addCol('purchase_returns', 'expiry_date', 'TEXT');
+  addCol('purchase_returns', 'dispatch_date', 'TEXT');
+  addCol('purchase_returns', 'credit_date', 'TEXT');
+  addCol('purchase_returns', 'reject_reason', 'TEXT');
 }
 
 module.exports = { initDatabase, getDb };

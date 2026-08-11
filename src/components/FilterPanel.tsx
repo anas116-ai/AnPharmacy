@@ -64,7 +64,7 @@ export default function FilterPanel({ open, onOpenChange, columns, filters, onFi
       <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Filter className="w-5 h-5 text-emerald-600" />
+            <Filter className="w-5 h-5 text-success" />
             Filter Conditions
             {activeFiltersCount > 0 && (
               <Badge variant="success" className="text-xs">
@@ -76,7 +76,7 @@ export default function FilterPanel({ open, onOpenChange, columns, filters, onFi
 
         <div className="space-y-3 py-2 max-h-[50vh] overflow-y-auto">
           {filters.length === 0 ? (
-            <div className="text-center py-8 text-gray-400 dark:text-gray-500">
+            <div className="text-center py-8 text-muted-foreground/60 dark:text-muted-foreground">
               <Filter className="w-12 h-12 mx-auto mb-2 opacity-30" />
               <p className="text-sm">No filters applied</p>
               <p className="text-xs mt-1">Click "Add Filter" to create filter conditions</p>
@@ -122,7 +122,7 @@ export default function FilterPanel({ open, onOpenChange, columns, filters, onFi
                   {/* Remove button */}
                   <button
                     onClick={() => handleRemoveFilter(index)}
-                    className="p-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shrink-0"
+                    className="p-2 rounded-xl text-destructive hover:bg-destructive/10 dark:hover:bg-red-900/20 transition-colors shrink-0"
                     title="Remove filter"
                   >
                     <X className="w-4 h-4" />
@@ -139,7 +139,7 @@ export default function FilterPanel({ open, onOpenChange, columns, filters, onFi
               variant="ghost" 
               onClick={handleClearAll}
               disabled={filters.length === 0}
-              className="text-gray-500 disabled:opacity-30"
+              className="text-muted-foreground disabled:opacity-30"
             >
               Clear All
             </Button>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B1120"/>
+      <stop offset="55%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <rect x="30" y="30" width="452" height="452" rx="86" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+  <!-- Bowl — filled ring open on the right -->
+  <path d="M280.11 154.67 A138.67 138.67 0 1 0 280.11 293.33 L224.64 261.33 A74.67 74.67 0 1 1 224.64 186.67 Z" fill="white"/>
+  <!-- Stem — vertical bar filling the opening + tail -->
+  <rect x="245.33" y="85.33" width="74.67" height="320" rx="37.33" fill="white"/>
+  <!-- Yellow accent dot -->
+  <circle cx="384" cy="384" r="37.33" fill="#EAB308"/>
+</svg>

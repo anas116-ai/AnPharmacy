@@ -154,7 +154,7 @@ type ScanStage = 'loading' | 'recognizing' | 'parsing' | 'done';
 const SOURCES = [
   { type: 'camera' as SourceType, icon: Camera, label: 'Camera', desc: 'Capture invoice with camera', gradient: 'from-blue-500 to-blue-600' },
   { type: 'gallery' as SourceType, icon: Image, label: 'Gallery', desc: 'Select invoice from gallery', gradient: 'from-emerald-500 to-emerald-600' },
-  { type: 'pdf' as SourceType, icon: FileText, label: 'PDF', desc: 'Load invoice PDF file', gradient: 'from-purple-500 to-purple-600' },
+  { type: 'pdf' as SourceType, icon: FileText, label: 'PDF', desc: 'Load invoice PDF file', gradient: 'from-accent to-accent/80' },
   { type: 'sample' as SourceType, icon: Database, label: 'Sample Data', desc: 'Use pre-loaded sample for testing', gradient: 'from-amber-500 to-amber-600' },
 ];
 
@@ -634,10 +634,9 @@ export default function ScanInvoice() {
           });
           if (result.success) addedCount++;
         }
-        const stockResult = await window.electronAPI.listStock();
-        if (stockResult.success) setMedicines(stockResult.medicines || []);
+        await useStockStore.getState().refreshAll();
 
-        setSuccess(`✅ Successfully added ${addedCount} items to stock!`);
+        setSuccess(`Successfully added ${addedCount} items to stock!`);
         setShowReview(false);
         setInvoiceRows([]);
         setSelectedSource(null);
@@ -668,44 +667,44 @@ export default function ScanInvoice() {
     headers.push(<th key="select" className="w-10 px-3 py-3"></th>);
     
     if (invoiceHeaders.hasSerialNo) {
-      headers.push(<th key="sno" className="px-3 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider w-12">S.No</th>);
+      headers.push(<th key="sno" className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-12">S.No</th>);
     }
     
     headers.push(
-      <th key="desc" className="px-3 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+      <th key="desc" className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
         {invoiceHeaders.hasDescription ? 'Description / Medicine Name' : 'Medicine Name'}
       </th>
     );
     
     if (invoiceHeaders.hasBatch) {
-      headers.push(<th key="batch" className="px-3 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Batch No</th>);
+      headers.push(<th key="batch" className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Batch No</th>);
     }
     
     if (invoiceHeaders.hasExpiry) {
-      headers.push(<th key="expiry" className="px-3 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Expiry</th>);
+      headers.push(<th key="expiry" className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Expiry</th>);
     }
     
     if (invoiceHeaders.hasMfg) {
-      headers.push(<th key="mfg" className="px-3 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Mfg</th>);
+      headers.push(<th key="mfg" className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Mfg</th>);
     }
     
     if (invoiceHeaders.hasQty) {
-      headers.push(<th key="qty" className="px-3 py-3 text-right text-[10px] font-bold text-gray-500 uppercase tracking-wider">Qty</th>);
+      headers.push(<th key="qty" className="px-3 py-3 text-right text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Qty</th>);
     }
     
     if (invoiceHeaders.hasUnitPrice) {
-      headers.push(<th key="price" className="px-3 py-3 text-right text-[10px] font-bold text-gray-500 uppercase tracking-wider">Unit Price</th>);
+      headers.push(<th key="price" className="px-3 py-3 text-right text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Unit Price</th>);
     }
     
     if (invoiceHeaders.hasTotal) {
-      headers.push(<th key="total" className="px-3 py-3 text-right text-[10px] font-bold text-gray-500 uppercase tracking-wider">Total</th>);
+      headers.push(<th key="total" className="px-3 py-3 text-right text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Total</th>);
     }
     
-    headers.push(<th key="hsn" className="px-3 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">HSN</th>);
-    headers.push(<th key="gst" className="px-3 py-3 text-right text-[10px] font-bold text-gray-500 uppercase tracking-wider">GST%</th>);
-    headers.push(<th key="mfr" className="px-3 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Mfr</th>);
+    headers.push(<th key="hsn" className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">HSN</th>);
+    headers.push(<th key="gst" className="px-3 py-3 text-right text-[10px] font-bold text-muted-foreground uppercase tracking-wider">GST%</th>);
+    headers.push(<th key="mfr" className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Mfr</th>);
     
-    headers.push(<th key="conf" className="px-3 py-3 text-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">Conf</th>);
+    headers.push(<th key="conf" className="px-3 py-3 text-center text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Conf</th>);
     headers.push(<th key="edit" className="w-10 px-3 py-3"></th>);
     
     return headers;
@@ -718,57 +717,57 @@ export default function ScanInvoice() {
     cells.push(
       <td key="select" className="px-3 py-2.5">
         <input type="checkbox" checked={item.selected} onChange={() => toggleItem(item.id)}
-          className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500" />
+          className="w-4 h-4 rounded border-border text-accent focus:ring-accent" />
       </td>
     );
     
     if (invoiceHeaders.hasSerialNo) {
-      cells.push(<td key="sno" className="px-3 py-2.5 text-xs text-gray-400 font-mono">{item.serialNo}</td>);
+      cells.push(<td key="sno" className="px-3 py-2.5 text-xs text-muted-foreground/60 font-mono">{item.serialNo}</td>);
     }
     
     cells.push(
       <td key="desc" className="px-3 py-2.5">
         <div className="flex items-center gap-2">
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 leading-snug truncate">{item.description}</p>
+            <p className="text-sm font-medium text-foreground leading-snug truncate">{item.description}</p>
             {item.description !== item.medicineName && (
-              <p className="text-[10px] text-gray-400 mt-0.5 italic truncate">→ {item.medicineName}</p>
+              <p className="text-[10px] text-muted-foreground/60 mt-0.5 italic truncate">→ {item.medicineName}</p>
             )}
           </div>
           {!enhanced.isUsable && (
-            <span title="Has critical issues"><AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" /></span>
+            <span title="Has critical issues"><AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0" /></span>
           )}
         </div>
       </td>
     );
     
     if (invoiceHeaders.hasBatch) {
-      cells.push(<td key="batch" className="px-3 py-2.5 font-mono text-xs text-gray-600 uppercase">{item.batchNo}</td>);
+      cells.push(<td key="batch" className="px-3 py-2.5 font-mono text-xs text-muted-foreground uppercase">{item.batchNo}</td>);
     }
     
     if (invoiceHeaders.hasExpiry) {
-      cells.push(<td key="expiry" className="px-3 py-2.5 text-xs text-gray-600">{item.expiryDate || '-'}</td>);
+      cells.push(<td key="expiry" className="px-3 py-2.5 text-xs text-muted-foreground">{item.expiryDate || '-'}</td>);
     }
     
     if (invoiceHeaders.hasMfg) {
-      cells.push(<td key="mfg" className="px-3 py-2.5 text-xs text-gray-400">-</td>);
+      cells.push(<td key="mfg" className="px-3 py-2.5 text-xs text-muted-foreground/60">-</td>);
     }
     
     if (invoiceHeaders.hasQty) {
-      cells.push(<td key="qty" className="px-3 py-2.5 text-right font-bold text-gray-900">{item.qty}</td>);
+      cells.push(<td key="qty" className="px-3 py-2.5 text-right font-bold text-foreground">{item.qty}</td>);
     }
     
     if (invoiceHeaders.hasUnitPrice) {
-      cells.push(<td key="price" className="px-3 py-2.5 text-right text-sm text-gray-700">{item.unitPrice > 0 ? `₹${item.unitPrice.toFixed(2)}` : '-'}</td>);
+      cells.push(<td key="price" className="px-3 py-2.5 text-right text-sm text-foreground/80">{item.unitPrice > 0 ? `₹${item.unitPrice.toFixed(2)}` : '-'}</td>);
     }
     
     if (invoiceHeaders.hasTotal) {
-      cells.push(<td key="total" className="px-3 py-2.5 text-right text-sm font-semibold text-gray-800">{item.totalAmount > 0 ? `₹${item.totalAmount.toFixed(2)}` : '-'}</td>);
+      cells.push(<td key="total" className="px-3 py-2.5 text-right text-sm font-semibold text-foreground">{item.totalAmount > 0 ? `₹${item.totalAmount.toFixed(2)}` : '-'}</td>);
     }
     
-    cells.push(<td key="hsn" className="px-3 py-2.5 text-xs text-gray-600 font-mono">{enhanced.hsnCode}</td>);
-    cells.push(<td key="gst" className="px-3 py-2.5 text-right text-xs text-gray-600">{enhanced.gstRate > 0 ? `${enhanced.gstRate}%` : '-'}</td>);
-    cells.push(<td key="mfr" className="px-3 py-2.5 text-xs text-gray-600 truncate max-w-[120px]">{enhanced.manufacturer || '-'}</td>);
+    cells.push(<td key="hsn" className="px-3 py-2.5 text-xs text-muted-foreground font-mono">{enhanced.hsnCode}</td>);
+    cells.push(<td key="gst" className="px-3 py-2.5 text-right text-xs text-muted-foreground">{enhanced.gstRate > 0 ? `${enhanced.gstRate}%` : '-'}</td>);
+    cells.push(<td key="mfr" className="px-3 py-2.5 text-xs text-muted-foreground truncate max-w-[120px]">{enhanced.manufacturer || '-'}</td>);
     
     cells.push(
       <td key="conf" className="px-3 py-2.5 text-center">
@@ -781,8 +780,8 @@ export default function ScanInvoice() {
     cells.push(
       <td key="edit" className="px-3 py-2.5">
         <button onClick={() => setEditingItem({ ...item })}
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-          <Edit3 className="w-3.5 h-3.5 text-gray-400" />
+          className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+          <Edit3 className="w-3.5 h-3.5 text-muted-foreground/60" />
         </button>
       </td>
     );
@@ -807,18 +806,18 @@ export default function ScanInvoice() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-500 mb-5">Choose a source to scan invoice data from:</p>
+            <p className="text-sm text-muted-foreground mb-5">Choose a source to scan invoice data from:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {SOURCES.map(source => {
                 const Icon = source.icon;
                 return (
                   <button key={source.type} onClick={() => handleSourceSelect(source.type)} disabled={isScanning}
-                    className="group relative p-5 bg-white border-2 border-gray-100 rounded-2xl hover:border-teal-200 hover:shadow-soft transition-all duration-200 disabled:opacity-50 text-left">
+                    className="group relative p-5 bg-background border-2 border-border rounded-2xl hover:border-accent/40 hover:shadow-sm transition-all duration-200 disabled:opacity-50 text-left">
                     <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-gradient-to-br', source.gradient, 'group-hover:scale-110 transition-transform duration-200 shadow-sm')}>
                       <Icon className="w-6 h-6 text-white" />
                     </div>
-                    <p className="font-semibold text-gray-900 text-sm">{source.label}</p>
-                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">{source.desc}</p>
+                    <p className="font-semibold text-foreground text-sm">{source.label}</p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{source.desc}</p>
                   </button>
                 );
               })}
@@ -829,24 +828,24 @@ export default function ScanInvoice() {
 
       {/* ── Success / Error ── */}
       {success && (
-        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4 animate-fade-in">
-          <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-            <CheckCircle className="w-5 h-5 text-emerald-600" />
+        <div className="flex items-center gap-3 bg-success-light border border-success/40 rounded-2xl px-5 py-4 animate-fade-in">
+          <div className="w-10 h-10 bg-success-light rounded-xl flex items-center justify-center flex-shrink-0">
+            <CheckCircle className="w-5 h-5 text-success" />
           </div>
-          <span className="text-emerald-700 text-sm font-medium">{success}</span>
+          <span className="text-success text-sm font-medium">{success}</span>
         </div>
       )}
       {error && (
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 animate-fade-in">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-          <span className="text-red-700 text-sm">{error}</span>
+        <div className="flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-2xl px-5 py-4 animate-fade-in">
+          <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
+          <span className="text-destructive text-sm">{error}</span>
         </div>
       )}
 
       {/* Learning Stats */}
       {learningStats.totalCorrections > 0 && (
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Sparkles className="w-3.5 h-3.5 text-accent" />
           <span>AI Learning: {learningStats.totalCorrections} corrections, {learningStats.patternsLearned} patterns learned</span>
         </div>
       )}
@@ -857,21 +856,21 @@ export default function ScanInvoice() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
-                  <ScanLine className="w-5 h-5 text-teal-600 animate-pulse" />
+                <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
+                  <ScanLine className="w-5 h-5 text-accent animate-pulse" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900 text-sm">Scanning Invoice</p>
-                  <p className="text-xs text-gray-500">{selectedSource === 'sample' ? 'Sample Data' : selectedSource}</p>
+                  <p className="font-semibold text-foreground text-sm">Scanning Invoice</p>
+                  <p className="text-xs text-muted-foreground">{selectedSource === 'sample' ? 'Sample Data' : selectedSource}</p>
                 </div>
               </div>
               <Badge variant="outline-teal" size="sm">{getStageLabel()}</Badge>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
               <div className="h-full bg-gradient-to-r from-teal-500 to-teal-600 rounded-full transition-all duration-300 ease-out"
                 style={{ width: `${scanProgress}%` }} />
             </div>
-            <p className="text-xs text-gray-500 mt-2 text-center">{scanProgress}% complete</p>
+            <p className="text-xs text-muted-foreground mt-2 text-center">{scanProgress}% complete</p>
           </CardContent>
         </Card>
       )}
@@ -900,10 +899,10 @@ export default function ScanInvoice() {
 
           {/* Main Invoice Table */}
           <Card variant="bordered" className="overflow-hidden">
-            <CardHeader className="pb-3 border-b border-gray-100">
+            <CardHeader className="pb-3 border-b border-border">
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Table className="w-4 h-4 text-teal-600" />
+                  <Table className="w-4 h-4 text-accent" />
                   Invoice Preview
                   <Badge variant="outline-teal" size="sm">
                     {invoiceRows.filter(i => i.selected).length} selected
@@ -916,12 +915,12 @@ export default function ScanInvoice() {
                 </span>
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={handleRescan}
-                    className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
+                    className="text-accent hover:text-accent hover:bg-accent/10">
                     <RefreshCw className="w-4 h-4 mr-1" /> Rescan
                   </Button>
                   <Button variant="ghost" size="sm"
                     onClick={() => { setInvoiceRows([]); setSelectedSource(null); setOcrResult(null); setRawText(''); }}
-                    className="text-gray-400 hover:text-red-500">
+                    className="text-muted-foreground/60 hover:text-destructive">
                     <X className="w-4 h-4 mr-1" /> Clear
                   </Button>
                 </div>
@@ -930,12 +929,12 @@ export default function ScanInvoice() {
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
-                  <thead className="bg-gray-50 border-b border-gray-100">
+                  <thead className="bg-muted/50 border-b border-border">
                     <tr>{renderTableHeaders()}</tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {invoiceRows.map((item, idx) => (
-                      <tr key={item.id} className={cn('hover:bg-teal-50/30 transition-colors', !item.selected && 'opacity-50')}>
+                      <tr key={item.id} className={cn('hover:bg-accent/10/30 transition-colors', !item.selected && 'opacity-50')}>
                         {renderTableRow(item, idx).map((cell, ci) => (
                           <span key={ci}>{cell}</span>
                         ))}
@@ -951,19 +950,19 @@ export default function ScanInvoice() {
           {rawText && (
             <Card variant="bordered">
               <button onClick={() => setRawTextExpanded(!rawTextExpanded)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors">
-                <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <List className="w-4 h-4 text-gray-400" />
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors">
+                <span className="flex items-center gap-2 text-sm font-medium text-foreground/80">
+                  <List className="w-4 h-4 text-muted-foreground/60" />
                   Raw OCR Text
                 </span>
-                <svg className={cn('w-4 h-4 text-gray-400 transition-transform', rawTextExpanded && 'rotate-180')}
+                <svg className={cn('w-4 h-4 text-muted-foreground/60 transition-transform', rawTextExpanded && 'rotate-180')}
                   fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               {rawTextExpanded && (
                 <div className="px-4 pb-4">
-                  <pre className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-xs text-gray-600 whitespace-pre-wrap overflow-x-auto max-h-64 overflow-y-auto font-mono">
+                  <pre className="bg-muted/50 border border-border rounded-xl p-4 text-xs text-muted-foreground whitespace-pre-wrap overflow-x-auto max-h-64 overflow-y-auto font-mono">
                     {rawText}
                   </pre>
                 </div>
@@ -975,19 +974,19 @@ export default function ScanInvoice() {
           <Card variant="bordered" className="border-teal-200">
             <CardContent className="p-4">
               <div className="flex flex-wrap items-center gap-3 text-sm">
-                <span className="font-medium text-gray-700">📦 {reviewSummary.totalItems} items</span>
-                <span className="text-gray-500">|</span>
-                <span className="text-gray-600">{reviewSummary.totalQty} total qty</span>
+                <span className="font-medium text-foreground/80"><Package className="w-3.5 h-3.5 inline mr-1" />{reviewSummary.totalItems} items</span>
+                <span className="text-muted-foreground">|</span>
+                <span className="text-muted-foreground">{reviewSummary.totalQty} total qty</span>
                 {reviewSummary.totalAmount > 0 && (
                   <>
-                    <span className="text-gray-500">|</span>
-                    <span className="text-gray-600 font-medium">₹{reviewSummary.totalAmount.toFixed(2)} total</span>
+                    <span className="text-muted-foreground">|</span>
+                    <span className="text-muted-foreground font-medium">₹{reviewSummary.totalAmount.toFixed(2)} total</span>
                   </>
                 )}
-                <span className="text-gray-500">|</span>
+                <span className="text-muted-foreground">|</span>
                 {reviewSummary.highConfidence > 0 && <Badge variant="safe" size="sm">{reviewSummary.highConfidence} high</Badge>}
                 {reviewSummary.mediumConfidence > 0 && <Badge variant="warning" size="sm">{reviewSummary.mediumConfidence} med</Badge>}
-                {reviewSummary.lowConfidence > 0 && <Badge variant="expired" size="sm">{reviewSummary.lowConfidence} low ⚠️</Badge>}
+                {reviewSummary.lowConfidence > 0 && <Badge variant="expired" size="sm">{reviewSummary.lowConfidence} low</Badge>}
                 {(reviewSummary.missingBatch > 0 || reviewSummary.missingExpiry > 0 || reviewSummary.missingQty > 0) && (
                   <Badge variant="critical" size="sm">
                     {reviewSummary.missingBatch + reviewSummary.missingExpiry + reviewSummary.missingQty} missing
@@ -996,10 +995,10 @@ export default function ScanInvoice() {
               </div>
               {/* Missing Fields */}
               {(reviewSummary.missingBatch > 0 || reviewSummary.missingExpiry > 0 || reviewSummary.missingQty > 0) && (
-                <div className="mt-2 pt-2 border-t border-gray-100 flex flex-wrap gap-x-5 gap-y-1 text-[10px]">
-                  {reviewSummary.missingBatch > 0 && <span className="text-red-500">⚠️ {reviewSummary.missingBatch} missing batch</span>}
-                  {reviewSummary.missingExpiry > 0 && <span className="text-amber-500">⚠️ {reviewSummary.missingExpiry} missing expiry</span>}
-                  {reviewSummary.missingQty > 0 && <span className="text-red-500">⚠️ {reviewSummary.missingQty} zero qty</span>}
+                <div className="mt-2 pt-2 border-t border-border flex flex-wrap gap-x-5 gap-y-1 text-[10px]">
+                  {reviewSummary.missingBatch > 0 && <span className="text-destructive"><AlertTriangle className="w-3 h-3 inline mr-1" />{reviewSummary.missingBatch} missing batch</span>}
+                  {reviewSummary.missingExpiry > 0 && <span className="text-warning"><AlertTriangle className="w-3 h-3 inline mr-1" />{reviewSummary.missingExpiry} missing expiry</span>}
+                  {reviewSummary.missingQty > 0 && <span className="text-destructive"><AlertTriangle className="w-3 h-3 inline mr-1" />{reviewSummary.missingQty} zero qty</span>}
                 </div>
               )}
             </CardContent>
@@ -1010,10 +1009,10 @@ export default function ScanInvoice() {
             <Card variant="bordered" className="border-amber-200">
               <CardContent className="p-4">
                 <div className="flex items-start gap-2">
-                  <Lightbulb className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                  <Lightbulb className="w-4 h-4 text-warning mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs font-semibold text-amber-700">Suggestions</p>
-                    <ul className="mt-1 text-xs text-amber-600 space-y-0.5 ml-4 list-disc">
+                    <p className="text-xs font-semibold text-warning">Suggestions</p>
+                    <ul className="mt-1 text-xs text-warning space-y-0.5 ml-4 list-disc">
                       {suggestions.slice(0, 5).map((suggestion, i) => (
                         <li key={i}>{suggestion}</li>
                       ))}
@@ -1044,10 +1043,10 @@ export default function ScanInvoice() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-lg">
-              <Eye className="w-5 h-5 text-teal-600" />
+              <Eye className="w-5 h-5 text-accent" />
               Review & Confirm Stock Update
             </DialogTitle>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Please review all items below. Only after your confirmation will items be added to stock.
             </p>
           </DialogHeader>
@@ -1056,18 +1055,18 @@ export default function ScanInvoice() {
             {/* Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-xl p-3 border border-teal-100">
-                <p className="text-[10px] font-semibold text-teal-600 uppercase tracking-wider">Total Items</p>
-                <p className="text-2xl font-bold text-teal-700 mt-1">{reviewSummary.totalItems}</p>
+                <p className="text-[10px] font-semibold text-accent uppercase tracking-wider">Total Items</p>
+                <p className="text-2xl font-bold text-accent mt-1">{reviewSummary.totalItems}</p>
               </div>
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 border border-blue-100">
-                <p className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Total Qty</p>
-                <p className="text-2xl font-bold text-blue-700 mt-1">{reviewSummary.totalQty}</p>
+                <p className="text-[10px] font-semibold text-info uppercase tracking-wider">Total Qty</p>
+                <p className="text-2xl font-bold text-info mt-1">{reviewSummary.totalQty}</p>
               </div>
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-100">
-                <p className="text-[10px] font-semibold text-amber-600 uppercase tracking-wider">Batches</p>
-                <p className="text-2xl font-bold text-amber-700 mt-1">{reviewSummary.selected.length}</p>
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 border border-warning/20">
+                <p className="text-[10px] font-semibold text-warning uppercase tracking-wider">Batches</p>
+                <p className="text-2xl font-bold text-warning mt-1">{reviewSummary.selected.length}</p>
               </div>
-              <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-3 border border-purple-100">
+              <div className="bg-gradient-to-br from-accent/10 to-success-light rounded-xl p-3 border border-accent/30">
                 <p className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Avg Confidence</p>
                 <p className="text-2xl font-bold text-purple-700 mt-1">
                   {reviewSummary.totalItems > 0
@@ -1078,51 +1077,51 @@ export default function ScanInvoice() {
             </div>
 
             {/* Items Table */}
-            <div className="border border-gray-200 rounded-xl overflow-hidden">
+            <div className="border border-border rounded-xl overflow-hidden">
               <div className="max-h-80 overflow-y-auto">
                 <table className="w-full text-xs">
-                  <thead className="bg-gray-50 sticky top-0">
+                  <thead className="bg-muted/50 sticky top-0">
                     <tr>
-                      <th className="px-3 py-2 text-left font-semibold text-gray-600">#</th>
-                      <th className="px-3 py-2 text-left font-semibold text-gray-600">Medicine Name</th>
-                      <th className="px-3 py-2 text-left font-semibold text-gray-600">Batch</th>
-                      <th className="px-3 py-2 text-left font-semibold text-gray-600">Expiry</th>
-                      <th className="px-3 py-2 text-left font-semibold text-gray-600">Mfr</th>
-                      <th className="px-3 py-2 text-right font-semibold text-gray-600">Qty</th>
-                      <th className="px-3 py-2 text-right font-semibold text-gray-600">Price</th>
-                      <th className="px-3 py-2 text-right font-semibold text-gray-600">Total</th>
-                      <th className="px-3 py-2 text-left font-semibold text-gray-600">HSN</th>
-                      <th className="px-3 py-2 text-right font-semibold text-gray-600">GST%</th>
-                      <th className="px-3 py-2 text-center font-semibold text-gray-600">Conf.</th>
+                      <th className="px-3 py-2 text-left font-semibold text-muted-foreground">#</th>
+                      <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Medicine Name</th>
+                      <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Batch</th>
+                      <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Expiry</th>
+                      <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Mfr</th>
+                      <th className="px-3 py-2 text-right font-semibold text-muted-foreground">Qty</th>
+                      <th className="px-3 py-2 text-right font-semibold text-muted-foreground">Price</th>
+                      <th className="px-3 py-2 text-right font-semibold text-muted-foreground">Total</th>
+                      <th className="px-3 py-2 text-left font-semibold text-muted-foreground">HSN</th>
+                      <th className="px-3 py-2 text-right font-semibold text-muted-foreground">GST%</th>
+                      <th className="px-3 py-2 text-center font-semibold text-muted-foreground">Conf.</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {invoiceRows.filter(i => i.selected).map((item, idx) => {
                       const enhanced = item as EnhancedInvoiceRow;
                       return (
-                      <tr key={item.id} className="hover:bg-teal-50/30">
-                        <td className="px-3 py-2 text-gray-400 font-mono">{idx + 1}</td>
-                        <td className="px-3 py-2 font-medium text-gray-800">
+                      <tr key={item.id} className="hover:bg-accent/10/30">
+                        <td className="px-3 py-2 text-muted-foreground/60 font-mono">{idx + 1}</td>
+                        <td className="px-3 py-2 font-medium text-foreground">
                           <div>
                             <p className="truncate">{item.medicineName}</p>
                             {item.description !== item.medicineName && (
-                              <p className="text-[10px] text-gray-400 italic truncate">→ {item.description}</p>
+                              <p className="text-[10px] text-muted-foreground/60 italic truncate">→ {item.description}</p>
                             )}
                           </div>
                         </td>
-                        <td className="px-3 py-2 font-mono text-gray-600 uppercase">{item.batchNo}</td>
-                        <td className="px-3 py-2 text-gray-500">{item.expiryDate || '—'}</td>
-                        <td className="px-3 py-2 text-gray-500 truncate max-w-[100px]">{enhanced.manufacturer || '—'}</td>
-                        <td className="px-3 py-2 text-right font-bold text-gray-800">{item.qty}</td>
-                        <td className="px-3 py-2 text-right text-gray-700">{item.unitPrice > 0 ? `₹${item.unitPrice.toFixed(2)}` : '—'}</td>
-                        <td className="px-3 py-2 text-right font-semibold text-gray-800">{item.totalAmount > 0 ? `₹${item.totalAmount.toFixed(2)}` : '—'}</td>
-                        <td className="px-3 py-2 text-gray-500 font-mono">{enhanced.hsnCode}</td>
-                        <td className="px-3 py-2 text-right text-gray-600">{enhanced.gstRate > 0 ? `${enhanced.gstRate}%` : '—'}</td>
+                        <td className="px-3 py-2 font-mono text-muted-foreground uppercase">{item.batchNo}</td>
+                        <td className="px-3 py-2 text-muted-foreground">{item.expiryDate || '—'}</td>
+                        <td className="px-3 py-2 text-muted-foreground truncate max-w-[100px]">{enhanced.manufacturer || '—'}</td>
+                        <td className="px-3 py-2 text-right font-bold text-foreground">{item.qty}</td>
+                        <td className="px-3 py-2 text-right text-foreground/80">{item.unitPrice > 0 ? `₹${item.unitPrice.toFixed(2)}` : '—'}</td>
+                        <td className="px-3 py-2 text-right font-semibold text-foreground">{item.totalAmount > 0 ? `₹${item.totalAmount.toFixed(2)}` : '—'}</td>
+                        <td className="px-3 py-2 text-muted-foreground font-mono">{enhanced.hsnCode}</td>
+                        <td className="px-3 py-2 text-right text-muted-foreground">{enhanced.gstRate > 0 ? `${enhanced.gstRate}%` : '—'}</td>
                         <td className="px-3 py-2 text-center">
                           <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${
-                            item.confidence > 85 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' :
-                            item.confidence >= 65 ? 'text-amber-600 bg-amber-50 border-amber-200' :
-                            'text-red-600 bg-red-50 border-red-200'
+                            item.confidence > 85 ? 'text-success bg-success-light border-success/40' :
+                            item.confidence >= 65 ? 'text-warning bg-warning-light border-amber-200' :
+                            'text-destructive bg-destructive/10 border-destructive/20'
                           }`}>{item.confidence}%</span>
                         </td>
                       </tr>
@@ -1135,12 +1134,12 @@ export default function ScanInvoice() {
 
             {/* Missing Fields Warning */}
             {(reviewSummary.missingBatch > 0 || reviewSummary.missingExpiry > 0 || reviewSummary.missingQty > 0) && (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
-                <p className="text-xs font-semibold text-amber-700 flex items-center gap-1.5">
+              <div className="p-3 bg-warning-light border border-amber-200 rounded-xl">
+                <p className="text-xs font-semibold text-warning flex items-center gap-1.5">
                   <AlertCircle className="w-3.5 h-3.5" />
                   Missing fields detected — please check before confirming
                 </p>
-                <ul className="mt-1.5 text-xs text-amber-600 space-y-0.5 ml-5 list-disc">
+                <ul className="mt-1.5 text-xs text-warning space-y-0.5 ml-5 list-disc">
                   {reviewSummary.missingBatch > 0 && <li>{reviewSummary.missingBatch} item(s) have auto-generated batch numbers</li>}
                   {reviewSummary.missingExpiry > 0 && <li>{reviewSummary.missingExpiry} item(s) missing expiry date</li>}
                   {reviewSummary.missingQty > 0 && <li>{reviewSummary.missingQty} item(s) have zero quantity</li>}
@@ -1149,12 +1148,12 @@ export default function ScanInvoice() {
             )}
 
             {/* Confirmation Notice */}
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl">
-              <p className="text-xs font-semibold text-blue-700 flex items-center gap-1.5">
+            <div className="p-3 bg-info-light border border-blue-200 rounded-xl">
+              <p className="text-xs font-semibold text-info flex items-center gap-1.5">
                 <CheckCircle className="w-3.5 h-3.5" />
                 Stock will be updated only after you click "Approve & Add to Stock"
               </p>
-              <p className="text-[10px] text-blue-600 mt-1 ml-5">
+              <p className="text-[10px] text-info mt-1 ml-5">
                 No automatic database updates without your explicit approval.
               </p>
             </div>
@@ -1185,42 +1184,42 @@ export default function ScanInvoice() {
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Edit3 className="w-5 h-5 text-teal-600" />
+                <Edit3 className="w-5 h-5 text-accent" />
                 Edit Item
               </DialogTitle>
               <DialogClose onClick={() => setEditingItem(null)} />
             </DialogHeader>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
-                <label htmlFor="scan-med-name" className="block text-xs font-medium text-gray-600 mb-1">Medicine Name</label>
+                <label htmlFor="scan-med-name" className="block text-xs font-medium text-muted-foreground mb-1">Medicine Name</label>
                 <Input id="scan-med-name" value={editingItem.description} onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value, medicineName: e.target.value })} />
               </div>
               <div>
-                <label htmlFor="scan-batch" className="block text-xs font-medium text-gray-600 mb-1">Batch Number</label>
+                <label htmlFor="scan-batch" className="block text-xs font-medium text-muted-foreground mb-1">Batch Number</label>
                 <Input id="scan-batch" value={editingItem.batchNo} onChange={(e) => setEditingItem({ ...editingItem, batchNo: e.target.value })} />
               </div>
               <div>
-                <label htmlFor="scan-qty" className="block text-xs font-medium text-gray-600 mb-1">Quantity</label>
+                <label htmlFor="scan-qty" className="block text-xs font-medium text-muted-foreground mb-1">Quantity</label>
                 <Input id="scan-qty" type="number" value={editingItem.qty} onChange={(e) => setEditingItem({ ...editingItem, qty: parseInt(e.target.value) || 0 })} />
               </div>
               <div>
-                <label htmlFor="scan-expiry" className="block text-xs font-medium text-gray-600 mb-1">Expiry Date</label>
+                <label htmlFor="scan-expiry" className="block text-xs font-medium text-muted-foreground mb-1">Expiry Date</label>
                 <Input id="scan-expiry" type="date" value={editingItem.expiryDate} onChange={(e) => setEditingItem({ ...editingItem, expiryDate: e.target.value })} />
               </div>
               <div>
-                <label htmlFor="scan-unit-price" className="block text-xs font-medium text-gray-600 mb-1">Unit Price (₹)</label>
+                <label htmlFor="scan-unit-price" className="block text-xs font-medium text-muted-foreground mb-1">Unit Price (₹)</label>
                 <Input id="scan-unit-price" type="number" step="0.01" value={editingItem.unitPrice} onChange={(e) => setEditingItem({ ...editingItem, unitPrice: parseFloat(e.target.value) || 0 })} />
               </div>
               <div>
-                <label htmlFor="scan-hsn" className="block text-xs font-medium text-gray-600 mb-1">HSN Code</label>
+                <label htmlFor="scan-hsn" className="block text-xs font-medium text-muted-foreground mb-1">HSN Code</label>
                 <Input id="scan-hsn" value={(editingItem as EnhancedInvoiceRow).hsnCode || ''} onChange={(e) => setEditingItem({ ...(editingItem as EnhancedInvoiceRow), hsnCode: e.target.value } as EnhancedInvoiceRow as InvoiceRow)} />
               </div>
               <div>
-                <label htmlFor="scan-gst" className="block text-xs font-medium text-gray-600 mb-1">GST Rate (%)</label>
+                <label htmlFor="scan-gst" className="block text-xs font-medium text-muted-foreground mb-1">GST Rate (%)</label>
                 <Input id="scan-gst" type="number" step="0.1" value={(editingItem as EnhancedInvoiceRow).gstRate || 0} onChange={(e) => setEditingItem({ ...(editingItem as EnhancedInvoiceRow), gstRate: parseFloat(e.target.value) || 0 } as EnhancedInvoiceRow as InvoiceRow)} />
               </div>
               <div>
-                <label htmlFor="scan-manufacturer" className="block text-xs font-medium text-gray-600 mb-1">Manufacturer</label>
+                <label htmlFor="scan-manufacturer" className="block text-xs font-medium text-muted-foreground mb-1">Manufacturer</label>
                 <Input id="scan-manufacturer" value={(editingItem as EnhancedInvoiceRow).manufacturer || ''} onChange={(e) => setEditingItem({ ...(editingItem as EnhancedInvoiceRow), manufacturer: e.target.value } as EnhancedInvoiceRow as InvoiceRow)} />
               </div>
             </div>

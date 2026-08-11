@@ -46,6 +46,10 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        heading: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        body: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        data: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
         mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
       },
       fontSize: {
@@ -57,9 +61,9 @@ export default {
         xl: ['1.125rem', { lineHeight: '1.6rem', letterSpacing: '-0.01em' }],
         '2xl': ['1.25rem', { lineHeight: '1.6rem', letterSpacing: '-0.01em', fontWeight: '600' }],
         '3xl': ['1.5rem', { lineHeight: '1.75rem', letterSpacing: '-0.02em', fontWeight: '600' }],
-        '4xl': ['1.875rem', { lineHeight: '1.75rem', letterSpacing: '-0.02em', fontWeight: '700' }],
-        '5xl': ['2.25rem', { lineHeight: '1.75rem', letterSpacing: '-0.025em', fontWeight: '700' }],
-        '6xl': ['3rem', { lineHeight: '1.75rem', letterSpacing: '-0.025em', fontWeight: '700' }],
+        '4xl': ['1.875rem', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '700' }],
+        '5xl': ['2.25rem', { lineHeight: '1.15', letterSpacing: '-0.025em', fontWeight: '700' }],
+        '6xl': ['3rem', { lineHeight: '1.12', letterSpacing: '-0.025em', fontWeight: '700' }],
       },
       borderRadius: {
         xs: '0.25rem', sm: '0.375rem', md: '0.5rem',

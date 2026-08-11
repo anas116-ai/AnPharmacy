@@ -147,7 +147,7 @@ export default function DataImportDialog({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border dark:border-border">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3 text-xl">
               <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
@@ -157,7 +157,7 @@ export default function DataImportDialog({
             </DialogTitle>
             <DialogClose onClick={handleClose} />
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground/60 mt-2">
             {description}
           </p>
         </DialogHeader>
@@ -167,16 +167,16 @@ export default function DataImportDialog({
           {parsedData.length === 0 && (
             <div className="space-y-4">
               {/* Template Download */}
-              <div className="flex items-center justify-between p-4 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-2xl">
+              <div className="flex items-center justify-between p-4 bg-accent/10 dark:bg-accent/10 border border-teal-200 dark:border-teal-800 rounded-2xl">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900/40 rounded-xl flex items-center justify-center">
-                    <FileSpreadsheet className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                  <div className="w-10 h-10 bg-accent/10 dark:bg-accent/10 rounded-xl flex items-center justify-center">
+                    <FileSpreadsheet className="w-5 h-5 text-accent dark:text-accent" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <p className="text-sm font-medium text-foreground dark:text-foreground">
                       Need a template?
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground/60">
                       Download our CSV template to get started
                     </p>
                   </div>
@@ -195,7 +195,7 @@ export default function DataImportDialog({
               {/* File Upload */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-2xl p-8 text-center cursor-pointer hover:border-teal-400 dark:hover:border-teal-500 hover:bg-teal-50/50 dark:hover:bg-teal-900/10 transition-all duration-200"
+                className="border-2 border-dashed border-border dark:border-border rounded-2xl p-8 text-center cursor-pointer hover:border-accent dark:hover:border-accent hover:bg-accent/10/50 dark:hover:bg-accent/10 transition-all duration-200"
               >
                 <input
                   ref={fileInputRef}
@@ -204,16 +204,16 @@ export default function DataImportDialog({
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <div className="w-16 h-16 bg-teal-100 dark:bg-teal-900/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <FileUp className="w-8 h-8 text-teal-600 dark:text-teal-400" />
+                <div className="w-16 h-16 bg-accent/10 dark:bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <FileUp className="w-8 h-8 text-accent dark:text-accent" />
                 </div>
-                <p className="text-base font-medium text-gray-900 dark:text-gray-100 mb-1">
+                <p className="text-base font-medium text-foreground dark:text-foreground mb-1">
                   Upload CSV File
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground/60 mb-3">
                   Click to browse or drag and drop your CSV file here
                 </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">
+                <p className="text-xs text-muted-foreground/60 dark:text-muted-foreground">
                   Supports .csv files up to 10MB
                 </p>
               </div>
@@ -223,8 +223,8 @@ export default function DataImportDialog({
           {/* Processing Indicator */}
           {isProcessing && (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mb-4" />
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mb-4" />
+              <p className="text-sm font-medium text-foreground/80 dark:text-muted-foreground/40">
                 Processing file...
               </p>
             </div>
@@ -235,37 +235,37 @@ export default function DataImportDialog({
             <div className="space-y-4">
               {/* Stats */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Total Rows</p>
+                <div className="p-3 bg-info-light dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                  <p className="text-xs text-info dark:text-blue-400 font-medium">Total Rows</p>
                   <p className="text-xl font-bold text-blue-900 dark:text-blue-100">{importStats.total}</p>
                 </div>
                 <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
                   <p className="text-xs text-green-600 dark:text-green-400 font-medium">Valid</p>
                   <p className="text-xl font-bold text-green-900 dark:text-green-100">{importStats.valid}</p>
                 </div>
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                  <p className="text-xs text-red-600 dark:text-red-400 font-medium">Invalid</p>
+                <div className="p-3 bg-destructive/10 dark:bg-destructive/10 border border-destructive/20 dark:border-red-800 rounded-xl">
+                  <p className="text-xs text-destructive dark:text-destructive/80 font-medium">Invalid</p>
                   <p className="text-xl font-bold text-red-900 dark:text-red-100">{importStats.invalid}</p>
                 </div>
               </div>
 
               {/* Errors */}
               {errors.length > 0 && (
-                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl max-h-40 overflow-y-auto">
+                <div className="p-4 bg-destructive/10 dark:bg-destructive/10 border border-destructive/20 dark:border-red-800 rounded-xl max-h-40 overflow-y-auto">
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                    <AlertCircle className="w-4 h-4 text-destructive dark:text-destructive/80" />
                     <p className="text-sm font-medium text-red-800 dark:text-red-300">
                       Validation Errors ({errors.length})
                     </p>
                   </div>
                   <ul className="space-y-1">
                     {errors.slice(0, 10).map((error, idx) => (
-                      <li key={idx} className="text-xs text-red-600 dark:text-red-400">
+                      <li key={idx} className="text-xs text-destructive dark:text-destructive/80">
                         {error}
                       </li>
                     ))}
                     {errors.length > 10 && (
-                      <li className="text-xs text-red-600 dark:text-red-400 font-medium">
+                      <li className="text-xs text-destructive dark:text-destructive/80 font-medium">
                         ...and {errors.length - 10} more errors
                       </li>
                     )}
@@ -276,37 +276,37 @@ export default function DataImportDialog({
               {/* Data Preview */}
               {parsedData.length > 0 && (
                 <div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <p className="text-sm font-medium text-foreground/80 dark:text-muted-foreground/40 mb-2">
                     Preview ({parsedData.length} items)
                   </p>
-                  <div className="border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden max-h-80 overflow-y-auto">
+                  <div className="border border-border dark:border-border rounded-xl overflow-hidden max-h-80 overflow-y-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-gray-50 dark:bg-slate-700 sticky top-0">
+                      <thead className="bg-muted/50 dark:bg-muted/60 sticky top-0">
                         <tr>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Medicine</th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Batch</th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Company</th>
-                          <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Qty</th>
-                          <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Price</th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Expiry</th>
-                          <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400">Action</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground/60">Medicine</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground/60">Batch</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground/60">Company</th>
+                          <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground dark:text-muted-foreground/60">Qty</th>
+                          <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground dark:text-muted-foreground/60">Price</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground/60">Expiry</th>
+                          <th className="px-3 py-2 text-center text-xs font-medium text-muted-foreground dark:text-muted-foreground/60">Action</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                         {parsedData.map((row) => (
-                          <tr key={row._rowNumber} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                            <td className="px-3 py-2 text-gray-900 dark:text-gray-100">{row.name}</td>
-                            <td className="px-3 py-2 text-gray-600 dark:text-gray-400 font-mono text-xs">{row.batchNumber}</td>
-                            <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{row.company || '-'}</td>
-                            <td className="px-3 py-2 text-right text-gray-900 dark:text-gray-100">{row.quantity}</td>
-                            <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">
+                          <tr key={row._rowNumber} className="hover:bg-muted/50 dark:hover:bg-slate-700/50">
+                            <td className="px-3 py-2 text-foreground dark:text-foreground">{row.name}</td>
+                            <td className="px-3 py-2 text-muted-foreground dark:text-muted-foreground/60 font-mono text-xs">{row.batchNumber}</td>
+                            <td className="px-3 py-2 text-muted-foreground dark:text-muted-foreground/60">{row.company || '-'}</td>
+                            <td className="px-3 py-2 text-right text-foreground dark:text-foreground">{row.quantity}</td>
+                            <td className="px-3 py-2 text-right text-foreground/80 dark:text-muted-foreground/40">
                               {row.purchasePrice ? `₹${row.purchasePrice}` : '-'}
                             </td>
-                            <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">{row.expiryDate || '-'}</td>
+                            <td className="px-3 py-2 text-xs text-muted-foreground dark:text-muted-foreground/60">{row.expiryDate || '-'}</td>
                             <td className="px-3 py-2 text-center">
                               <button
                                 onClick={() => removeRow(row._rowNumber)}
-                                className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors"
+                                className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-destructive dark:text-destructive/80 transition-colors"
                                 title="Remove row"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -324,16 +324,16 @@ export default function DataImportDialog({
 
           {/* Global Errors */}
           {errors.length > 0 && parsedData.length === 0 && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+            <div className="p-4 bg-destructive/10 dark:bg-destructive/10 border border-destructive/20 dark:border-red-800 rounded-xl">
               <div className="flex items-start gap-2">
-                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-destructive dark:text-destructive/80 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">
                     Import Failed
                   </p>
                   <ul className="space-y-1 max-h-40 overflow-y-auto">
                     {errors.map((error, idx) => (
-                      <li key={idx} className="text-xs text-red-600 dark:text-red-400">
+                      <li key={idx} className="text-xs text-destructive dark:text-destructive/80">
                         {error}
                       </li>
                     ))}
@@ -346,11 +346,11 @@ export default function DataImportDialog({
 
         {/* Footer */}
         {parsedData.length > 0 && (
-          <DialogFooter className="px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
+          <DialogFooter className="px-6 py-4 border-t border-border dark:border-border bg-muted/50 dark:bg-muted/40/50">
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-sm text-foreground/80 dark:text-muted-foreground/40">
                   {importStats.valid} {importStats.valid === 1 ? 'item' : 'items'} ready to import
                 </span>
               </div>

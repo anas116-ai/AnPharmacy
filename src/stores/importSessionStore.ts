@@ -459,7 +459,7 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
       if (hasErrors && !session.editedRows[i]) {
         previewItems.push({ action: 'error', name, batch, quantity: qty, mrp, reason: 'Has validation errors', company, expiry, selling_price: sellingPrice, purchase_price: purchasePrice });
         rowsIgnored++;
-      } else if (isDuplicate && valResult?.duplicateInfo?.userDecision === 'skip') {
+      } else if (isDuplicate && (valResult?.duplicateInfo?.userDecision || valResult?.duplicateInfo?.suggestion) === 'skip') {
         previewItems.push({ action: 'skip', name, batch, quantity: qty, mrp, reason: 'Duplicate', company, expiry, selling_price: sellingPrice, purchase_price: purchasePrice });
         rowsIgnored++;
       } else if (isDuplicate) {
@@ -515,6 +515,25 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
       const newMedicines: any[] = [];
       let addedCount = 0;
       let updatedCount = 0;
+
+      // Collector for purchase-level fields (supplier/invoice) across committed rows
+      const fieldValues: Record<string, string[]> = {};
+      const collect = (key: string, val: string) => {
+        if (!val) return;
+        if (!fieldValues[key]) fieldValues[key] = [];
+        fieldValues[key].push(val);
+      };
+      const collectSupplierField = (key: string): string => {
+        const vals = fieldValues[key] || [];
+        // prefer the value that appears in the most rows
+        const counts: Record<string, number> = {};
+        for (const v of vals) counts[v] = (counts[v] || 0) + 1;
+        let best = ''; let bestCount = 0;
+        for (const v of Object.keys(counts)) {
+          if (counts[v] > bestCount) { best = v; bestCount = counts[v]; }
+        }
+        return best;
+      };
 
       // Small helper for safe integer parsing
       const safeInt = (v: string, fallback: number | null = null): number | null => {
@@ -575,7 +594,7 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
             case 'manufacturer_name': medicine.manufacturer_name = strVal; break;
             case 'manufacturer_id': medicine.manufacturer_id = safeInt(strVal); break;
             case 'supplier_id': medicine.supplier_id = safeInt(strVal); break;
-            case 'supplier_name': medicine.company = medicine.company || strVal; break;
+            case 'supplier_name': medicine.supplier_name = strVal; medicine.company = medicine.company || strVal; break;
             case 'dosage_form': medicine.dosage_form = strVal; break;
             case 'category': medicine.category = strVal; break;
             case 'supplier_gstin': medicine.supplier_gstin = strVal; break;
@@ -617,6 +636,14 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
             case 'cold_chain': medicine.cold_chain = safeInt(strVal, 0)!; break;
           }
         }
+
+        // Collect purchase-level fields for the supplier/purchase record
+        collect('supplier_name', medicine.supplier_name || '');
+        collect('supplier_gstin', medicine.supplier_gstin || '');
+        collect('invoice_no', medicine.invoice_no || '');
+        collect('invoice_date', medicine.invoice_date || '');
+        collect('gstin', medicine.supplier_gstin || '');
+        collect('supplier', medicine.company || '');
 
         // Set default values (only for fields not already mapped from import)
         medicine.added_by = 1;
@@ -661,15 +688,17 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
           medicine.days_remaining = Math.round(daysRemaining);
         }
 
-        // Handle duplicates based on user decision
+        // Handle duplicates based on user decision (fall back to engine suggestion)
         const valResult = session.validationResults[i];
         const duplicateInfo = valResult?.duplicateInfo;
-        
-        if (duplicateInfo && duplicateInfo.userDecision === 'skip') {
+        // ponytail: userDecision is never set by the UI; default to the engine's suggestion
+        const dupDecision = duplicateInfo?.userDecision || duplicateInfo?.suggestion;
+
+        if (dupDecision === 'skip') {
           continue; // Skip this row
         }
 
-        if (duplicateInfo && duplicateInfo.userDecision === 'increase_qty') {
+        if (dupDecision === 'increase_qty' && duplicateInfo) {
           // Increase quantity of existing batch
           const existingIdx = existingMedicines.findIndex(m => m.id === duplicateInfo.existingIds[0]);
           if (existingIdx !== -1) {
@@ -683,7 +712,7 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
           continue;
         }
 
-        if (duplicateInfo && (duplicateInfo.userDecision === 'replace')) {
+        if (dupDecision === 'replace' && duplicateInfo) {
           // Replace existing
           const existingIdx = existingMedicines.findIndex(m => m.id === duplicateInfo.existingIds[0]);
           if (existingIdx !== -1) {
@@ -709,20 +738,37 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
           // Fallback: save directly to localStorage
           try { localStorage.setItem('anpharm_medicines', JSON.stringify(updatedStock)); } catch {}
         }
-        // Refresh dashboard stats
-        try {
-          const dashResult = await window.electronAPI.getDashboardStats();
-          if (dashResult.success) {
-            useStockStore.getState().setDashboardStats(dashResult.stats);
-          }
-        } catch {}
+        // Refresh stock + dashboard stats from the canonical DB rows (ids may differ after bulk save)
+        await useStockStore.getState().refreshAll();
       } else {
         // No API available — save directly to localStorage as fallback
         try { localStorage.setItem('anpharm_medicines', JSON.stringify(updatedStock)); } catch {}
+        // Update the in-memory store
+        setMedicines(updatedStock);
       }
 
-      // Update the in-memory store
-      setMedicines(updatedStock);
+      // ── Record purchase + supplier profile (unblocks payables) ──
+      // ponytail: best-effort; if the file has no supplier column this is a no-op, never blocks the commit
+      try {
+        const supplierName = collectSupplierField('supplier_name') || collectSupplierField('supplier') || '';
+        const supplierGstin = collectSupplierField('supplier_gstin') || collectSupplierField('gstin') || '';
+        const invoiceNo = collectSupplierField('invoice_no') || '';
+        const invoiceDate = collectSupplierField('invoice_date') || '';
+        if (supplierName || supplierGstin) {
+          const totalAmount = newMedicines.reduce((s, m) => s + ((m.purchase_price || 0) * (m.quantity || 0)), 0);
+          await window.electronAPI.createPurchase({
+            supplierName: supplierName || undefined,
+            supplierGstin: supplierGstin || undefined,
+            invoiceNo: invoiceNo || undefined,
+            invoiceDate: invoiceDate || undefined,
+            totalAmount: totalAmount || undefined,
+            items: newMedicines.map(m => ({ name: m.name, quantity: m.quantity, purchase_price: m.purchase_price })),
+          });
+        }
+      } catch (e) {
+        // ponytail: purchase recording is secondary; commit already succeeded
+        console.error('Failed to record purchase from import:', e);
+      }
 
       // Record AI Learning Engine mappings
       for (const mapping of session.columnMappings) {

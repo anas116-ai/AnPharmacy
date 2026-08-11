@@ -6,6 +6,9 @@ export interface ColumnDef {
   visible: boolean;
   editable: boolean;
   options?: { value: string; label: string }[];
+  highlight?: string;
+  color?: string;
+  borders?: 'left' | 'right' | 'both';
 }
 
 export interface FilterDef {

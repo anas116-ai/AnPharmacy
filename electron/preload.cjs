@@ -29,6 +29,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   listStock: () => ipcRenderer.invoke('stock:list'),
   addStock: (data) => ipcRenderer.invoke('stock:add', data),
   getBatches: (data) => ipcRenderer.invoke('stock:getBatches', data),
+  saveAllStock: (data) => ipcRenderer.invoke('stock:saveAll', data),
+
+  // Recycle Bin
+  deleteToBin: (data) => ipcRenderer.invoke('stock:deleteToBin', data),
+  getDeletedStock: () => ipcRenderer.invoke('stock:getDeleted'),
+  restoreFromBin: (data) => ipcRenderer.invoke('stock:restoreFromBin', data),
+  permanentDeleteStock: (data) => ipcRenderer.invoke('stock:permanentDelete', data),
 
   // Sales
   processSale: (data) => ipcRenderer.invoke('sales:process', data),
@@ -42,6 +49,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getExpiryReport: () => ipcRenderer.invoke('reports:expiry'),
   getExpiryTierReport: () => ipcRenderer.invoke('reports:expiryTiers'),
   getProfitReport: () => ipcRenderer.invoke('reports:profit'),
+  getSaleMarginReport: (days) => ipcRenderer.invoke('reports:saleMargin', { days }),
+  getReceivables: () => ipcRenderer.invoke('reports:receivables'),
+  getPayables: () => ipcRenderer.invoke('reports:payables'),
+  getGst1Report: (month) => ipcRenderer.invoke('reports:gst1', { month }),
+  createPurchase: (data) => ipcRenderer.invoke('purchases:create', data),
+  updatePurchaseReturnStatus: (data) => ipcRenderer.invoke('purchaseReturns:updateStatus', data),
   getSalesReport: () => ipcRenderer.invoke('reports:sales'),
 
   // Dashboard

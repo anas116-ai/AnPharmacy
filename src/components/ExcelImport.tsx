@@ -82,7 +82,7 @@ export default function ExcelImport() {
       if (isExcel) {
         const XLSX = await import('xlsx');
         const buffer = await file.arrayBuffer();
-        const workbook = XLSX.read(buffer, { type: 'array' });
+        const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json<any>(worksheet, { defval: '' });
@@ -117,6 +117,9 @@ export default function ExcelImport() {
             if (value === null || value === undefined) {
               const directMatch = excelHeaders.find(h => h.toLowerCase().replace(/\s/g, '') === col.key.toLowerCase());
               value = directMatch ? excelRow[directMatch] : '';
+            }
+            if (value instanceof Date && !isNaN(value.getTime())) {
+              value = `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
             }
             const strValue = String(value ?? '');
             const transformedValue = col.transform ? col.transform(strValue) : strValue;
@@ -216,10 +219,9 @@ export default function ExcelImport() {
           if (result.success) addedCount++;
         }
 
-        const stockResult = await window.electronAPI.listStock();
-        if (stockResult.success) setMedicines(stockResult.medicines || []);
+        await useStockStore.getState().refreshAll();
         
-        setSuccess(`✅ Successfully imported ${addedCount} of ${validData.length} items!`);
+        setSuccess(`Successfully imported ${addedCount} of ${validData.length} items!`);
         toast.success('Import Complete!', `Added ${addedCount} medicines to stock`);
         
         // Clear state after success
@@ -268,17 +270,17 @@ export default function ExcelImport() {
           <Database className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Excel Stock Migration</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Import complete stock data from Excel (.xlsx) or CSV files</p>
+          <h2 className="text-lg font-bold text-foreground dark:text-foreground">Excel Stock Migration</h2>
+          <p className="text-xs text-muted-foreground dark:text-muted-foreground/60">Import complete stock data from Excel (.xlsx) or CSV files</p>
         </div>
       </div>
 
       {success && (
-        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4 animate-fade-in">
-          <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 text-emerald-600" />
+        <div className="flex items-center gap-3 bg-success-light border border-success/40 rounded-2xl px-5 py-4 animate-fade-in">
+          <div className="w-10 h-10 bg-success-light rounded-xl flex items-center justify-center">
+            <CheckCircle className="w-5 h-5 text-success" />
           </div>
-          <span className="text-emerald-700 text-sm font-medium">{success}</span>
+          <span className="text-success text-sm font-medium">{success}</span>
         </div>
       )}
 
@@ -287,24 +289,24 @@ export default function ExcelImport() {
         <Card variant="bordered">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Upload className="w-5 h-5 text-teal-600" />
+              <Upload className="w-5 h-5 text-accent" />
               Upload Stock File
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-2xl p-10 text-center cursor-pointer hover:border-teal-400 dark:hover:border-teal-500 hover:bg-teal-50/50 dark:hover:bg-teal-900/10 transition-all duration-200"
+              className="border-2 border-dashed border-border dark:border-border rounded-2xl p-10 text-center cursor-pointer hover:border-accent dark:hover:border-accent hover:bg-accent/10 dark:hover:bg-accent/10 transition-all duration-200"
             >
               <input ref={fileInputRef} type="file" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} className="hidden" />
-              <div className="w-20 h-20 bg-teal-100 dark:bg-teal-900/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <FileUp className="w-10 h-10 text-teal-600 dark:text-teal-400" />
+              <div className="w-20 h-20 bg-accent/10 dark:bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <FileUp className="w-10 h-10 text-accent dark:text-accent" />
               </div>
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Click to upload your stock file</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Supports Excel (.xlsx, .xls) and CSV files</p>
+              <p className="text-lg font-semibold text-foreground dark:text-foreground mb-2">Click to upload your stock file</p>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground/60 mb-4">Supports Excel (.xlsx, .xls) and CSV files</p>
               <div className="flex items-center justify-center gap-2">
-                <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-xs text-blue-600 dark:text-blue-400 font-semibold">XLSX</span>
-                <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-xs text-emerald-600 dark:text-emerald-400 font-semibold">XLS</span>
+                <span className="px-3 py-1 bg-info-light dark:bg-blue-900/30 rounded-lg text-xs text-info dark:text-blue-400 font-semibold">XLSX</span>
+                <span className="px-3 py-1 bg-success-light dark:bg-success-light rounded-lg text-xs text-success dark:text-success font-semibold">XLS</span>
                 <span className="px-3 py-1 bg-purple-50 dark:bg-purple-900/30 rounded-lg text-xs text-purple-600 dark:text-purple-400 font-semibold">CSV</span>
               </div>
             </div>
@@ -312,12 +314,12 @@ export default function ExcelImport() {
             {/* Template */}
             <div className="flex items-center justify-between p-4 bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-xl">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
-                  <FileSpreadsheet className="w-5 h-5 text-teal-600" />
+                <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
+                  <FileSpreadsheet className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Need a template?</p>
-                  <p className="text-xs text-gray-500">Download our CSV template with all supported columns</p>
+                  <p className="text-sm font-medium text-foreground">Need a template?</p>
+                  <p className="text-xs text-muted-foreground">Download our CSV template with all supported columns</p>
                 </div>
               </div>
               <Button onClick={downloadCSVTemplate} variant="outline-teal" size="sm" className="gap-2">
@@ -328,14 +330,14 @@ export default function ExcelImport() {
             {/* Column Info */}
             <Card variant="bordered">
               <CardContent className="p-4">
-                <p className="text-sm font-medium text-gray-700 mb-3">Supported Columns — Auto-detected from file headers</p>
+                <p className="text-sm font-medium text-foreground/80 mb-3">Supported Columns — Auto-detected from file headers</p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {MEDICINE_COLUMNS.map(col => (
-                    <div key={col.key} className="flex items-center gap-1.5 text-xs text-gray-600">
+                    <div key={col.key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       {col.required ? (
                         <Badge variant="critical" size="sm">Required</Badge>
                       ) : (
-                        <span className="text-gray-300">—</span>
+                        <span className="text-muted-foreground/40">—</span>
                       )}
                       {col.label}
                     </div>
@@ -351,9 +353,9 @@ export default function ExcelImport() {
       {isProcessing && (
         <Card variant="bordered">
           <CardContent className="p-8 flex flex-col items-center">
-            <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="font-medium text-gray-700">Processing file...</p>
-            <p className="text-xs text-gray-500 mt-1">Parsing data and validating fields</p>
+            <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="font-medium text-foreground/80">Processing file...</p>
+            <p className="text-xs text-muted-foreground mt-1">Parsing data and validating fields</p>
           </CardContent>
         </Card>
       )}
@@ -363,7 +365,7 @@ export default function ExcelImport() {
         <>
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card className="overflow-hidden border-0 bg-gradient-to-br from-teal-500 to-emerald-600">
+            <Card className="overflow-hidden border-0 bg-gradient-to-br from-accent to-success">
               <CardContent className="p-4">
                 <p className="text-[10px] font-medium text-white/80 uppercase">Total Items</p>
                 <p className="text-2xl font-bold text-white mt-1">{importStats.total}</p>
@@ -374,7 +376,7 @@ export default function ExcelImport() {
               <CardContent className="p-4">
                 <p className="text-[10px] font-medium text-white/80 uppercase">Valid</p>
                 <p className="text-2xl font-bold text-white mt-1">{importStats.valid}</p>
-                <p className="text-[10px] text-white/60 mt-1">Ready to import ✓</p>
+                <p className="text-[10px] text-white/60 mt-1">Ready to import</p>
               </CardContent>
             </Card>
             <Card className="overflow-hidden border-0 bg-gradient-to-br from-amber-500 to-orange-600">
@@ -384,7 +386,7 @@ export default function ExcelImport() {
                 <p className="text-[10px] text-white/60 mt-1">Needs review</p>
               </CardContent>
             </Card>
-            <Card className="overflow-hidden border-0 bg-gradient-to-br from-purple-500 to-violet-600">
+            <Card className="overflow-hidden border-0 bg-gradient-to-br from-accent to-accent/80">
               <CardContent className="p-4">
                 <p className="text-[10px] font-medium text-white/80 uppercase">Format</p>
                 <p className="text-2xl font-bold text-white mt-1">{fileFormat?.toUpperCase()}</p>
@@ -395,29 +397,29 @@ export default function ExcelImport() {
 
           {/* Errors */}
           {errors.length > 0 && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-xl max-h-40 overflow-y-auto">
-              <p className="text-xs font-semibold text-red-700 flex items-center gap-1.5 mb-2">
+            <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl max-h-40 overflow-y-auto">
+              <p className="text-xs font-semibold text-destructive flex items-center gap-1.5 mb-2">
                 <AlertCircle className="w-3.5 h-3.5" />
                 Validation Errors ({errors.length})
               </p>
               <ul className="space-y-0.5">
                 {errors.slice(0, 10).map((err, i) => (
-                  <li key={i} className="text-xs text-red-600">{err}</li>
+                  <li key={i} className="text-xs text-destructive">{err}</li>
                 ))}
-                {errors.length > 10 && <li className="text-xs text-red-500 font-medium">...and {errors.length - 10} more</li>}
+                {errors.length > 10 && <li className="text-xs text-destructive font-medium">...and {errors.length - 10} more</li>}
               </ul>
             </div>
           )}
 
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search in imported data..."
-              className="w-full pl-10 pr-4 h-11 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+              className="w-full pl-10 pr-4 h-11 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
             />
           </div>
 
@@ -425,37 +427,37 @@ export default function ExcelImport() {
           <Card variant="bordered" className="overflow-hidden">
             <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
               <table className="w-full text-xs">
-                <thead className="bg-gray-50 sticky top-0">
+                <thead className="bg-muted/50 sticky top-0">
                   <tr>
-                    <th className="px-2 py-2.5 text-left font-semibold text-gray-600">#</th>
-                    <th className="px-2 py-2.5 text-left font-semibold text-gray-600">Medicine</th>
-                    <th className="px-2 py-2.5 text-left font-semibold text-gray-600">Batch</th>
-                    <th className="px-2 py-2.5 text-left font-semibold text-gray-600">Company</th>
-                    <th className="px-2 py-2.5 text-right font-semibold text-gray-600">Qty</th>
-                    <th className="px-2 py-2.5 text-right font-semibold text-gray-600">Purchase</th>
-                    <th className="px-2 py-2.5 text-right font-semibold text-gray-600">Sale</th>
-                    <th className="px-2 py-2.5 text-left font-semibold text-gray-600">Expiry</th>
-                    <th className="px-2 py-2.5 text-center font-semibold text-gray-600">GST</th>
-                    <th className="px-2 py-2.5 text-center font-semibold text-gray-600">HSN</th>
-                    <th className="px-2 py-2.5 text-center font-semibold text-gray-600">Status</th>
-                    <th className="px-2 py-2.5 text-center font-semibold text-gray-600">Action</th>
+                    <th className="px-2 py-2.5 text-left font-semibold text-muted-foreground">#</th>
+                    <th className="px-2 py-2.5 text-left font-semibold text-muted-foreground">Medicine</th>
+                    <th className="px-2 py-2.5 text-left font-semibold text-muted-foreground">Batch</th>
+                    <th className="px-2 py-2.5 text-left font-semibold text-muted-foreground">Company</th>
+                    <th className="px-2 py-2.5 text-right font-semibold text-muted-foreground">Qty</th>
+                    <th className="px-2 py-2.5 text-right font-semibold text-muted-foreground">Purchase</th>
+                    <th className="px-2 py-2.5 text-right font-semibold text-muted-foreground">Sale</th>
+                    <th className="px-2 py-2.5 text-left font-semibold text-muted-foreground">Expiry</th>
+                    <th className="px-2 py-2.5 text-center font-semibold text-muted-foreground">GST</th>
+                    <th className="px-2 py-2.5 text-center font-semibold text-muted-foreground">HSN</th>
+                    <th className="px-2 py-2.5 text-center font-semibold text-muted-foreground">Status</th>
+                    <th className="px-2 py-2.5 text-center font-semibold text-muted-foreground">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {filteredData.map((row) => {
                     const hasErrors = row._errors.length > 0;
                     return (
-                      <tr key={row._rowNumber} className={cn('hover:bg-gray-50 transition-colors', hasErrors && 'bg-red-50/40')}>
-                        <td className="px-2 py-2 text-gray-400 font-mono">{row._rowNumber}</td>
-                        <td className="px-2 py-2 font-medium text-gray-900">{row.name || <span className="text-red-400">[Missing]</span>}</td>
-                        <td className="px-2 py-2 font-mono text-gray-600 text-xs">{row.batchNumber || '—'}</td>
-                        <td className="px-2 py-2 text-gray-600">{row.company || '—'}</td>
-                        <td className="px-2 py-2 text-right font-bold text-gray-900">{row.quantity || 0}</td>
-                        <td className="px-2 py-2 text-right text-gray-700">{row.purchasePrice ? `₹${row.purchasePrice}` : '—'}</td>
-                        <td className="px-2 py-2 text-right text-gray-700">{row.sellingPrice ? `₹${row.sellingPrice}` : '—'}</td>
-                        <td className="px-2 py-2 text-xs text-gray-500">{row.expiryDate || '—'}</td>
+                      <tr key={row._rowNumber} className={cn('hover:bg-muted/50 transition-colors', hasErrors && 'bg-destructive/10/40')}>
+                        <td className="px-2 py-2 text-muted-foreground/60 font-mono">{row._rowNumber}</td>
+                        <td className="px-2 py-2 font-medium text-foreground">{row.name || <span className="text-destructive/80">[Missing]</span>}</td>
+                        <td className="px-2 py-2 font-mono text-muted-foreground text-xs">{row.batchNumber || '—'}</td>
+                        <td className="px-2 py-2 text-muted-foreground">{row.company || '—'}</td>
+                        <td className="px-2 py-2 text-right font-bold text-foreground">{row.quantity || 0}</td>
+                        <td className="px-2 py-2 text-right text-foreground/80">{row.purchasePrice ? `₹${row.purchasePrice}` : '—'}</td>
+                        <td className="px-2 py-2 text-right text-foreground/80">{row.sellingPrice ? `₹${row.sellingPrice}` : '—'}</td>
+                        <td className="px-2 py-2 text-xs text-muted-foreground">{row.expiryDate || '—'}</td>
                         <td className="px-2 py-2 text-center text-indigo-600">{row.gstPercent ? `${row.gstPercent}%` : '—'}</td>
-                        <td className="px-2 py-2 text-center text-gray-500 font-mono text-[10px]">{row.hsnCode || '—'}</td>
+                        <td className="px-2 py-2 text-center text-muted-foreground font-mono text-[10px]">{row.hsnCode || '—'}</td>
                         <td className="px-2 py-2 text-center">
                           {hasErrors ? (
                             <Badge variant="expired" size="sm">Invalid</Badge>
@@ -465,7 +467,7 @@ export default function ExcelImport() {
                         </td>
                         <td className="px-2 py-2 text-center">
                           <button onClick={() => removeRow(row._rowNumber)}
-                            className="p-1 rounded hover:bg-red-100 text-red-500 transition-colors">
+                            className="p-1 rounded hover:bg-red-100 text-destructive transition-colors">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </td>
@@ -479,7 +481,7 @@ export default function ExcelImport() {
 
           {/* Actions */}
           <div className="flex justify-between items-center">
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-muted-foreground">
               {importStats.valid} valid items ready · {importStats.invalid} need review
             </div>
             <div className="flex gap-3">
@@ -487,7 +489,7 @@ export default function ExcelImport() {
                 <X className="w-4 h-4 mr-2" /> Clear & Restart
               </Button>
               <Button onClick={handleImport} disabled={isImporting || importStats.valid === 0}
-                size="xl" className="gap-2 min-w-[200px] shadow-lg shadow-teal-500/20">
+                size="xl" className="gap-2 min-w-[200px] shadow-lg shadow-accent/20">
                 {isImporting ? (
                   <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Migrating Stock...</>
                 ) : (

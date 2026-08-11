@@ -98,11 +98,11 @@ export default function Settings() {
 
   const getLicenseStatusColor = () => {
     switch (licenseStatus) {
-      case 'active': return 'text-emerald-600';
+      case 'active': return 'text-success';
       case 'expired': return 'text-orange-600';
-      case 'invalid': return 'text-red-600';
+      case 'invalid': return 'text-destructive';
       case 'needs_heartbeat': return 'text-orange-600';
-      default: return 'text-gray-600';
+      default: return 'text-muted-foreground';
     }
   };
 
@@ -112,18 +112,18 @@ export default function Settings() {
       <Card variant="bordered">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Info className="w-5 h-5 text-teal-600" />
+            <Info className="w-5 h-5 text-accent" />
             {t('app.name')} - {t('settings.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-5">
-            <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/20">
+            <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20">
               <SettingsIcon className="w-10 h-10 text-white" />
             </div>
             <div>
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('app.name')}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('app.tagline')}</p>
+              <p className="text-xl font-bold text-foreground dark:text-foreground">{t('app.name')}</p>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground/60 mt-0.5">{t('app.tagline')}</p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant="outline-teal" size="sm">v1.0.0</Badge>
                 <Badge variant="secondary" size="sm">{t('settings.company')}</Badge>
@@ -132,17 +132,17 @@ export default function Settings() {
           </div>
           {/* User Info */}
           {user && (
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700 flex items-center gap-3">
+            <div className="mt-4 pt-4 border-t border-border dark:border-border flex items-center gap-3">
               <div className={cn(
                 'w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white bg-gradient-to-br',
-                user.role === 'admin' ? 'from-purple-500 to-purple-600' :
+                user.role === 'admin' ? 'from-accent to-accent/80' :
                 user.role === 'sales' ? 'from-blue-500 to-blue-600' : 'from-amber-500 to-amber-600'
               )}>
                 {user.displayName?.charAt(0) || 'U'}
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.displayName}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">@{user.username} · {user.role}</p>
+                <p className="text-sm font-medium text-foreground dark:text-foreground">{user.displayName}</p>
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground/60">@{user.username} · {user.role}</p>
               </div>
             </div>
           )}
@@ -153,21 +153,21 @@ export default function Settings() {
       <Card variant="bordered">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <Shield className="w-4 h-4 text-teal-600" />
+            <Shield className="w-4 h-4 text-accent" />
             {t('settings.license')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 rounded-2xl">
+          <div className="flex items-center justify-between p-4 bg-muted/50 dark:bg-muted/60/50 rounded-2xl">
             <div className="flex items-center gap-3">
               <div className={cn(
                 'w-10 h-10 rounded-xl flex items-center justify-center',
-                licenseStatus === 'active' ? 'bg-emerald-100 dark:bg-emerald-900/40' : 'bg-gray-100 dark:bg-slate-700'
+                licenseStatus === 'active' ? 'bg-success-light dark:bg-success-light' : 'bg-muted dark:bg-muted/60'
               )}>
-                <BadgeCheck className={cn('w-5 h-5', licenseStatus === 'active' ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-500')} />
+                <BadgeCheck className={cn('w-5 h-5', licenseStatus === 'active' ? 'text-success dark:text-success' : 'text-muted-foreground/60 dark:text-muted-foreground')} />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-200">License Status</p>
+                <p className="text-sm font-medium text-foreground/80 dark:text-muted-foreground/70">License Status</p>
                 <p className={cn('text-sm font-bold', getLicenseStatusColor())}>
                   {getStatusLabel(licenseStatus || 'not_activated')}
                 </p>
@@ -179,22 +179,22 @@ export default function Settings() {
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">
+            <label className="text-xs text-muted-foreground dark:text-muted-foreground/60 block mb-1.5">
               <span className="flex items-center gap-1">
                 <Monitor className="w-3 h-3" />
                 {t('license.deviceId')}
               </span>
             </label>
             <div className="flex gap-2">
-              <code className="flex-1 bg-gray-50 dark:bg-slate-700 rounded-xl px-4 py-3 text-xs font-mono text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-slate-600 select-all">
+              <code className="flex-1 bg-muted/50 dark:bg-muted/60 rounded-xl px-4 py-3 text-xs font-mono text-foreground/80 dark:text-muted-foreground/70 border border-border dark:border-border select-all">
                 {deviceId || 'Loading...'}
               </code>
               <button
                 onClick={handleCopyDeviceId}
-                className="px-3 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-600 hover:border-gray-300 dark:hover:border-slate-500 transition-all duration-200"
+                className="px-3 py-2 bg-muted/50 dark:bg-muted/60 border border-border dark:border-border rounded-xl hover:bg-muted dark:hover:bg-slate-600 hover:border-border dark:hover:border-slate-500 transition-all duration-200"
                 title="Copy Device ID"
               >
-                {copied ? <CheckCircle className="w-4 h-4 text-green-500 dark:text-green-400" /> : <Copy className="w-4 h-4 text-gray-500 dark:text-gray-400" />}
+                {copied ? <CheckCircle className="w-4 h-4 text-green-500 dark:text-green-400" /> : <Copy className="w-4 h-4 text-muted-foreground dark:text-muted-foreground/60" />}
               </button>
             </div>
           </div>
@@ -216,20 +216,20 @@ export default function Settings() {
       <Card variant="bordered">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <Database className="w-4 h-4 text-teal-600" />
+            <Database className="w-4 h-4 text-accent" />
             {t('settings.data')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {hasPermission('view_backup') && (
-            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 rounded-2xl hover:bg-gray-100/50 dark:hover:bg-slate-700 transition-colors group">
+            <div className="flex items-center justify-between p-4 bg-muted/50 dark:bg-muted/60/50 rounded-2xl hover:bg-muted/50 dark:hover:bg-slate-700 transition-colors group">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 bg-teal-100 dark:bg-teal-900/40 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <HardDrive className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                <div className="w-11 h-11 bg-accent/10 dark:bg-accent/40 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <HardDrive className="w-5 h-5 text-accent dark:text-accent" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('settings.backup')}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Create encrypted backup of all data</p>
+                  <p className="text-sm font-semibold text-foreground/80 dark:text-muted-foreground/70">{t('settings.backup')}</p>
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground/60">Create encrypted backup of all data</p>
                 </div>
               </div>
               <Button variant="outline-teal" size="sm" className="gap-1.5">
@@ -239,14 +239,14 @@ export default function Settings() {
             </div>
           )}
 
-          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 rounded-2xl hover:bg-gray-100/50 dark:hover:bg-slate-700 transition-colors group">
+          <div className="flex items-center justify-between p-4 bg-muted/50 dark:bg-muted/60/50 rounded-2xl hover:bg-muted/50 dark:hover:bg-slate-700 transition-colors group">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-gray-100 dark:bg-slate-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
-                <RefreshCw className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              <div className="w-11 h-11 bg-muted dark:bg-slate-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+                <RefreshCw className="w-5 h-5 text-muted-foreground dark:text-muted-foreground/40" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('settings.refresh')}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Reload all data from database</p>
+                <p className="text-sm font-semibold text-foreground/80 dark:text-muted-foreground/70">{t('settings.refresh')}</p>
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground/60">Reload all data from database</p>
               </div>
             </div>
             <Button onClick={handleRefreshData} variant="outline" size="sm" className="gap-1.5">
@@ -270,7 +270,7 @@ export default function Settings() {
         </Button>
       </div>
 
-      <p className="text-center text-xs text-gray-400 dark:text-gray-500 pb-8">
+      <p className="text-center text-xs text-muted-foreground/60 dark:text-muted-foreground pb-8">
         © 2024 {t('settings.company')}. {t('settings.copyright')}
       </p>
     </div>

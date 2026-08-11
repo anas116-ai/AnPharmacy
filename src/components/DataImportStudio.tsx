@@ -110,6 +110,25 @@ export default function DataImportStudio() {
     return () => clearInterval(interval);
   }, [session]);
 
+  // Fullscreen / maximize Escape handler
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+        setIsMaximized(false);
+        document.body.style.overflow = '';
+      }
+    };
+    if (isFullscreen) {
+      document.addEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreen]);
+
   // Handle file drop/select
   const handleFile = useCallback(async (file: File) => {
     const ext = '.' + (file.name.split('.').pop()?.toLowerCase() || '');
@@ -195,8 +214,8 @@ export default function DataImportStudio() {
               className={cn(
                 'flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-semibold transition-all duration-200 whitespace-nowrap border',
                 isActive && 'bg-slate-900 text-white border-slate-900 shadow-md',
-                isPast && 'bg-white dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/60 hover:shadow-sm cursor-pointer',
-                !isActive && !isPast && 'bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-default'
+                isPast && 'bg-background dark:bg-muted/40 text-success dark:text-success border-success/40 dark:border-success/40 hover:shadow-sm cursor-pointer',
+                !isActive && !isPast && 'bg-background dark:bg-muted/40 text-slate-400 dark:text-slate-400 border-slate-200 dark:border-border cursor-default'
               )}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -206,7 +225,7 @@ export default function DataImportStudio() {
             {idx < STEPS.length - 1 && (
               <div className={cn(
                 'h-px w-6 flex-shrink-0',
-                isPast ? 'bg-emerald-400' : 'bg-slate-200 dark:bg-slate-700'
+                isPast ? 'bg-success' : 'bg-muted'
               )} />
             )}
           </React.Fragment>
@@ -235,8 +254,8 @@ export default function DataImportStudio() {
         onClick={() => fileInputRef.current?.click()}
         className={cn(
           'relative border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-200',
-          'hover:border-emerald-400 hover:bg-emerald-50/40 group',
-          dragOver ? 'border-emerald-500 bg-emerald-50 scale-[1.01]' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
+          'hover:border-emerald-400 hover:bg-success-light/40 group',
+          dragOver ? 'border-emerald-500 bg-success-light scale-[1.01]' : 'border-slate-200 dark:border-border bg-background dark:bg-slate-900'
         )}
       >
         <input
@@ -249,12 +268,12 @@ export default function DataImportStudio() {
 
         <div className={cn(
           'w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-all duration-200 border',
-          'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700',
-          dragOver && 'border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 scale-110'
+          'bg-background dark:bg-muted/40 border-slate-100 dark:border-border',
+          dragOver && 'border-success/40 bg-success-light dark:bg-success-light scale-110'
         )}>
           <Upload className={cn(
             'w-8 h-8 transition-colors duration-200',
-            dragOver ? 'text-emerald-600' : 'text-slate-500'
+            dragOver ? 'text-success' : 'text-slate-500'
           )} />
         </div>
 
@@ -269,13 +288,13 @@ export default function DataImportStudio() {
       {/* Quick Format Guide */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { icon: FileSpreadsheet, label: 'Excel Files', desc: '.xlsx, .xls', color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30' },
-          { icon: FileText, label: 'CSV / TSV', desc: '.csv, .tsv', color: 'text-blue-600 bg-blue-50 dark:bg-blue-950/30' },
+          { icon: FileSpreadsheet, label: 'Excel Files', desc: '.xlsx, .xls', color: 'text-success bg-success-light dark:bg-success-light' },
+          { icon: FileText, label: 'CSV / TSV', desc: '.csv, .tsv', color: 'text-info bg-info-light dark:bg-blue-950/30' },
           { icon: FileImage, label: 'PDF / Images', desc: '.pdf, .jpg, .png (OCR)', color: 'text-violet-600 bg-violet-50 dark:bg-violet-950/30' },
         ].map(item => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+            <div key={item.label} className="flex items-center gap-3 p-3 rounded-xl bg-background dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
               <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center border', item.color)}>
                 <Icon className="w-5 h-5" />
               </div>
@@ -316,7 +335,7 @@ export default function DataImportStudio() {
             </span>
             <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
               <div 
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                className="h-full bg-success-light rounded-full transition-all duration-500"
                 style={{ width: `${progress}%` }} 
               />
             </div>
@@ -325,7 +344,7 @@ export default function DataImportStudio() {
 
         {/* AI Suggestions Summary */}
         {aiSuggestions.length > 0 && (
-          <Card variant="bordered" className="bg-gradient-to-r from-violet-50 to-purple-50 border-violet-100">
+          <Card variant="bordered" className="bg-gradient-to-r from-accent/10 to-success-light border-violet-100">
             <CardContent className="p-3 flex items-center gap-3">
               <Sparkles className="w-4 h-4 text-violet-500" />
               <span className="text-xs text-violet-700">
@@ -342,10 +361,10 @@ export default function DataImportStudio() {
             <CardContent className="p-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <Bookmark className="w-5 h-5 text-amber-600" />
+                  <Bookmark className="w-5 h-5 text-warning" />
                   <div>
                     <p className="text-sm font-semibold text-amber-900">Import Profile Found</p>
-                    <p className="text-xs text-amber-700 mt-0.5">
+                    <p className="text-xs text-warning mt-0.5">
                       Profile: <strong>{matchedProfileName}</strong> — Apply saved column mappings?
                     </p>
                   </div>
@@ -379,7 +398,7 @@ export default function DataImportStudio() {
                 className={cn(
                   'flex items-center gap-3 p-3 rounded-xl border transition-all duration-200',
                   'hover:border-slate-300 hover:shadow-sm',
-                  mapping.isMapped ? 'bg-white border-border' : 'bg-amber-50/50 border-amber-200',
+                  mapping.isMapped ? 'bg-background border-border' : 'bg-warning-light/50 border-amber-200',
                 )}
               >
                 {/* Source Column */}
@@ -423,8 +442,8 @@ export default function DataImportStudio() {
                       'w-full px-3 py-2 text-xs rounded-lg border transition-all duration-200',
                       'focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400',
                       mapping.isMapped 
-                        ? 'bg-white border-border text-slate-700' 
-                        : 'bg-amber-50 border-amber-300 text-amber-800'
+                        ? 'bg-background border-border text-slate-700' 
+                        : 'bg-warning-light border-amber-300 text-amber-800'
                     )}
                   >
                     <option value="">— Skip / Do Not Import —</option>
@@ -456,7 +475,7 @@ export default function DataImportStudio() {
                         <button
                           key={alt.field}
                           onClick={() => handleMappingChange(mapping.sourceColumn, alt.field)}
-                          className="text-[9px] px-1.5 py-0.5 rounded bg-muted text-slate-500 hover:bg-slate-200 transition-colors"
+                          className="text-[9px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground hover:bg-muted transition-colors"
                         >
                           {PROTECTED_SCHEMA_FIELDS.find(f => f.key === alt.field)?.label || alt.field} ({alt.confidence}%)
                         </button>
@@ -481,7 +500,7 @@ export default function DataImportStudio() {
                             onClick={() => applyUnknownColumnAction(mapping.sourceColumn, action)}
                             className={cn(
                               'text-[9px] px-1.5 py-0.5 rounded transition-colors',
-                              isActive ? 'bg-emerald-100 text-emerald-700 font-medium' : 'bg-muted text-slate-500 hover:bg-slate-200'
+                              isActive ? 'bg-success-light text-success font-medium' : 'bg-muted text-muted-foreground hover:bg-muted'
                             )}
                           >
                             {labels[action]}
@@ -520,7 +539,7 @@ export default function DataImportStudio() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Bookmark className="w-5 h-5 text-emerald-600" />
+                <Bookmark className="w-5 h-5 text-success" />
                 Save Import Profile
               </DialogTitle>
             </DialogHeader>
@@ -591,9 +610,9 @@ export default function DataImportStudio() {
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'Valid Rows', value: validationSummary.validRows, color: 'text-emerald-600 bg-emerald-50', icon: Check },
-            { label: 'Warnings', value: validationSummary.totalWarnings, color: 'text-amber-600 bg-amber-50', icon: AlertTriangle },
-            { label: 'Errors', value: validationSummary.totalErrors, color: 'text-red-600 bg-red-50', icon: AlertCircle },
+            { label: 'Valid Rows', value: validationSummary.validRows, color: 'text-success bg-success-light', icon: Check },
+            { label: 'Warnings', value: validationSummary.totalWarnings, color: 'text-warning bg-warning-light', icon: AlertTriangle },
+            { label: 'Errors', value: validationSummary.totalErrors, color: 'text-destructive bg-destructive/10', icon: AlertCircle },
             { label: 'Duplicates', value: validationSummary.duplicateCount, color: 'text-violet-600 bg-violet-50', icon: AlertTriangle },
           ].map(item => {
             const Icon = item.icon;
@@ -627,14 +646,14 @@ export default function DataImportStudio() {
                   {record.fieldErrors.map((err, i) => (
                     <p key={i} className={cn(
                       'text-[11px] flex items-start gap-1.5',
-                      err.severity === 'error' ? 'text-red-600' : err.severity === 'warning' ? 'text-amber-600' : 'text-slate-500'
+                      err.severity === 'error' ? 'text-destructive' : err.severity === 'warning' ? 'text-warning' : 'text-slate-500'
                     )}>
                       {err.severity === 'error' ? <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" /> : <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />}
                       <span>{err.message}</span>
                     </p>
                   ))}
                   {record.globalWarnings.map((w, i) => (
-                    <p key={`gw-${i}`} className="text-[11px] text-amber-600 flex items-start gap-1.5">
+                    <p key={`gw-${i}`} className="text-[11px] text-warning flex items-start gap-1.5">
                       <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />
                       <span>{w}</span>
                     </p>
@@ -786,8 +805,8 @@ export default function DataImportStudio() {
         {/* Impact Summary */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'Rows to Add', value: summary.rowsAdded, color: 'text-emerald-600 bg-emerald-50' },
-            { label: 'Rows to Update', value: summary.rowsUpdated, color: 'text-amber-600 bg-amber-50' },
+            { label: 'Rows to Add', value: summary.rowsAdded, color: 'text-success bg-success-light' },
+            { label: 'Rows to Update', value: summary.rowsUpdated, color: 'text-warning bg-warning-light' },
             { label: 'Rows to Skip', value: summary.rowsIgnored, color: 'text-slate-500 bg-muted' },
             { label: 'New Columns', value: summary.columnsAdded, color: 'text-violet-600 bg-violet-50' },
           ].map(item => (
@@ -806,7 +825,7 @@ export default function DataImportStudio() {
                 <p className="text-[10px] text-navy-500 uppercase tracking-wider font-medium">Stock Value Change</p>
                 <p className={cn(
                   'text-lg font-bold font-data',
-                  summary.inventoryValueChange >= 0 ? 'text-emerald-700' : 'text-red-700'
+                  summary.inventoryValueChange >= 0 ? 'text-success' : 'text-destructive'
                 )}>
                   {summary.inventoryValueChange >= 0 ? '+' : ''}{formatCurrency(summary.inventoryValueChange)}
                 </p>
@@ -833,16 +852,16 @@ export default function DataImportStudio() {
             {summary.previewItems.slice(0, 100).map((item, idx) => (
               <div key={idx} className={cn(
                 'flex items-center justify-between p-2 rounded-lg text-xs',
-                item.action === 'add' && 'bg-emerald-50',
-                item.action === 'update' && 'bg-amber-50',
+                item.action === 'add' && 'bg-success-light',
+                item.action === 'update' && 'bg-warning-light',
                 item.action === 'skip' && 'bg-muted',
-                item.action === 'error' && 'bg-red-50',
+                item.action === 'error' && 'bg-destructive/10',
               )}>
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   {item.action === 'add' && <Check className="w-3 h-3 text-emerald-500 shrink-0" />}
-                  {item.action === 'update' && <RefreshCw className="w-3 h-3 text-amber-500 shrink-0" />}
+                  {item.action === 'update' && <RefreshCw className="w-3 h-3 text-warning shrink-0" />}
                   {item.action === 'skip' && <X className="w-3 h-3 text-slate-400 shrink-0" />}
-                  {item.action === 'error' && <AlertCircle className="w-3 h-3 text-red-500 shrink-0" />}
+                  {item.action === 'error' && <AlertCircle className="w-3 h-3 text-destructive shrink-0" />}
                   <span className="font-medium text-slate-700 truncate">{item.name}</span>
                   {item.batch && <span className="text-[10px] font-mono text-slate-400">{item.batch}</span>}
                 </div>
@@ -886,7 +905,7 @@ export default function DataImportStudio() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                <AlertTriangle className="w-5 h-5 text-warning" />
                 Confirm Commit to Stock
               </DialogTitle>
             </DialogHeader>
@@ -900,7 +919,7 @@ export default function DataImportStudio() {
                 </li>
                 {summary.rowsUpdated > 0 && (
                   <li className="flex items-center gap-2">
-                    <RefreshCw className="w-3 h-3 text-amber-500" /> {summary.rowsUpdated} existing items will be updated
+                    <RefreshCw className="w-3 h-3 text-warning" /> {summary.rowsUpdated} existing items will be updated
                   </li>
                 )}
                 {summary.columnsAdded > 0 && (
@@ -912,7 +931,7 @@ export default function DataImportStudio() {
                   <BarChart3 className="w-3 h-3 text-navy-500" /> Stock value change: <strong>{formatCurrency(summary.inventoryValueChange)}</strong>
                 </li>
               </ul>
-              <p className="text-xs text-amber-600 bg-amber-50 p-3 rounded-lg">
+              <p className="text-xs text-warning bg-warning-light p-3 rounded-lg">
                 <strong>Warning:</strong> This action can be undone from Import History for the next 30 days.
               </p>
             </div>
@@ -940,8 +959,8 @@ export default function DataImportStudio() {
 
     return (
       <div className="text-center py-12 space-y-6">
-        <div className="w-20 h-20 mx-auto rounded-full bg-emerald-100 flex items-center justify-center">
-          <FileCheck className="w-10 h-10 text-emerald-600" />
+        <div className="w-20 h-20 mx-auto rounded-full bg-success-light flex items-center justify-center">
+          <FileCheck className="w-10 h-10 text-success" />
         </div>
         
         <div>
@@ -1009,7 +1028,7 @@ export default function DataImportStudio() {
   if (error) {
     return (
       <div className="text-center py-12 space-y-4">
-        <AlertCircle className="w-16 h-16 text-red-400 mx-auto" />
+        <AlertCircle className="w-16 h-16 text-destructive/80 mx-auto" />
         <h3 className="text-lg font-semibold text-slate-900">Error</h3>
         <p className="text-sm text-slate-500 max-w-md mx-auto">{error}</p>
         <Button variant="outline" onClick={() => {
@@ -1023,26 +1042,8 @@ export default function DataImportStudio() {
   }
 
   // ═════════════════════════════════════════════════════════════════
-  // FULLSCREEN / MAXIMIZE EFFECT
+  // FULLSCREEN / MAXIMIZE HELPERS
   // ═════════════════════════════════════════════════════════════════
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isFullscreen) {
-        setIsFullscreen(false);
-        setIsMaximized(false);
-        document.body.style.overflow = '';
-      }
-    };
-    if (isFullscreen) {
-      document.addEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'hidden';
-    }
-    return () => {
-      document.removeEventListener('keydown', handleEsc);
-      document.body.style.overflow = '';
-    };
-  }, [isFullscreen]);
-
   const toggleFullscreen = () => {
     setIsFullscreen(f => !f);
     setIsMaximized(false);
@@ -1064,7 +1065,7 @@ export default function DataImportStudio() {
   // ═════════════════════════════════════════════════════════════════
   if (isMaximized && !isFullscreen) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-white dark:bg-slate-900 flex flex-col animate-fade-in">
+      <div className="fixed inset-0 z-[9999] bg-background dark:bg-slate-900 flex flex-col animate-fade-in">
         {/* Maximized Header */}
         <div className="flex items-center justify-between px-6 py-3 bg-slate-50 border-b border-slate-200">
           <div>
@@ -1085,7 +1086,7 @@ export default function DataImportStudio() {
           {renderStepIndicator()}
           <Card variant="bordered" className={cn(
             'transition-all duration-300',
-            activeStep === 'preview' ? 'bg-gradient-to-br from-slate-50 to-white' : 'bg-white'
+            activeStep === 'preview' ? 'bg-gradient-to-br from-slate-50 to-white' : 'bg-background'
           )}>
             <CardContent className="p-6">
               {activeStep === 'select' && renderFileSelect()}
@@ -1103,7 +1104,7 @@ export default function DataImportStudio() {
 
   if (isFullscreen) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-white dark:bg-slate-900 flex flex-col animate-fade-in">
+      <div className="fixed inset-0 z-[9999] bg-background dark:bg-slate-900 flex flex-col animate-fade-in">
         {/* Fullscreen Header */}
         <div className="flex items-center justify-between px-6 py-3 bg-slate-50 border-b border-slate-200">
           <div>
@@ -1121,7 +1122,7 @@ export default function DataImportStudio() {
           {renderStepIndicator()}
           <Card variant="bordered" className={cn(
             'transition-all duration-300',
-            activeStep === 'preview' ? 'bg-gradient-to-br from-slate-50 to-white' : 'bg-white'
+            activeStep === 'preview' ? 'bg-gradient-to-br from-slate-50 to-white' : 'bg-background'
           )}>
             <CardContent className="p-6">
               {activeStep === 'select' && renderFileSelect()}
@@ -1175,7 +1176,7 @@ export default function DataImportStudio() {
       {/* Content Area */}
       <Card variant="bordered" className={cn(
         'transition-all duration-300',
-        activeStep === 'preview' ? 'bg-gradient-to-br from-slate-50 to-white' : 'bg-white'
+        activeStep === 'preview' ? 'bg-gradient-to-br from-slate-50 to-white' : 'bg-background'
       )}>
         <CardContent className="p-6">
           {activeStep === 'select' && renderFileSelect()}

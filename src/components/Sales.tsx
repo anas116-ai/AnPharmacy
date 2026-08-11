@@ -23,6 +23,7 @@ interface CartItem {
   availableQty: number;
   quantity: number;
   sellingPrice: number;
+  purchasePrice: number;
   discountPercent: number;
   totalAmount: number;
   taxableValue: number;
@@ -47,7 +48,7 @@ interface Customer {
 
 export default function Sales() {
   const { user } = useAuthStore();
-  const { medicines, setMedicines } = useStockStore();
+  const { medicines, setMedicines, setDashboardStats } = useStockStore();
   
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerSearch, setCustomerSearch] = useState('');
@@ -196,11 +197,18 @@ export default function Sales() {
     setSelectedBatch(null);
     if (query.trim().length >= 2) {
       const lower = query.toLowerCase();
-      const results = medicines.filter(m => 
-        m.name.toLowerCase().includes(lower) ||
-        m.batch_number.toLowerCase().includes(lower) ||
-        (m.barcode && m.barcode.toLowerCase().includes(lower))
-      );
+      const results = medicines
+        .filter(m => 
+          m.name.toLowerCase().includes(lower) ||
+          m.batch_number.toLowerCase().includes(lower) ||
+          (m.barcode && m.barcode.toLowerCase().includes(lower))
+        )
+        // ponytail: FEFO at POS — same medicine, earliest expiry first so the oldest stock gets billed
+        .sort((a, b) =>
+          a.name.localeCompare(b.name) ||
+          (a.expiry_date ? new Date(a.expiry_date).getTime() : Infinity) -
+          (b.expiry_date ? new Date(b.expiry_date).getTime() : Infinity)
+        );
       setSearchResults(results);
     } else {
       setSearchResults([]);
@@ -223,8 +231,12 @@ export default function Sales() {
       setError(`Only ${selectedBatch.quantity} units available`);
       return;
     }
+    if (!selectedBatch.selling_price) {
+      setError('Selling price not set for this batch — cannot add to cart');
+      return;
+    }
 
-    const unitPrice = selectedBatch.selling_price || selectedBatch.purchase_price || 0;
+    const unitPrice = selectedBatch.selling_price;
     const taxableValue = cartQty * unitPrice;
     const cgstAmount = taxableValue * ((selectedBatch.purchase_gst_percent || 0) / 200);
     const sgstAmount = taxableValue * ((selectedBatch.purchase_gst_percent || 0) / 200);
@@ -259,6 +271,7 @@ export default function Sales() {
         availableQty: selectedBatch.quantity,
         quantity: cartQty,
         sellingPrice: unitPrice,
+        purchasePrice: selectedBatch.purchase_price || 0,
         discountPercent: 0,
         totalAmount: cartQty * unitPrice,
         taxableValue,
@@ -385,7 +398,7 @@ export default function Sales() {
           medicineName: item.medicineName,
           quantity: item.quantity,
           expiryDate: item.expiryDate,
-          purchasePrice: 0,
+          purchasePrice: item.purchasePrice || 0,
           sellingPrice: item.sellingPrice,
           discountPercent: item.discountPercent,
           taxableValue: item.totalAmount,
@@ -397,6 +410,7 @@ export default function Sales() {
 
         const result = await window.electronAPI.processSale({
           customerName,
+          customerId: custId ?? null,
           customerPhone: customerPhone || null,
           customerAddress: customerAddress || null,
           customerGstin: customerGstin || null,
@@ -420,12 +434,14 @@ export default function Sales() {
         });
 
         if (result.success) {
-          const [stockResult, custResult] = await Promise.all([
+          const [stockResult, custResult, dashResult] = await Promise.all([
             window.electronAPI.listStock(),
-            window.electronAPI.listCustomers?.() || Promise.resolve({ success: true, customers: [] })
+            window.electronAPI.listCustomers?.() || Promise.resolve({ success: true, customers: [] }),
+            window.electronAPI.getDashboardStats()
           ]);
           if (stockResult.success) setMedicines(stockResult.medicines || []);
           if (custResult.success) setCustomers(custResult.customers || []);
+          if (dashResult.success) setDashboardStats(dashResult.stats);
 
           const billDateTime = new Date().toISOString();
           setLastBill({
@@ -512,8 +528,8 @@ export default function Sales() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Pharmacy POS - Sales</h2>
-          <p className="text-sm text-gray-500 mt-1">Complete medical billing with customer details, GST, and stock management</p>
+          <h2 className="text-xl font-bold text-foreground font-display">Pharmacy POS - Sales</h2>
+          <p className="text-sm text-muted-foreground mt-1">Complete medical billing with customer details, GST, and stock management</p>
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="outline-teal" size="md">
@@ -529,15 +545,15 @@ export default function Sales() {
 
       {/* Success / Error */}
       {success && (
-        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4 animate-fade-in">
-          <CheckCircle className="w-5 h-5 text-emerald-600" />
-          <span className="text-emerald-700 text-sm font-medium">{success}</span>
+        <div className="flex items-center gap-3 bg-success-light border border-success/40 rounded-2xl px-5 py-4 animate-fade-in">
+          <CheckCircle className="w-5 h-5 text-success" />
+          <span className="text-success text-sm font-medium">{success}</span>
         </div>
       )}
       {error && (
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 animate-fade-in">
-          <AlertCircle className="w-5 h-5 text-red-500" />
-          <span className="text-red-700 text-sm">{error}</span>
+        <div className="flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-2xl px-5 py-4 animate-fade-in">
+          <AlertCircle className="w-5 h-5 text-destructive" />
+          <span className="text-destructive text-sm">{error}</span>
         </div>
       )}
 
@@ -548,7 +564,7 @@ export default function Sales() {
           <Card variant="bordered">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <User className="w-4 h-4 text-teal-600" />
+                <User className="w-4 h-4 text-accent" />
                 Customer Details
                 {selectedCustomer && (
                   <Badge variant="safe" size="sm" className="ml-auto">
@@ -559,7 +575,7 @@ export default function Sales() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div ref={customerRef} className="relative">
-                <label className="block text-xs font-medium text-gray-600 mb-1">Search Customer</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Search Customer</label>
                 <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <Input
@@ -569,7 +585,7 @@ export default function Sales() {
                       placeholder="Search by name or phone..."
                       className="h-10 pl-9"
                     />
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                   </div>
                   <Button type="button" variant="outline" size="sm" onClick={handleNewCustomer} className="whitespace-nowrap">
                     <Plus className="w-4 h-4 mr-1" /> New
@@ -577,19 +593,19 @@ export default function Sales() {
                 </div>
 
                 {showCustomerSuggestions && (
-                  <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                  <div className="absolute z-20 mt-1 w-full bg-background border border-border rounded-xl shadow-lg max-h-48 overflow-y-auto">
                     {customers.map(cust => (
                       <button
                         key={cust.id}
                         type="button"
                         onMouseDown={() => selectCustomer(cust)}
-                        className="w-full text-left px-4 py-3 hover:bg-teal-50 border-b border-gray-100 last:border-0 transition-colors"
+                        className="w-full text-left px-4 py-3 hover:bg-accent/10 border-b border-border last:border-0 transition-colors"
                       >
-                        <p className="text-sm font-medium text-gray-800">{cust.name}</p>
+                        <p className="text-sm font-medium text-foreground">{cust.name}</p>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-xs text-gray-500">📞 {cust.phone || 'N/A'}</span>
-                          <span className="text-xs text-gray-500">💰 ₹{cust.current_balance.toFixed(2)}</span>
-                          <span className="text-xs text-gray-500">Limit: ₹{cust.credit_limit.toFixed(2)}</span>
+                          <span className="text-xs text-muted-foreground">Phone: {cust.phone || 'N/A'}</span>
+                          <span className="text-xs text-muted-foreground">Balance: ₹{cust.current_balance.toFixed(2)}</span>
+                          <span className="text-xs text-muted-foreground">Limit: ₹{cust.credit_limit.toFixed(2)}</span>
                         </div>
                       </button>
                     ))}
@@ -598,45 +614,45 @@ export default function Sales() {
               </div>
 
               <div>
-                <label htmlFor="sale-cust-name" className="block text-xs font-medium text-gray-600 mb-1">Customer Name *</label>
+                <label htmlFor="sale-cust-name" className="block text-xs font-medium text-muted-foreground mb-1">Customer Name *</label>
                 <Input id="sale-cust-name" autoComplete="name" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Customer/shop name" className="h-10" />
               </div>
               <div>
-                <label htmlFor="sale-shop" className="block text-xs font-medium text-gray-600 mb-1">Shop / Business Name</label>
+                <label htmlFor="sale-shop" className="block text-xs font-medium text-muted-foreground mb-1">Shop / Business Name</label>
                 <Input id="sale-shop" value={shopName} onChange={e => setShopName(e.target.value)} placeholder="Shop name if different" className="h-10" />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label htmlFor="sale-phone" className="block text-xs font-medium text-gray-600 mb-1">Phone *</label>
+                  <label htmlFor="sale-phone" className="block text-xs font-medium text-muted-foreground mb-1">Phone *</label>
                   <Input id="sale-phone" autoComplete="tel" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="Phone" className="h-10" />
                 </div>
                 <div>
-                  <label htmlFor="sale-alt-phone" className="block text-xs font-medium text-gray-600 mb-1">Alternate Phone</label>
+                  <label htmlFor="sale-alt-phone" className="block text-xs font-medium text-muted-foreground mb-1">Alternate Phone</label>
                   <Input id="sale-alt-phone" value={alternatePhone} onChange={e => setAlternatePhone(e.target.value)} placeholder="Alt" className="h-10" />
                 </div>
               </div>
               <div>
-                <label htmlFor="sale-address" className="block text-xs font-medium text-gray-600 mb-1">Address</label>
+                <label htmlFor="sale-address" className="block text-xs font-medium text-muted-foreground mb-1">Address</label>
                 <Input id="sale-address" autoComplete="street-address" value={customerAddress} onChange={e => setCustomerAddress(e.target.value)} placeholder="Full address" className="h-10" />
               </div>
               <div>
-                <label htmlFor="sale-area" className="block text-xs font-medium text-gray-600 mb-1">Area / City</label>
+                <label htmlFor="sale-area" className="block text-xs font-medium text-muted-foreground mb-1">Area / City</label>
                 <Input id="sale-area" value={customerArea} onChange={e => setCustomerArea(e.target.value)} placeholder="Area or city" className="h-10" />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label htmlFor="sale-gstin" className="block text-xs font-medium text-gray-600 mb-1">GSTIN</label>
+                  <label htmlFor="sale-gstin" className="block text-xs font-medium text-muted-foreground mb-1">GSTIN</label>
                   <Input id="sale-gstin" value={customerGstin} onChange={e => setCustomerGstin(e.target.value)} placeholder="GSTIN" className="h-10 font-mono" />
                 </div>
                 <div>
-                  <label htmlFor="sale-credit" className="block text-xs font-medium text-gray-600 mb-1">Credit Limit (₹)</label>
+                  <label htmlFor="sale-credit" className="block text-xs font-medium text-muted-foreground mb-1">Credit Limit (₹)</label>
                   <Input id="sale-credit" type="number" value={creditLimit} onChange={e => setCreditLimit(parseFloat(e.target.value) || 0)} placeholder="0" className="h-10" />
                 </div>
               </div>
 
               {currentBalance > 0 && (
-                <div className="p-2 bg-amber-50 border border-amber-200 rounded-xl">
-                  <p className="text-xs text-amber-700">⚠️ Outstanding: ₹{currentBalance.toFixed(2)} / ₹{creditLimit.toFixed(2)}</p>
+                <div className="p-2 bg-warning-light border border-warning/40 rounded-xl">
+                  <p className="text-xs text-warning">Outstanding: ₹{currentBalance.toFixed(2)} / ₹{creditLimit.toFixed(2)}</p>
                 </div>
               )}
 
@@ -648,16 +664,16 @@ export default function Sales() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label htmlFor="sale-doctor" className="block text-xs font-medium text-gray-600 mb-1">Doctor Name</label>
+                  <label htmlFor="sale-doctor" className="block text-xs font-medium text-muted-foreground mb-1">Doctor Name</label>
                   <Input id="sale-doctor" value={doctorName} onChange={e => setDoctorName(e.target.value)} placeholder="Doctor" className="h-10" />
                 </div>
                 <div>
-                  <label htmlFor="sale-doctor-reg" className="block text-xs font-medium text-gray-600 mb-1">Doctor Reg. No.</label>
+                  <label htmlFor="sale-doctor-reg" className="block text-xs font-medium text-muted-foreground mb-1">Doctor Reg. No.</label>
                   <Input id="sale-doctor-reg" value={doctorRegNo} onChange={e => setDoctorRegNo(e.target.value)} placeholder="Reg No" className="h-10" />
                 </div>
               </div>
               <div>
-                <label htmlFor="sale-rx-type" className="block text-xs font-medium text-gray-600 mb-1">Prescription Type</label>
+                <label htmlFor="sale-rx-type" className="block text-xs font-medium text-muted-foreground mb-1">Prescription Type</label>
                 <Select value={prescriptionType} onValueChange={v => setPrescriptionType(v)}>
                   <SelectItem value="OTC">OTC - Over the Counter</SelectItem>
                   <SelectItem value="H">H - Prescription Required</SelectItem>
@@ -672,7 +688,7 @@ export default function Sales() {
           <Card variant="bordered">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <Search className="w-4 h-4 text-teal-600" />
+                <Search className="w-4 h-4 text-accent" />
                 Search Medicine
               </CardTitle>
             </CardHeader>
@@ -685,23 +701,23 @@ export default function Sales() {
                   placeholder="Search medicine, batch, barcode..."
                   className="h-10 pl-9"
                 />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                 
                 {showSuggestions && searchResults.length > 0 && (
-                  <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-64 overflow-y-auto">
+                  <div className="absolute z-20 mt-1 w-full bg-background border border-border rounded-xl shadow-lg max-h-64 overflow-y-auto">
                     {searchResults.map(med => (
                       <button
                         key={med.id}
                         type="button"
                         onMouseDown={() => handleSelectMedicine(med)}
-                        className="w-full text-left px-4 py-3 hover:bg-teal-50 border-b border-gray-100 last:border-0 transition-colors"
+                        className="w-full text-left px-4 py-3 hover:bg-accent/10 border-b border-border last:border-0 transition-colors"
                       >
-                        <p className="text-sm font-medium text-gray-800">{med.name}</p>
+                        <p className="text-sm font-medium text-foreground">{med.name}</p>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-xs text-gray-500">Batch: <span className="font-mono">{med.batch_number}</span></span>
-                          <span className="text-xs text-gray-500">Qty: <span className="font-bold text-teal-600">{med.quantity}</span></span>
-                          <span className="text-xs text-gray-500">MRP: ₹{med.mrp?.toFixed(2)}</span>
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full ${med.status === 'expired' ? 'bg-red-100 text-red-700' : med.status === 'critical' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                          <span className="text-xs text-muted-foreground">Batch: <span className="font-mono">{med.batch_number}</span></span>
+                          <span className="text-xs text-muted-foreground">Qty: <span className="font-bold text-accent">{med.quantity}</span></span>
+                          <span className="text-xs text-muted-foreground">MRP: ₹{med.mrp?.toFixed(2)}</span>
+                          <span className={`text-xs px-1.5 py-0.5 rounded-full ${med.status === 'expired' ? 'bg-destructive/10 text-destructive' : med.status === 'critical' ? 'bg-warning-light text-warning' : 'bg-success-light text-success'}`}>
                             {med.status}
                           </span>
                         </div>
@@ -712,41 +728,41 @@ export default function Sales() {
               </div>
 
               {selectedBatch && (
-                <div className="p-3 bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200 rounded-xl space-y-2 animate-fade-in">
-                  <p className="text-sm font-bold text-gray-800">{selectedBatch.name}</p>
+                <div className="p-3 bg-gradient-to-r from-accent-light to-success-light border border-accent/40 rounded-xl space-y-2 animate-fade-in">
+                  <p className="text-sm font-bold text-foreground">{selectedBatch.name}</p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <span className="text-gray-500">Item Code:</span>
+                      <span className="text-muted-foreground">Item Code:</span>
                       <span className="font-mono ml-1">{selectedBatch.item_code || 'N/A'}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Batch:</span>
+                      <span className="text-muted-foreground">Batch:</span>
                       <span className="font-mono ml-1">{selectedBatch.batch_number}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Available:</span>
-                      <span className="font-bold text-teal-600 ml-1">{selectedBatch.quantity}</span>
+                      <span className="text-muted-foreground">Available:</span>
+                      <span className="font-bold text-accent ml-1">{selectedBatch.quantity}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Exp:</span>
+                      <span className="text-muted-foreground">Exp:</span>
                       <span className="ml-1">{formatDate(selectedBatch.expiry_date)}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">MRP:</span>
+                      <span className="text-muted-foreground">MRP:</span>
                       <span className="font-semibold ml-1">₹{selectedBatch.mrp?.toFixed(2)}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Selling:</span>
-                      <span className="font-semibold text-teal-700 ml-1">₹{selectedBatch.selling_price?.toFixed(2)}</span>
+                      <span className="text-muted-foreground">Selling:</span>
+                      <span className="font-semibold text-accent ml-1">₹{selectedBatch.selling_price?.toFixed(2)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 pt-2">
                     <div className="flex items-center gap-1">
-                      <button type="button" onClick={() => setCartQty(Math.max(1, cartQty - 1))} className="w-8 h-8 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:bg-gray-50">
+                      <button type="button" onClick={() => setCartQty(Math.max(1, cartQty - 1))} className="w-8 h-8 rounded-lg border-2 border-border flex items-center justify-center hover:bg-muted/50">
                         <Minus className="w-3.5 h-3.5" />
                       </button>
                       <Input type="number" value={cartQty} onChange={(e) => setCartQty(Math.max(1, Math.min(selectedBatch.quantity, parseInt(e.target.value) || 1)))} className="w-20 h-8 text-center text-sm font-bold" />
-                      <button type="button" onClick={() => setCartQty(Math.min(selectedBatch.quantity, cartQty + 1))} className="w-8 h-8 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:bg-gray-50">
+                      <button type="button" onClick={() => setCartQty(Math.min(selectedBatch.quantity, cartQty + 1))} className="w-8 h-8 rounded-lg border-2 border-border flex items-center justify-center hover:bg-muted/50">
                         <Plus className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -767,11 +783,11 @@ export default function Sales() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between text-base">
                 <span className="flex items-center gap-2">
-                  <ShoppingCart className="w-4 h-4 text-teal-600" />
+                  <ShoppingCart className="w-4 h-4 text-accent" />
                   Cart ({cart.length} items)
                 </span>
                 {cart.length > 0 && (
-                  <Button variant="ghost" size="sm" onClick={() => setCart([])} className="text-red-600 hover:text-red-700">
+                  <Button variant="ghost" size="sm" onClick={() => setCart([])} className="text-destructive hover:text-destructive">
                     <Trash2 className="w-4 h-4 mr-1" /> Clear All
                   </Button>
                 )}
@@ -780,39 +796,39 @@ export default function Sales() {
             <CardContent className="p-0">
               {cart.length === 0 ? (
                 <div className="py-12 text-center">
-                  <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm text-gray-500">Cart is empty</p>
-                  <p className="text-xs text-gray-400 mt-1">Search and add medicines to start billing</p>
+                  <ShoppingCart className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Cart is empty</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Search and add medicines to start billing</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50 border-b border-gray-100">
+                    <thead className="bg-muted/50 border-b border-border">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-600">#</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-600">Medicine</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-600">Item Code</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-600">Batch</th>
-                        <th className="px-3 py-2 text-center font-semibold text-gray-600">Expiry</th>
-                        <th className="px-3 py-2 text-center font-semibold text-gray-600">Qty</th>
-                        <th className="px-3 py-2 text-right font-semibold text-gray-600">Price</th>
-                        <th className="px-3 py-2 text-center font-semibold text-gray-600">Disc%</th>
-                        <th className="px-3 py-2 text-right font-semibold text-gray-600">Taxable</th>
-                        <th className="px-3 py-2 text-center font-semibold text-gray-600">CGST</th>
-                        <th className="px-3 py-2 text-center font-semibold text-gray-600">SGST</th>
-                        <th className="px-3 py-2 text-right font-semibold text-gray-600">Net</th>
-                        <th className="px-3 py-2 text-center font-semibold text-gray-600 w-10"></th>
+                        <th className="px-3 py-2 text-left font-semibold text-muted-foreground">#</th>
+                        <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Medicine</th>
+                        <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Item Code</th>
+                        <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Batch</th>
+                        <th className="px-3 py-2 text-center font-semibold text-muted-foreground">Expiry</th>
+                        <th className="px-3 py-2 text-center font-semibold text-muted-foreground">Qty</th>
+                        <th className="px-3 py-2 text-right font-semibold text-muted-foreground">Price</th>
+                        <th className="px-3 py-2 text-center font-semibold text-muted-foreground">Disc%</th>
+                        <th className="px-3 py-2 text-right font-semibold text-muted-foreground">Taxable</th>
+                        <th className="px-3 py-2 text-center font-semibold text-muted-foreground">CGST</th>
+                        <th className="px-3 py-2 text-center font-semibold text-muted-foreground">SGST</th>
+                        <th className="px-3 py-2 text-right font-semibold text-muted-foreground">Net</th>
+                        <th className="px-3 py-2 text-center font-semibold text-muted-foreground w-10"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                       {cart.map((item, idx) => (
-                        <tr key={item.id} className="hover:bg-gray-50/50">
-                          <td className="px-3 py-2.5 text-gray-400 font-mono">{idx + 1}</td>
+                        <tr key={item.id} className="hover:bg-muted/50/50">
+                          <td className="px-3 py-2.5 text-muted-foreground/60 font-mono">{idx + 1}</td>
                           <td className="px-3 py-2.5">
-                            <p className="font-medium text-gray-800">{item.medicineName}</p>
+                            <p className="font-medium text-foreground">{item.medicineName}</p>
                           </td>
-                          <td className="px-3 py-2.5 font-mono text-gray-600">{item.itemCode || '-'}</td>
-                          <td className="px-3 py-2.5 font-mono text-gray-600">{item.batchNumber}</td>
+                          <td className="px-3 py-2.5 font-mono text-muted-foreground">{item.itemCode || '-'}</td>
+                          <td className="px-3 py-2.5 font-mono text-muted-foreground">{item.batchNumber}</td>
                           <td className="px-3 py-2.5 text-center">{formatDate(item.expiryDate)}</td>
                           <td className="px-3 py-2.5 text-center font-bold">{item.quantity}</td>
                           <td className="px-3 py-2.5 text-right">₹{item.sellingPrice.toFixed(2)}</td>
@@ -823,16 +839,16 @@ export default function Sales() {
                               max="100"
                               value={item.discountPercent}
                               onChange={(e) => handleUpdateDiscount(item.id, parseFloat(e.target.value) || 0)}
-                              className="w-14 h-8 text-center text-xs border border-gray-200 rounded-lg"
+                              className="w-14 h-8 text-center text-xs border border-border rounded-lg"
                             />
                           </td>
                           <td className="px-3 py-2.5 text-right">₹{item.taxableValue.toFixed(2)}</td>
                           <td className="px-3 py-2.5 text-center">₹{item.cgstAmount.toFixed(2)}</td>
                           <td className="px-3 py-2.5 text-center">₹{item.sgstAmount.toFixed(2)}</td>
-                          <td className="px-3 py-2.5 text-right font-semibold text-gray-800">₹{item.netAmount.toFixed(2)}</td>
+                          <td className="px-3 py-2.5 text-right font-semibold text-foreground">₹{item.netAmount.toFixed(2)}</td>
                           <td className="px-3 py-2.5 text-center">
-                            <button onClick={() => handleRemoveFromCart(item.id)} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors">
-                              <X className="w-3.5 h-3.5 text-red-500" />
+                            <button onClick={() => handleRemoveFromCart(item.id)} className="p-1.5 hover:bg-destructive/10 rounded-lg transition-colors">
+                              <X className="w-3.5 h-3.5 text-destructive" />
                             </button>
                           </td>
                         </tr>
@@ -846,54 +862,54 @@ export default function Sales() {
 
           {/* Bill Summary */}
           {cart.length > 0 && (
-            <Card variant="bordered" className="border-teal-200">
+            <Card variant="bordered" className="border-accent/40">
               <CardContent className="p-4 space-y-4">
                 {/* Complete Bill Header Info */}
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div className="space-y-1">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Bill Number:</span>
-                      <span className="font-mono font-bold text-teal-700">BILL-{new Date().toISOString().slice(0,10).replace(/-/g,'')}-{Math.random().toString(36).substring(2,6).toUpperCase()}</span>
+                      <span className="text-muted-foreground">Bill Number:</span>
+                      <span className="font-mono font-bold text-accent">BILL-{new Date().toISOString().slice(0,10).replace(/-/g,'')}-{Math.random().toString(36).substring(2,6).toUpperCase()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Bill Date & Time:</span>
+                      <span className="text-muted-foreground">Bill Date & Time:</span>
                       <span className="font-medium">{new Date().toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Counter / Terminal:</span>
+                      <span className="text-muted-foreground">Counter / Terminal:</span>
                       <span className="font-medium">{counterId}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Pharmacist / Cashier:</span>
+                      <span className="text-muted-foreground">Pharmacist / Cashier:</span>
                       <span className="font-medium">{user?.displayName}</span>
                     </div>
                   </div>
                   <div className="space-y-1">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Customer:</span>
+                      <span className="text-muted-foreground">Customer:</span>
                       <span className="font-medium">{customerName || 'Walk-in'}</span>
                     </div>
                     {shopName && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Shop:</span>
+                        <span className="text-muted-foreground">Shop:</span>
                         <span className="font-medium">{shopName}</span>
                       </div>
                     )}
                     {customerPhone && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Phone:</span>
+                        <span className="text-muted-foreground">Phone:</span>
                         <span className="font-medium">{customerPhone}</span>
                       </div>
                     )}
                     {customerAddress && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Address:</span>
+                        <span className="text-muted-foreground">Address:</span>
                         <span className="font-medium text-right max-w-[150px] truncate">{customerAddress}</span>
                       </div>
                     )}
                     {customerGstin && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">GSTIN:</span>
+                        <span className="text-muted-foreground">GSTIN:</span>
                         <span className="font-mono font-medium">{customerGstin}</span>
                       </div>
                     )}
@@ -902,21 +918,21 @@ export default function Sales() {
 
                 {/* Doctor & Prescription Info */}
                 {(doctorName || doctorRegNo || prescriptionType) && (
-                  <div className="grid grid-cols-3 gap-2 text-xs p-2 bg-gray-50 rounded-xl">
+                  <div className="grid grid-cols-3 gap-2 text-xs p-2 bg-muted/50 rounded-xl">
                     {doctorName && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Doctor:</span>
+                        <span className="text-muted-foreground">Doctor:</span>
                         <span className="font-medium">{doctorName}</span>
                       </div>
                     )}
                     {doctorRegNo && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Reg No:</span>
+                        <span className="text-muted-foreground">Reg No:</span>
                         <span className="font-mono">{doctorRegNo}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Rx Type:</span>
+                      <span className="text-muted-foreground">Rx Type:</span>
                       <span className="font-medium">{prescriptionType}</span>
                     </div>
                   </div>
@@ -924,18 +940,18 @@ export default function Sales() {
 
                 {/* Previous Balance */}
                 {currentBalance > 0 && (
-                  <div className="p-2 bg-amber-50 border border-amber-200 rounded-xl text-xs">
+                  <div className="p-2 bg-warning-light border border-warning/40 rounded-xl text-xs">
                     <div className="flex justify-between">
-                      <span className="text-amber-700 font-medium">Previous Ledger Balance / Outstanding:</span>
-                      <span className="font-bold text-amber-700">₹{currentBalance.toFixed(2)}</span>
+                      <span className="text-warning font-medium">Previous Ledger Balance / Outstanding:</span>
+                      <span className="font-bold text-warning">₹{currentBalance.toFixed(2)}</span>
                     </div>
                   </div>
                 )}
 
                 {/* Cart Items Summary Table */}
-                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                <div className="border border-border rounded-xl overflow-hidden">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-muted/50">
                       <tr>
                         <th className="px-2 py-1.5 text-left font-semibold">Item</th>
                         <th className="px-2 py-1.5 text-center">Batch</th>
@@ -966,7 +982,7 @@ export default function Sales() {
                           <td className="px-2 py-1.5 text-center">₹{item.igstAmount.toFixed(2)}</td>
                           <td className="px-2 py-1.5 text-right font-semibold">₹{item.netAmount.toFixed(2)}</td>
                           <td className="px-2 py-1.5 text-center">
-                            <button onClick={() => handleToggleReturnable(item.id)} className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${item.returnable ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                            <button onClick={() => handleToggleReturnable(item.id)} className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${item.returnable ? 'bg-success-light text-success' : 'bg-destructive/10 text-destructive'}`}>
                               {item.returnable ? 'Yes' : 'No'}
                             </button>
                           </td>
@@ -980,44 +996,44 @@ export default function Sales() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Total Items</span>
+                      <span className="text-muted-foreground">Total Items</span>
                       <span className="font-semibold">{summary.totalItems} units</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Subtotal</span>
+                      <span className="text-muted-foreground">Subtotal</span>
                       <span className="font-semibold">₹{summary.totalAmount.toFixed(2)}</span>
                     </div>
                     {summary.totalDiscount > 0 && (
-                      <div className="flex justify-between text-sm text-red-600">
+                      <div className="flex justify-between text-sm text-destructive">
                         <span>Item Discount</span>
                         <span className="font-semibold">-₹{summary.totalDiscount.toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Taxable Amount</span>
+                      <span className="text-muted-foreground">Taxable Amount</span>
                       <span className="font-semibold">₹{summary.taxableAmount.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className="flex justify-between text-xs text-muted-foreground">
                       <span>CGST</span>
                       <span>₹{summary.cgstAmount.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className="flex justify-between text-xs text-muted-foreground">
                       <span>SGST</span>
                       <span>₹{summary.sgstAmount.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className="flex justify-between text-xs text-muted-foreground">
                       <span>IGST</span>
                       <span>₹{summary.igstAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-gray-600">Total GST:</span>
+                      <span className="text-muted-foreground">Total GST:</span>
                       <span className="font-medium">₹{(summary.cgstAmount + summary.sgstAmount + summary.igstAmount).toFixed(2)}</span>
                     </div>
                   </div>
                   <div className="space-y-1.5">
                     {/* Bill Discount */}
                     <div className="flex justify-between text-sm items-center">
-                      <span className="text-gray-600">Bill Discount</span>
+                      <span className="text-muted-foreground">Bill Discount</span>
                       <div className="flex items-center gap-1">
                         <input
                           type="number"
@@ -1025,24 +1041,24 @@ export default function Sales() {
                           max="100"
                           value={billDiscount}
                           onChange={(e) => setBillDiscount(Math.max(0, parseFloat(e.target.value) || 0))}
-                          className="w-16 h-7 text-center text-xs border border-gray-200 rounded-lg"
+                          className="w-16 h-7 text-center text-xs border border-border rounded-lg"
                           placeholder="₹"
                         />
                       </div>
                     </div>
                     {billDiscount > 0 && (
-                      <div className="flex justify-between text-xs text-red-600">
+                      <div className="flex justify-between text-xs text-destructive">
                         <span>Disc. Amount</span>
                         <span className="font-semibold">-₹{billDiscount.toFixed(2)}</span>
                       </div>
                     )}
                     {/* Round Off */}
                     <div className="flex justify-between text-xs items-center">
-                      <span className="text-gray-600">Round Off</span>
+                      <span className="text-muted-foreground">Round Off</span>
                       <select
                         value={roundOffMode}
                         onChange={(e) => setRoundOffMode(e.target.value as RoundOffMode)}
-                        className="w-24 h-7 text-xs border border-gray-200 rounded-lg bg-white"
+                        className="w-24 h-7 text-xs border border-border rounded-lg bg-background"
                       >
                         <option value="none">None</option>
                         <option value="nearest_1">Nearest ₹1</option>
@@ -1050,25 +1066,25 @@ export default function Sales() {
                       </select>
                     </div>
                     {computedRoundOff !== 0 && (
-                      <div className="flex justify-between text-xs text-gray-500">
+                      <div className="flex justify-between text-xs text-muted-foreground">
                         <span>Round Off Adj.</span>
                         <span>{computedRoundOff > 0 ? '+' : ''}₹{computedRoundOff.toFixed(2)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-lg font-bold border-t-2 border-gray-800 pt-2">
+                    <div className="flex justify-between text-lg font-bold border-t-2 border-foreground pt-2">
                       <span>Net Payable</span>
-                      <span className="text-teal-700 text-xl">₹{finalAmount.toFixed(2)}</span>
+                      <span className="text-accent text-xl">₹{finalAmount.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className="flex justify-between text-xs text-muted-foreground">
                       <span>Amount in Words:</span>
-                      <span className="text-[9px] text-gray-400 italic truncate ml-2">(See invoice)</span>
+                      <span className="text-[9px] text-muted-foreground/60 italic truncate ml-2">(See invoice)</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Payment Mode */}
-                <div className="mt-4 pt-3 border-t border-gray-100">
-                  <label className="block text-xs font-medium text-gray-600 mb-2">Payment Mode</label>
+                <div className="mt-4 pt-3 border-t border-border">
+                  <label className="block text-xs font-medium text-muted-foreground mb-2">Payment Mode</label>
                   <div className="flex gap-2">
                     {[
                       { mode: 'cash', label: 'Cash', icon: Banknote },
@@ -1082,8 +1098,8 @@ export default function Sales() {
                         onClick={() => setPaymentMode(mode)}
                         className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 transition-all ${
                           paymentMode === mode
-                            ? 'border-teal-500 bg-teal-50 text-teal-700'
-                            : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                            ? 'border-accent bg-accent/10 text-accent'
+                            : 'border-border hover:border-border text-muted-foreground'
                         }`}
                       >
                         <Icon className="w-4 h-4" />
@@ -1119,14 +1135,14 @@ export default function Sales() {
                 </div>
 
                 {/* Authorized Signatory */}
-                <div className="mt-4 pt-3 border-t border-gray-100">
-                  <div className="flex justify-between text-xs text-gray-500">
+                <div className="mt-4 pt-3 border-t border-border">
+                  <div className="flex justify-between text-xs text-muted-foreground">
                     <div>
-                      <p className="font-medium text-gray-700 mb-1">Authorized Signatory / Dispensing Pharmacist</p>
+                      <p className="font-medium text-foreground/80 mb-1">Authorized Signatory / Dispensing Pharmacist</p>
                       <p className="italic">Signature: ___________________</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-gray-700 mb-1">Customer Acknowledgement</p>
+                      <p className="font-medium text-foreground/80 mb-1">Customer Acknowledgement</p>
                       <p className="italic">Signature: ___________________</p>
                     </div>
                   </div>

@@ -347,7 +347,7 @@ ipcMain.handle('stock:list', async () => {
       END as status,
       CASE WHEN m.expiry_date IS NOT NULL THEN julianday(m.expiry_date) - julianday('now') ELSE NULL END as days_remaining
       FROM medicines m ORDER BY m.expiry_date ASC`).all();
-    return { success: true, medicines };
+    return { success: true, medicines: medicines.map(fromRow) };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -398,6 +398,27 @@ ipcMain.handle('stock:add', async (event, { medicine, userId }) => {
   }
 });
 
+// Bulk save all medicines (used by import commit). Replaces entire stock table.
+ipcMain.handle('stock:saveAll', async (event, { medicines }) => {
+  try {
+    const db = getDb();
+    if (!Array.isArray(medicines)) return { success: false, error: 'Invalid data' };
+    const cols = MEDICINE_COLS.filter(c => c !== 'id');
+    const insert = db.prepare(`INSERT INTO medicines (${cols.join(', ')}) VALUES (${cols.map(() => '?').join(', ')})`);
+    const tx = db.transaction((rows) => {
+      db.prepare('DELETE FROM medicines').run();
+      for (const m of rows) {
+        const row = toRow(m);
+        insert.run(...cols.map(c => row[c] !== undefined && row[c] !== null ? row[c] : null));
+      }
+    });
+    tx(medicines);
+    return { success: true, count: medicines.length };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 ipcMain.handle('stock:getBatches', async (event, { medicineName }) => {
   try {
     const db = getDb();
@@ -407,8 +428,76 @@ ipcMain.handle('stock:getBatches', async (event, { medicineName }) => {
       WHERE LOWER(name) = LOWER(?) AND quantity > 0 AND (expiry_date IS NULL OR expiry_date >= date('now'))
       ORDER BY
         CASE WHEN m.expiry_date IS NULL THEN 1 ELSE 0 END,
-        m.expiry_date ASC`).all(medicineName);
-    return { success: true, batches };
+        m.expiry_date ASC`).all();
+    return { success: true, batches: batches.map(fromRow) };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+const MEDICINE_COLS = ['id','name','strength','batch_number','pack_size','company','generic_name','manufacturer_id','manufacturer_name','quantity','loose_quantity','total_base_units','mrp','purchase_price','ptr','pts','retailer_margin_percent','selling_price','purchase_gst_percent','sale_gst_percent','hsn_code','schedule_type','barcode','rack_location','low_stock_alert','max_stock_limit','min_margin_percent','mfg_date','expiry_date','expiry_returnable','supplier_id','invoice_no','invoice_date','po_number','order_date','payment_terms','due_date','dispatch_location','item_code','scheme_qty','free_qty','scheme_bonus_code','discount_percent','taxable_amount','cgst_amount','sgst_amount','igst_amount','eway_bill_no','num_cartons','cold_chain','prescription_doc','custom_fields','added_by','created_at','updated_at'];
+
+// Serialize medicine objects to DB rows: custom_fields object <-> JSON text column.
+// Ponytail: single choke point so every handler round-trips custom fields correctly.
+const toRow = (m) => m.custom_fields && typeof m.custom_fields === 'object' && Object.keys(m.custom_fields).length
+  ? { ...m, custom_fields: JSON.stringify(m.custom_fields) }
+  : { ...m, custom_fields: null };
+const fromRow = (r) => {
+  if (!r || !r.custom_fields) return r;
+  try { return { ...r, custom_fields: JSON.parse(r.custom_fields) }; } catch { return r; }
+};
+
+// Recycle bin: move stock to deleted_medicines
+ipcMain.handle('stock:deleteToBin', async (event, { id, userId }) => {
+  try {
+    const db = getDb();
+    const row = db.prepare(`SELECT ${MEDICINE_COLS.join(', ')} FROM medicines WHERE id = ?`).get(id);
+    if (!row) return { success: false, error: 'Medicine not found' };
+    const tx = db.transaction(() => {
+      db.prepare(`INSERT INTO deleted_medicines (${MEDICINE_COLS.join(', ')}, deleted_at, deleted_by) VALUES (${MEDICINE_COLS.map(() => '?').join(', ')}, datetime('now'), ?)`).run(...MEDICINE_COLS.map(c => row[c]), userId || null);
+      db.prepare('DELETE FROM medicines WHERE id = ?').run(id);
+    });
+    tx();
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// Recycle bin: list deleted stock
+ipcMain.handle('stock:getDeleted', async () => {
+  try {
+    const db = getDb();
+    const deletedItems = db.prepare(`SELECT * FROM deleted_medicines ORDER BY deleted_at DESC`).all();
+    return { success: true, deletedItems };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// Recycle bin: restore a deleted item
+ipcMain.handle('stock:restoreFromBin', async (event, { id }) => {
+  try {
+    const db = getDb();
+    const row = db.prepare('SELECT * FROM deleted_medicines WHERE id = ?').get(id);
+    if (!row) return { success: false, error: 'Deleted item not found' };
+    const tx = db.transaction(() => {
+      db.prepare(`INSERT INTO medicines (${MEDICINE_COLS.join(', ')}) VALUES (${MEDICINE_COLS.map(() => '?').join(', ')})`).run(...MEDICINE_COLS.map(c => row[c]));
+      db.prepare('DELETE FROM deleted_medicines WHERE id = ?').run(id);
+    });
+    tx();
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// Recycle bin: permanent delete
+ipcMain.handle('stock:permanentDelete', async (event, { id }) => {
+  try {
+    const db = getDb();
+    db.prepare('DELETE FROM deleted_medicines WHERE id = ?').run(id);
+    return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -459,6 +548,35 @@ ipcMain.handle('reports:profit', async () => {
   }
 });
 
+// Real margin per sale line, from cost captured at sale time (sale_items)
+ipcMain.handle('reports:saleMargin', async (event, { days = 30 } = {}) => {
+  try {
+    const db = getDb();
+    const from = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+    const rows = db.prepare(`
+      SELECT s.sale_date, s.bill_number, s.customer_name, s.payment_mode,
+        SUM(i.purchase_price * i.quantity) AS cost,
+        SUM(i.net_amount) AS revenue,
+        SUM((i.selling_price * (1 - i.discount_percent / 100)) * i.quantity) AS billed
+      FROM sale_items i JOIN sales s ON s.id = i.sale_id
+      WHERE s.sale_date >= ?
+      GROUP BY s.id ORDER BY s.sale_date DESC`).all(from);
+    const items = rows.map(r => ({
+      ...r,
+      margin: (r.revenue || 0) - (r.cost || 0),
+      marginPercent: r.revenue > 0 ? (((r.revenue || 0) - (r.cost || 0)) / r.revenue) * 100 : 0,
+    }));
+    const stats = items.reduce((acc, r) => {
+      acc.revenue += r.revenue; acc.cost += r.cost; acc.margin += r.margin;
+      return acc;
+    }, { revenue: 0, cost: 0, margin: 0 });
+    stats.marginPercent = stats.revenue > 0 ? (stats.margin / stats.revenue) * 100 : 0;
+    return { success: true, rows: items, stats };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 // Expiry tiers: 90 / 60 / 30 days + expired auto-report
 ipcMain.handle('reports:expiryTiers', async () => {
   try {
@@ -504,21 +622,24 @@ ipcMain.handle('reports:expiryTiers', async () => {
 });
 
 // Sales
-ipcMain.handle('sales:process', async (event, { customerName, customerPhone, customerAddress, customerGstin, doctorName, doctorRegNo, prescriptionType, medicineName, totalAmount, discountAmount, taxableAmount, cgstAmount, sgstAmount, igstAmount, netPayable, paymentMode, counterId, pharmacistId, pharmacistName, items, userId }) => {
+ipcMain.handle('sales:process', async (event, { customerName, customerId, customerPhone, customerAddress, customerGstin, doctorName, doctorRegNo, prescriptionType, medicineName, totalAmount, discountAmount, taxableAmount, cgstAmount, sgstAmount, igstAmount, netPayable, paymentMode, counterId, pharmacistId, pharmacistName, items, userId }) => {
   try {
     const db = getDb();
     const saleId = crypto.randomUUID();
     const billNumber = `BILL-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
 
-    const insertSale = db.prepare(`INSERT INTO sales (id, bill_number, customer_name, customer_phone, customer_address, customer_gstin, doctor_name, doctor_reg_no, prescription_type, medicine_name, quantity, total_amount, discount_amount, taxable_amount, cgst_amount, sgst_amount, igst_amount, net_payable, payment_mode, counter_id, pharmacist_id, pharmacist_name, sale_date, processed_by)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, date('now'), ?)`);
+    const insertSale = db.prepare(`INSERT INTO sales (id, bill_number, customer_name, customer_id, customer_phone, customer_address, customer_gstin, doctor_name, doctor_reg_no, prescription_type, medicine_name, quantity, total_amount, discount_amount, taxable_amount, cgst_amount, sgst_amount, igst_amount, net_payable, payment_mode, counter_id, pharmacist_id, pharmacist_name, sale_date, processed_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, date('now'), ?)`);
     const updateStock = db.prepare('UPDATE medicines SET quantity = quantity - ?, loose_quantity = loose_quantity - ? WHERE id = ? AND quantity >= ?');
+    const insertItem = db.prepare('INSERT INTO sale_items (sale_id, medicine_name, batch_id, batch_number, quantity, purchase_price, selling_price, discount_percent, net_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const insertLedger = db.prepare('INSERT INTO customer_ledger (customer_id, transaction_type, amount, payment_method, reference_id, notes) VALUES (?, ?, ?, ?, ?, ?)');
+    const bumpBalance = db.prepare('UPDATE customers SET current_balance = current_balance + ? WHERE id = ?');
     const insertAudit = db.prepare('INSERT INTO audit_log (user_id, action, details, timestamp) VALUES (?, ?, ?, datetime(\'now\'))');
 
     const transaction = db.transaction(() => {
       const totalQty = items.reduce((s, i) => s + i.quantity, 0);
       // Create sale record
-      insertSale.run(saleId, billNumber, customerName, customerPhone || null, customerAddress || null, customerGstin || null, doctorName || null, doctorRegNo || null, prescriptionType || null, medicineName, totalQty, totalAmount, discountAmount || 0, taxableAmount || 0, cgstAmount || 0, sgstAmount || 0, igstAmount || 0, netPayable || totalAmount, paymentMode || 'cash', counterId || null, pharmacistId || null, pharmacistName || null, userId);
+      insertSale.run(saleId, billNumber, customerName, customerId || null, customerPhone || null, customerAddress || null, customerGstin || null, doctorName || null, doctorRegNo || null, prescriptionType || null, medicineName, totalQty, totalAmount, discountAmount || 0, taxableAmount || 0, cgstAmount || 0, sgstAmount || 0, igstAmount || 0, netPayable || totalAmount, paymentMode || 'cash', counterId || null, pharmacistId || null, pharmacistName || null, userId);
 
       // Deduct stock for each batch
       for (const item of items) {
@@ -526,6 +647,14 @@ ipcMain.handle('sales:process', async (event, { customerName, customerPhone, cus
         if (result.changes === 0) {
           throw new Error(`Insufficient stock for batch ${item.batchNumber}`);
         }
+        // ponytail: persist cost at sale time; purchase price is gone once stock moves
+        insertItem.run(saleId, item.medicineName || item.batchNumber || '', item.batchId, item.batchNumber || null, item.quantity, item.purchasePrice || 0, item.sellingPrice || 0, item.discountPercent || 0, item.netAmount || item.quantity * (item.sellingPrice || 0));
+      }
+
+      // ponytail: credit sales must hit the ledger, or receivables/balances are fiction
+      if ((paymentMode === 'credit' || paymentMode === 'credit_ledger') && customerId) {
+        insertLedger.run(customerId, 'sale', netPayable || totalAmount, paymentMode, saleId, `Sale #${billNumber}`);
+        bumpBalance.run(netPayable || totalAmount, customerId);
       }
 
       insertAudit.run(userId, 'sale', `Sale #${billNumber} to ${customerName}: ${medicineName} ${netPayable || totalAmount} INR (${paymentMode || 'cash'})`);
@@ -551,6 +680,37 @@ ipcMain.handle('sales:list', async () => {
 });
 
 // Purchases
+ipcMain.handle('purchases:create', async (event, { supplierName, supplierGstin, invoiceNo, invoiceDate, totalAmount, items }) => {
+  try {
+    const db = getDb();
+    // ponytail: find-or-create supplier by GSTIN (best key), fall back to name
+    let supplierId = null;
+    if (supplierName || supplierGstin) {
+      let supplier = supplierGstin
+        ? db.prepare('SELECT * FROM suppliers WHERE gstin = ?').get(supplierGstin)
+        : null;
+      if (!supplier) {
+        supplier = db.prepare('SELECT * FROM suppliers WHERE name = ?').get(supplierName);
+      }
+      if (!supplier) {
+        const r = db.prepare('INSERT INTO suppliers (name, gstin) VALUES (?, ?)').run(supplierName || 'Unknown Supplier', supplierGstin || null);
+        supplier = db.prepare('SELECT * FROM suppliers WHERE id = ?').get(r.lastInsertRowid);
+      }
+      supplierId = supplier.id;
+    }
+
+    const id = crypto.randomUUID();
+    const totalQty = (items || []).reduce((s, i) => s + (i.quantity || 0), 0);
+    db.prepare(`INSERT INTO purchases (id, supplier_id, supplier_name, supplier_gstin, invoice_no, invoice_date, total_amount, order_date, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, date('now'), datetime('now'))`).run(
+      id, supplierId, supplierName || null, supplierGstin || null, invoiceNo || null, invoiceDate || null, totalAmount || 0
+    );
+    return { success: true, id, supplierId, totalQty };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 ipcMain.handle('purchases:list', async () => {
   try {
     const db = getDb();
@@ -1158,6 +1318,127 @@ ipcMain.handle('customers:addLedger', async (event, data) => {
   }
 });
 
+// Payables: total owed per supplier from recorded purchases.
+// ponytail: no supplier payment ledger yet; outstanding = unpaid purchase totals. Add payment recording to age it like receivables.
+ipcMain.handle('reports:payables', async () => {
+  try {
+    const db = getDb();
+    const rows = db.prepare(`
+      SELECT supplier_id, supplier_name, invoice_no, invoice_date, total_amount
+      FROM purchases ORDER BY supplier_id, invoice_date`).all();
+    const bySupplier = {};
+    for (const r of rows) {
+      const key = r.supplier_id || r.supplier_name;
+      if (!bySupplier[key]) {
+        bySupplier[key] = { supplier_name: r.supplier_name || 'Unknown', outstanding: 0, bills: 0 };
+      }
+      bySupplier[key].outstanding += r.total_amount || 0;
+      bySupplier[key].bills += 1;
+    }
+    const suppliers = Object.values(bySupplier).sort((a, b) => b.outstanding - a.outstanding);
+    const totalPayable = suppliers.reduce((s, c) => s + c.outstanding, 0);
+    return { success: true, suppliers, totalPayable, count: rows.length };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// Receivables aging: FIFO-allocate customer payments against their credit sales, bucket by age.
+// ponytail: FIFO allocation; upgrade to per-invoice allocation if statement matching matters.
+ipcMain.handle('reports:receivables', async () => {
+  try {
+    const db = getDb();
+    const rows = db.prepare(`
+      SELECT s.customer_id, c.name AS customer_name, c.phone, s.sale_date, s.bill_number,
+             s.net_payable AS amount, s.payment_mode
+      FROM sales s LEFT JOIN customers c ON c.id = s.customer_id
+      WHERE s.customer_id IS NOT NULL AND s.net_payable > 0
+      ORDER BY s.customer_id, s.sale_date`).all();
+
+    const payments = db.prepare(`
+      SELECT customer_id, SUM(amount) AS paid
+      FROM customer_ledger WHERE transaction_type = 'payment'
+      GROUP BY customer_id`).all();
+
+    const paidBy = {};
+    for (const p of payments) paidBy[p.customer_id] = p.paid;
+
+    const buckets = { current: 0, d30: 0, d60: 0, d90plus: 0 };
+    const customers = {};
+    const today = new Date();
+
+    // Receivables are only the credit-mode sales; cash sales were settled instantly.
+    const creditSales = rows.filter(r => r.payment_mode === 'credit' || r.payment_mode === 'credit_ledger');
+    const salesByCust = {};
+    for (const s of creditSales) {
+      if (!salesByCust[s.customer_id]) salesByCust[s.customer_id] = [];
+      salesByCust[s.customer_id].push(s);
+    }
+
+    for (const cid of Object.keys(salesByCust)) {
+      let paidRemaining = paidBy[cid] || 0;
+      const cust = salesByCust[cid][0];
+      const entries = [];
+      // ponytail: FIFO — oldest sale gets paid off first
+      for (const s of salesByCust[cid]) {
+        const due = s.amount;
+        const applied = Math.min(due, paidRemaining);
+        const outstanding = due - applied;
+        paidRemaining -= applied;
+        if (outstanding > 0) {
+          const ageDays = Math.max(0, Math.floor((today - new Date(s.sale_date + 'T00:00:00')) / 86400000));
+          const bucket = ageDays > 90 ? 'd90plus' : ageDays > 60 ? 'd60' : ageDays > 30 ? 'd30' : 'current';
+          buckets[bucket] += outstanding;
+          entries.push({ sale_date: s.sale_date, bill_number: s.bill_number, amount: s.amount, outstanding, age_days: ageDays });
+        }
+      }
+      if (entries.length) {
+        customers[cid] = {
+          customer_id: cid, customer_name: cust.customer_name, phone: cust.phone,
+          outstanding: entries.reduce((s, e) => s + e.outstanding, 0),
+          sales: entries,
+        };
+      }
+    }
+
+    const totalOutstanding = Object.values(customers).reduce((s, c) => s + c.outstanding, 0);
+    return {
+      success: true,
+      customers: Object.values(customers).sort((a, b) => b.outstanding - a.outstanding),
+      buckets,
+      totalOutstanding,
+    };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// GSTR-1 style summary: per month, B2B (customer has GSTIN) vs B2C split + tax totals.
+// ponytail: derived from sales; GSTR-2B (purchase side) needs recorded purchases which don't exist yet (see F4/F8).
+ipcMain.handle('reports:gst1', async (event, { month } = {}) => {
+  try {
+    const db = getDb();
+    // month like "2026-07"; default to current
+    const m = month || new Date().toISOString().slice(0, 7);
+    const rows = db.prepare(`
+      SELECT sale_date, customer_gstin, taxable_amount, cgst_amount, sgst_amount, igst_amount
+      FROM sales WHERE sale_date LIKE ?`).all(m + '%');
+
+    const summary = { month: m, count: rows.length, b2b: 0, b2c: 0, taxable: 0, cgst: 0, sgst: 0, igst: 0 };
+    for (const r of rows) {
+      const isB2B = !!(r.customer_gstin && r.customer_gstin.trim());
+      if (isB2B) summary.b2b++; else summary.b2c++;
+      summary.taxable += r.taxable_amount || 0;
+      summary.cgst += r.cgst_amount || 0;
+      summary.sgst += r.sgst_amount || 0;
+      summary.igst += r.igst_amount || 0;
+    }
+    return { success: true, summary };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 // ===== Purchase Returns =====
 ipcMain.handle('purchaseReturns:list', async () => {
   try {
@@ -1177,12 +1458,33 @@ ipcMain.handle('purchaseReturns:create', async (event, data) => {
   try {
     const db = getDb();
     const returnId = crypto.randomUUID();
-    db.prepare('INSERT INTO purchase_returns (id, supplier_id, medicine_id, quantity, reason, refund_amount, returned_by) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
-      returnId, data.supplier_id, data.medicine_id, data.quantity, data.reason || null, data.refund_amount || 0, data.returned_by
+    db.prepare('INSERT INTO purchase_returns (id, supplier_id, medicine_id, batch_number, expiry_date, quantity, reason, refund_amount, status, returned_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(
+      returnId, data.supplier_id, data.medicine_id, data.batch_number || null, data.expiry_date || null, data.quantity, data.reason || null, data.refund_amount || 0, 'raised', data.returned_by
     );
-    // Restore stock
-    db.prepare('UPDATE medicines SET quantity = quantity + ? WHERE id = ?').run(data.quantity, data.medicine_id);
+    // ponytail: goods leave the shelf when returned to the supplier (decrement). Was + (copied from sales-returns) = bug.
+    db.prepare('UPDATE medicines SET quantity = quantity - ? WHERE id = ? AND quantity >= ?').run(data.quantity, data.medicine_id, data.quantity);
     return { success: true, id: returnId };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// Status workflow: raised -> dispatched -> credited | rejected. Rejected restores stock.
+ipcMain.handle('purchaseReturns:updateStatus', async (event, { id, status, rejectReason }) => {
+  try {
+    const db = getDb();
+    const ret = db.prepare('SELECT * FROM purchase_returns WHERE id = ?').get(id);
+    if (!ret) return { success: false, error: 'Return not found' };
+    if (status === 'dispatched') {
+      db.prepare(`UPDATE purchase_returns SET status = ?, dispatch_date = datetime('now') WHERE id = ?`).run(status, id);
+    } else if (status === 'credited') {
+      db.prepare(`UPDATE purchase_returns SET status = ?, credit_date = datetime('now') WHERE id = ?`).run(status, id);
+    } else if (status === 'rejected') {
+      db.prepare(`UPDATE purchase_returns SET status = ?, reject_reason = ? WHERE id = ?`).run(status, rejectReason || null, id);
+      // supplier won't take it back; stock comes back onto the shelf
+      db.prepare('UPDATE medicines SET quantity = quantity + ? WHERE id = ?').run(ret.quantity, ret.medicine_id);
+    }
+    return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
   }

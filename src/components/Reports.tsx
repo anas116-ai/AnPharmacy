@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BarChart3, Package, AlertTriangle, DollarSign, IndianRupee, TrendingUp, FileSpreadsheet, Filter, Mail, Loader2, ArrowUpRight, ArrowDownRight, Minus, Gauge, ArrowRight } from 'lucide-react';
+import { BarChart3, Package, AlertTriangle, DollarSign, IndianRupee, TrendingUp, FileSpreadsheet, Filter, Mail, Loader2, ArrowUpRight, ArrowDownRight, Minus, Gauge, ArrowRight, Wallet } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { formatCurrency, formatDate, cn } from '../lib/utils';
 import StockBarChart from './charts/StockBarChart';
 import ExpiryPieChart, { buildDefaultData } from './charts/ExpiryPieChart';
-import SalesTrendChart, { MOCK_SALES_DATA } from './charts/SalesTrendChart';
+import SalesTrendChart from './charts/SalesTrendChart';
 
 function DifferenceBadge({ value, reverse = false, suffix = '' }: { value: number; reverse?: boolean; suffix?: string }) {
   const isPositive = reverse ? value < 0 : value > 0;
@@ -16,9 +16,9 @@ function DifferenceBadge({ value, reverse = false, suffix = '' }: { value: numbe
   return (
     <span className={cn(
       'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold',
-      isPositive && 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-      isNegative && 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-      isZero && 'bg-gray-50 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
+      isPositive && 'bg-success-light text-success dark:bg-success-light dark:text-success',
+      isNegative && 'bg-destructive/10 text-destructive dark:bg-destructive/10 dark:text-destructive',
+      isZero && 'bg-muted/50 text-muted-foreground dark:bg-muted/50 dark:text-muted-foreground/60',
     )}>
       {isPositive ? <ArrowUpRight className="w-3 h-3" /> : isNegative ? <ArrowDownRight className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
       {formatCurrency(Math.abs(value))}{suffix}
@@ -29,23 +29,23 @@ function DifferenceBadge({ value, reverse = false, suffix = '' }: { value: numbe
 function ProgressBar({ value, max, color = 'teal' }: { value: number; max: number; color?: string }) {
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   const colorMap: Record<string, string> = {
-    teal: 'bg-teal-500',
-    red: 'bg-red-500',
+    teal: 'bg-accent/100',
+    red: 'bg-destructive/100',
     orange: 'bg-orange-500',
     green: 'bg-green-500',
-    blue: 'bg-blue-500',
-    amber: 'bg-amber-500',
+    blue: 'bg-info-light',
+    amber: 'bg-warning-light',
     purple: 'bg-purple-500',
   };
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
         <div
-          className={cn('h-full rounded-full transition-all duration-500', colorMap[color] || 'bg-teal-500')}
+          className={cn('h-full rounded-full transition-all duration-500', colorMap[color] || 'bg-accent/100')}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 w-10 text-right">{pct.toFixed(0)}%</span>
+      <span className="text-[10px] font-medium text-muted-foreground dark:text-muted-foreground/60 w-10 text-right">{pct.toFixed(0)}%</span>
     </div>
   );
 }
@@ -57,6 +57,10 @@ export default function Reports() {
   const [expiryReport, setExpiryReport] = useState<any>(null);
   const [expiryTierReport, setExpiryTierReport] = useState<any>(null);
   const [profitReport, setProfitReport] = useState<any>(null);
+  const [marginReport, setMarginReport] = useState<any>(null);
+  const [receivables, setReceivables] = useState<any>(null);
+  const [payables, setPayables] = useState<any>(null);
+  const [gst1, setGst1] = useState<any>(null);
   const [salesReport, setSalesReport] = useState<any>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isEmailing, setIsEmailing] = useState(false);
@@ -64,6 +68,7 @@ export default function Reports() {
     dateFrom: '',
     dateTo: '',
     search: '',
+    month: '',
   });
 
   useEffect(() => {
@@ -85,6 +90,18 @@ export default function Reports() {
         } else if (activeTab === 'profit') {
           const result = await window.electronAPI.getProfitReport();
           if (result.success) setProfitReport(result);
+        } else if (activeTab === 'margin') {
+          const result = await window.electronAPI.getSaleMarginReport(30);
+          if (result.success) setMarginReport(result);
+        } else if (activeTab === 'receivables') {
+          const result = await window.electronAPI.getReceivables();
+          if (result.success) setReceivables(result);
+        } else if (activeTab === 'payables') {
+          const result = await window.electronAPI.getPayables();
+          if (result.success) setPayables(result);
+        } else if (activeTab === 'gst1') {
+          const result = await window.electronAPI.getGst1Report(filters.month || undefined);
+          if (result.success) setGst1(result);
         } else if (activeTab === 'sales') {
           const result = await window.electronAPI.getSalesReport();
           if (result.success) setSalesReport(result);
@@ -100,6 +117,7 @@ export default function Reports() {
       dateFrom: '',
       dateTo: '',
       search: '',
+      month: '',
     });
   };
 
@@ -202,7 +220,7 @@ export default function Reports() {
                 {item.diff && (
                   <span className={cn(
                     'inline-flex items-center gap-0.5 text-[10px] font-semibold mt-0.5',
-                    item.diff.positive ? 'text-emerald-600' : 'text-red-600'
+                    item.diff.positive ? 'text-success' : 'text-destructive'
                   )}>
                     {item.diff.positive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                     {item.diff.value}
@@ -210,7 +228,7 @@ export default function Reports() {
                 )}
               </div>
               <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0', 
-                i === 0 ? 'bg-emerald-50 text-emerald-600' : i === 1 ? 'bg-blue-50 text-blue-600' : i === 2 ? 'bg-teal-50 text-teal-600' : i === 3 ? 'bg-amber-50 text-amber-600' : 'bg-violet-50 text-violet-600'
+                i === 0 ? 'bg-success-light text-success' : i === 1 ? 'bg-info-light text-info' : i === 2 ? 'bg-accent/10 text-accent' : i === 3 ? 'bg-warning-light text-warning' : 'bg-violet-50 text-violet-600'
               )}>
                 {item.icon}
               </div>
@@ -226,6 +244,10 @@ export default function Reports() {
     { id: 'expiry', label: t('reports.expiry'), icon: AlertTriangle },
     { id: 'expirytiers', label: 'Expiry Tiers', icon: AlertTriangle },
     { id: 'profit', label: 'Profit/GST', icon: IndianRupee },
+    { id: 'margin', label: 'Real Margin', icon: TrendingUp },
+    { id: 'receivables', label: 'Receivables', icon: Wallet },
+    { id: 'payables', label: 'Payables', icon: DollarSign },
+    { id: 'gst1', label: 'GST-1', icon: FileSpreadsheet },
     { id: 'sales', label: t('reports.sales'), icon: TrendingUp },
   ];
 
@@ -321,6 +343,27 @@ export default function Reports() {
 
   const filteredReport = getFilteredReport();
 
+  // Real sales trend (last 12 months) instead of mock data
+  const salesTrendData = (() => {
+    const sales = salesReport?.sales || [];
+    const months: { [key: string]: { date: string; sales: number; revenue: number } } = {};
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      months[key] = { date: d.toLocaleString('default', { month: 'short' }), sales: 0, revenue: 0 };
+    }
+    for (const s of sales) {
+      const sd = String(s.sale_date || '');
+      const key = sd.slice(0, 7);
+      if (months[key]) {
+        months[key].sales += s.quantity || 0;
+        months[key].revenue += s.total_amount || 0;
+      }
+    }
+    return Object.values(months);
+  })();
+
   return (
     <div className="space-y-5">
       {/* Header with Tabs and Export */}
@@ -339,8 +382,8 @@ export default function Reports() {
                       'px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2',
                       'hover:scale-105 active:scale-95',
                       isActive
-                        ? 'bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-md shadow-teal-500/20'
-                        : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                        ? 'bg-primary text-primary-foreground shadow-md shadow-accent/20'
+                        : 'bg-muted text-muted-foreground dark:text-muted-foreground/40 hover:bg-muted'
                     )}
                   >
                     <Icon className="w-4 h-4" />
@@ -385,14 +428,14 @@ export default function Reports() {
           </div>
 
           {/* Advanced Filters */}
-          <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-slate-700">
-            <Filter className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center gap-3 pt-3 border-t border-border dark:border-border">
+            <Filter className="w-4 h-4 text-muted-foreground/60" />
             <input
               type="text"
               placeholder="Search..."
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-              className="flex-1 px-3 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+              className="flex-1 px-3 py-1.5 text-sm bg-muted/50 dark:bg-muted/60 border border-border dark:border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/30"
             />
             {activeTab === 'sales' && (
               <>
@@ -400,21 +443,21 @@ export default function Reports() {
                   type="date"
                   value={filters.dateFrom}
                   onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
-                  className="px-3 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                  className="px-3 py-1.5 text-sm bg-muted/50 dark:bg-muted/60 border border-border dark:border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/30"
                   placeholder="From"
                 />
                 <input
                   type="date"
                   value={filters.dateTo}
                   onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
-                  className="px-3 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                  className="px-3 py-1.5 text-sm bg-muted/50 dark:bg-muted/60 border border-border dark:border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/30"
                   placeholder="To"
                 />
               </>
             )}
             <button
               onClick={clearFilters}
-              className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+              className="px-3 py-1.5 text-xs text-muted-foreground dark:text-muted-foreground/40 hover:text-foreground dark:hover:text-foreground transition-colors"
             >
               Clear
             </button>
@@ -426,11 +469,11 @@ export default function Reports() {
       {activeTab === 'stock' && filteredReport?.stats && (
         <div className="animate-fade-in-up space-y-5">
           {renderKPICards([
-            { label: t('reports.uniqueMedicines'), value: String(filteredReport.stats.uniqueMedicines), icon: <Package className="w-4 h-4 text-white" />, gradient: 'from-teal-500 to-teal-600' },
-            { label: t('reports.totalBatches'), value: String(filteredReport.stats.totalBatches), icon: <BarChart3 className="w-4 h-4 text-white" />, gradient: 'from-blue-500 to-blue-600' },
-            { label: t('reports.totalUnits'), value: String(filteredReport.stats.totalUnits), icon: <TrendingUp className="w-4 h-4 text-white" />, gradient: 'from-emerald-500 to-emerald-600' },
+            { label: t('reports.uniqueMedicines'), value: String(filteredReport.stats.uniqueMedicines), icon: <Package className="w-4 h-4 text-white" />, gradient: 'from-accent to-accent/80' },
+            { label: t('reports.totalBatches'), value: String(filteredReport.stats.totalBatches), icon: <BarChart3 className="w-4 h-4 text-white" />, gradient: 'from-info to-info/80' },
+            { label: t('reports.totalUnits'), value: String(filteredReport.stats.totalUnits), icon: <TrendingUp className="w-4 h-4 text-white" />, gradient: 'from-success to-success/80' },
             { label: t('reports.totalValue'), value: formatCurrency(filteredReport.stats.totalValue), icon: <IndianRupee className="w-4 h-4 text-white" />, gradient: 'from-orange-500 to-orange-600' },
-            { label: t('reports.avgPrice'), value: formatCurrency(filteredReport.stats.avgPricePerUnit), icon: <DollarSign className="w-4 h-4 text-white" />, gradient: 'from-purple-500 to-purple-600' },
+            { label: t('reports.avgPrice'), value: formatCurrency(filteredReport.stats.avgPricePerUnit), icon: <DollarSign className="w-4 h-4 text-white" />, gradient: 'from-accent to-accent/80' },
           ])}
 
           {/* Purchase vs Selling Price Comparison Card */}
@@ -448,26 +491,26 @@ export default function Reports() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
-                      <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Purchase Value</p>
-                      <p className="text-xl font-bold text-blue-700 dark:text-blue-300 mt-1">{formatCurrency(totalPurchase)}</p>
+                    <div className="bg-info-light dark:bg-blue-900/20 rounded-xl p-4">
+                      <p className="text-xs text-info dark:text-info font-medium">Purchase Value</p>
+                      <p className="text-xl font-bold text-info dark:text-info mt-1">{formatCurrency(totalPurchase)}</p>
                     </div>
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4">
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Selling Value</p>
-                      <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">{formatCurrency(totalSelling)}</p>
+                    <div className="bg-success-light dark:bg-success-light rounded-xl p-4">
+                      <p className="text-xs text-success dark:text-success font-medium">Selling Value</p>
+                      <p className="text-xl font-bold text-success dark:text-emerald-300 mt-1">{formatCurrency(totalSelling)}</p>
                     </div>
-                    <div className={cn('rounded-xl p-4', valueDiff >= 0 ? 'bg-teal-50 dark:bg-teal-900/20' : 'bg-red-50 dark:bg-red-900/20')}>
+                    <div className={cn('rounded-xl p-4', valueDiff >= 0 ? 'bg-accent/10 dark:bg-accent/10' : 'bg-destructive/10 dark:bg-destructive/10')}>
                       <div className="flex items-center justify-between">
-                        <p className={cn('text-xs font-medium', valueDiff >= 0 ? 'text-teal-600 dark:text-teal-400' : 'text-red-600 dark:text-red-400')}>
+                        <p className={cn('text-xs font-medium', valueDiff >= 0 ? 'text-accent dark:text-accent' : 'text-destructive dark:text-destructive')}>
                           Difference (Margin)
                         </p>
-                        <ArrowRight className="w-4 h-4 text-gray-400" />
+                        <ArrowRight className="w-4 h-4 text-muted-foreground/60" />
                       </div>
                       <div className="flex items-baseline gap-2 mt-1">
-                        <p className={cn('text-xl font-bold', valueDiff >= 0 ? 'text-teal-700 dark:text-teal-300' : 'text-red-700 dark:text-red-300')}>
+                        <p className={cn('text-xl font-bold', valueDiff >= 0 ? 'text-accent dark:text-accent' : 'text-destructive dark:text-destructive')}>
                           {formatCurrency(valueDiff)}
                         </p>
-                        <span className={cn('text-xs font-semibold', marginPct >= 0 ? 'text-teal-600 dark:text-teal-400' : 'text-red-600 dark:text-red-400')}>
+                        <span className={cn('text-xs font-semibold', marginPct >= 0 ? 'text-accent dark:text-accent' : 'text-destructive dark:text-destructive')}>
                           ({marginPct.toFixed(1)}%)
                         </span>
                       </div>
@@ -520,12 +563,12 @@ export default function Reports() {
                         const alertLevel = m.low_stock_alert || 0;
                         const isBelowAlert = alertLevel > 0 && m.quantity <= alertLevel;
                         return (
-                          <tr key={m.id} className="hover:bg-teal-50/50 dark:hover:bg-teal-900/20 transition-colors">
-                            <td className="font-medium text-gray-900 dark:text-gray-100">{m.name}</td>
-                            <td className="text-gray-600 dark:text-gray-400 font-mono text-xs">{m.batch_number}</td>
-                            <td className="text-right font-medium text-gray-900 dark:text-gray-100">{m.quantity}</td>
-                            <td className="text-right text-gray-700 dark:text-gray-300">{formatCurrency(m.purchase_price)}</td>
-                            <td className="text-right text-gray-700 dark:text-gray-300">{formatCurrency(m.selling_price)}</td>
+                          <tr key={m.id} className="hover:bg-accent/10 dark:hover:bg-accent/10 transition-colors">
+                            <td className="font-medium text-foreground dark:text-foreground">{m.name}</td>
+                            <td className="text-muted-foreground dark:text-muted-foreground/60 font-mono text-xs">{m.batch_number}</td>
+                            <td className="text-right font-medium text-foreground dark:text-foreground">{m.quantity}</td>
+                            <td className="text-right text-foreground/80 dark:text-muted-foreground/40">{formatCurrency(m.purchase_price)}</td>
+                            <td className="text-right text-foreground/80 dark:text-muted-foreground/40">{formatCurrency(m.selling_price)}</td>
                             <td className="text-right">
                               <DifferenceBadge value={priceDiff} />
                             </td>
@@ -534,14 +577,14 @@ export default function Reports() {
                                 <div className="flex items-center gap-2">
                                   <ProgressBar value={m.quantity} max={Math.max(m.quantity, alertLevel * 2)} color={isBelowAlert ? 'red' : 'teal'} />
                                   {isBelowAlert && (
-                                    <AlertTriangle className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
+                                    <AlertTriangle className="w-3.5 h-3.5 text-destructive flex-shrink-0" />
                                   )}
                                 </div>
                               ) : (
-                                <span className="text-xs text-gray-400">—</span>
+                                <span className="text-xs text-muted-foreground/60">—</span>
                               )}
                             </td>
-                            <td className="text-gray-600 dark:text-gray-400 text-xs">{formatDate(m.expiry_date)}</td>
+                            <td className="text-muted-foreground dark:text-muted-foreground/60 text-xs">{formatDate(m.expiry_date)}</td>
                             <td>
                               <Badge variant={m.status as any} size="sm">
                                 {m.status === 'expired' ? 'Expired' : m.status === 'critical' ? 'Critical' : m.status === 'warning' ? 'Warning' : 'Safe'}
@@ -585,8 +628,8 @@ export default function Reports() {
                         <p className="text-3xl font-bold text-white mt-1">{cat.count}</p>
                         <div className="flex items-center justify-between mt-2">
                           <p className="text-xs text-white/60">{cat.pct}% of total</p>
-                          <div className="w-20 h-1.5 bg-white/20 rounded-full overflow-hidden">
-                            <div className="h-full bg-white/60 rounded-full" style={{ width: `${cat.pct}%` }} />
+                          <div className="w-20 h-1.5 bg-background/20 rounded-full overflow-hidden">
+                            <div className="h-full bg-background/60 rounded-full" style={{ width: `${cat.pct}%` }} />
                           </div>
                         </div>
                       </div>
@@ -594,10 +637,10 @@ export default function Reports() {
                   ))}
                 </div>
                 {/* At-Risk Summary */}
-                <Card className="mb-5 border-red-200 bg-red-50/50 dark:bg-red-900/10">
+                <Card className="mb-5 border-destructive/20 bg-destructive/10/50 dark:bg-destructive/10">
                   <CardContent className="p-4 flex items-center gap-3">
-                    <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                    <p className="text-sm text-red-700 dark:text-red-300">
+                    <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
+                    <p className="text-sm text-destructive dark:text-destructive">
                       <strong>{expired + critical}</strong> of <strong>{total}</strong> batches ({pct(expired + critical)}%) are at risk — expired or expiring within 90 days
                     </p>
                   </CardContent>
@@ -624,15 +667,15 @@ export default function Reports() {
               <Card key={category} variant="bordered" className="mb-4">
                 <CardHeader className={cn(
                   'pb-3 rounded-t-2xl',
-                  category === 'expired' && 'bg-gray-50 dark:bg-slate-700/50',
-                  category === 'critical' && 'bg-red-50 dark:bg-red-900/20',
+                  category === 'expired' && 'bg-muted/50 dark:bg-muted/60/50',
+                  category === 'critical' && 'bg-destructive/10 dark:bg-destructive/10',
                   category === 'warning' && 'bg-orange-50 dark:bg-orange-900/20',
                   category === 'safe' && 'bg-green-50 dark:bg-green-900/20',
                 )}>
                   <CardTitle className={cn(
                     'text-sm flex items-center gap-2',
-                    category === 'expired' && 'text-gray-700 dark:text-gray-200',
-                    category === 'critical' && 'text-red-700 dark:text-red-300',
+                    category === 'expired' && 'text-foreground/80 dark:text-muted-foreground/70',
+                    category === 'critical' && 'text-destructive dark:text-destructive',
                     category === 'warning' && 'text-orange-700 dark:text-orange-300',
                     category === 'safe' && 'text-green-700 dark:text-green-300',
                   )}>
@@ -660,26 +703,26 @@ export default function Reports() {
                         {items.map((m: any) => (
                           <tr key={m.id} className={cn(
                             'transition-colors',
-                            category === 'expired' && 'hover:bg-red-50/50 dark:hover:bg-red-900/10',
-                            category === 'critical' && 'hover:bg-red-50/30 dark:hover:bg-red-900/10',
+                            category === 'expired' && 'hover:bg-destructive/10/50 dark:hover:bg-destructive/10',
+                            category === 'critical' && 'hover:bg-destructive/10/30 dark:hover:bg-destructive/10',
                             category === 'warning' && 'hover:bg-orange-50/30 dark:hover:bg-orange-900/10',
                             category === 'safe' && 'hover:bg-green-50/30 dark:hover:bg-green-900/10',
                           )}>
-                            <td className="font-medium text-gray-900 dark:text-gray-100">{m.name}</td>
-                            <td className="text-gray-600 dark:text-gray-400 font-mono text-xs">{m.batch_number}</td>
-                            <td className="text-right font-medium text-gray-900 dark:text-gray-100">{m.quantity}</td>
-                            <td className="text-gray-600 dark:text-gray-400 text-xs">{formatDate(m.expiry_date)}</td>
+                            <td className="font-medium text-foreground dark:text-foreground">{m.name}</td>
+                            <td className="text-muted-foreground dark:text-muted-foreground/60 font-mono text-xs">{m.batch_number}</td>
+                            <td className="text-right font-medium text-foreground dark:text-foreground">{m.quantity}</td>
+                            <td className="text-muted-foreground dark:text-muted-foreground/60 text-xs">{formatDate(m.expiry_date)}</td>
                             <td className={cn(
                               'text-right font-semibold',
-                              category === 'expired' && 'text-red-600 dark:text-red-400',
+                              category === 'expired' && 'text-destructive dark:text-destructive',
                               category === 'critical' && 'text-orange-600 dark:text-orange-400',
-                              category === 'warning' && 'text-amber-600 dark:text-amber-400',
+                              category === 'warning' && 'text-warning dark:text-amber-400',
                               category === 'safe' && 'text-green-600 dark:text-green-400',
                             )}>
                               {category === 'expired' ? `${Math.abs(Math.round(m.days_remaining))}d over` : `${Math.round(m.days_remaining)}d`}
                             </td>
                             {category !== 'safe' && (
-                              <td className="text-right text-red-600 dark:text-red-400 font-semibold">
+                              <td className="text-right text-destructive dark:text-destructive font-semibold">
                                 {formatCurrency((m.purchase_price || 0) * (m.quantity || 0))}
                               </td>
                             )}
@@ -717,11 +760,11 @@ export default function Reports() {
           </div>
 
           {expiryTierReport.stats?.atRiskValue != null && (
-            <Card className="mb-5 border-red-200 bg-red-50 dark:bg-red-900/10">
+            <Card className="mb-5 border-destructive/20 bg-destructive/10 dark:bg-destructive/10">
               <CardContent className="p-4 flex items-center gap-3">
-                <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                <p className="text-sm text-red-700 dark:text-red-300 font-medium">
-                  📊 Stock value at risk: <strong>{formatCurrency(expiryTierReport.stats.atRiskValue)}</strong> across {expiryTierReport.stats.expired + expiryTierReport.stats.d90 + expiryTierReport.stats.d60 + expiryTierReport.stats.d30} batches
+                <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
+                <p className="text-sm text-destructive dark:text-destructive font-medium">
+                  Stock value at risk: <strong>{formatCurrency(expiryTierReport.stats.atRiskValue)}</strong> across {expiryTierReport.stats.expired + expiryTierReport.stats.d90 + expiryTierReport.stats.d60 + expiryTierReport.stats.d30} batches
                 </p>
               </CardContent>
             </Card>
@@ -734,18 +777,18 @@ export default function Reports() {
             return (
               <Card key={tier} variant="bordered" className="mb-4">
                 <CardHeader className={cn('pb-3 rounded-t-2xl', 
-                  tier === 'expired' ? 'bg-gray-50 dark:bg-slate-700/50' : 
-                  tier === 'd30' ? 'bg-red-100 dark:bg-red-900/30' :
+                  tier === 'expired' ? 'bg-muted/50 dark:bg-muted/60/50' : 
+                  tier === 'd30' ? 'bg-red-100 dark:bg-destructive/10' :
                   tier === 'safe' ? 'bg-green-50 dark:bg-green-900/20' :
-                  'bg-red-50 dark:bg-red-900/20'
+                  'bg-destructive/10 dark:bg-destructive/10'
                 )}>
                   <CardTitle className={cn('text-sm flex items-center gap-2', 
-                    tier === 'expired' ? 'text-gray-700 dark:text-gray-200' : 
+                    tier === 'expired' ? 'text-foreground/80 dark:text-muted-foreground/70' : 
                     tier === 'safe' ? 'text-green-700 dark:text-green-300' :
-                    'text-red-700 dark:text-red-300'
+                    'text-destructive dark:text-destructive'
                   )}>
                     <AlertTriangle className="w-4 h-4" />
-                    {tier === 'd90' ? 'Expiring in ≤ 90 days' : tier === 'd60' ? 'Expiring in ≤ 60 days' : tier === 'd30' ? '⛔ Expiring in ≤ 30 days — URGENT' : tier === 'expired' ? 'Expired Stock' : 'Safe Stock (>90 days)'}
+                    {tier === 'd90' ? 'Expiring in ≤ 90 days' : tier === 'd60' ? 'Expiring in ≤ 60 days' : tier === 'd30' ? 'Expiring in ≤ 30 days — URGENT' : tier === 'expired' ? 'Expired Stock' : 'Safe Stock (>90 days)'}
                     <Badge variant={tier === 'expired' ? 'expired' : tier === 'safe' ? 'safe' : 'critical'} size="sm" className="ml-1">{items.length}</Badge>
                   </CardTitle>
                 </CardHeader>
@@ -758,29 +801,36 @@ export default function Reports() {
                           <th className="text-right">Qty</th><th>Expiry</th>
                           <th className="text-right">Days Left</th>
                           {isUrgent && <th className="text-right">Value at Risk</th>}
+                          {isUrgent && <th className="text-right">Clearance @ Cost</th>}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
                         {items.map((m: any) => (
                           <tr key={m.id} className={cn(
                             'transition-colors',
-                            isUrgent && 'hover:bg-red-50/60 dark:hover:bg-red-900/15'
+                            isUrgent && 'hover:bg-destructive/10/60 dark:hover:bg-destructive/10'
                           )}>
-                            <td className="font-medium text-gray-900 dark:text-gray-100">{m.name}</td>
-                            <td className="text-gray-600 dark:text-gray-400 font-mono text-xs">{m.batch_number}</td>
-                            <td className="text-gray-600 dark:text-gray-400 text-xs">{m.company || '—'}</td>
-                            <td className="text-right font-medium text-gray-900 dark:text-gray-100">{m.quantity}</td>
-                            <td className="text-gray-600 dark:text-gray-400 text-xs">{formatDate(m.expiry_date)}</td>
+                            <td className="font-medium text-foreground dark:text-foreground">{m.name}</td>
+                            <td className="text-muted-foreground dark:text-muted-foreground/60 font-mono text-xs">{m.batch_number}</td>
+                            <td className="text-muted-foreground dark:text-muted-foreground/60 text-xs">{m.company || '—'}</td>
+                            <td className="text-right font-medium text-foreground dark:text-foreground">{m.quantity}</td>
+                            <td className="text-muted-foreground dark:text-muted-foreground/60 text-xs">{formatDate(m.expiry_date)}</td>
                             <td className={cn('text-right font-semibold', 
-                              m.days_remaining < 0 ? 'text-red-600 dark:text-red-400' : 
+                              m.days_remaining < 0 ? 'text-destructive dark:text-destructive' : 
                               tier === 'safe' ? 'text-green-600 dark:text-green-400' :
                               'text-orange-600 dark:text-orange-400'
                             )}>
                               {m.days_remaining < 0 ? `${-m.days_remaining}d over` : `${m.days_remaining}d`}
                             </td>
                             {isUrgent && (
-                              <td className="text-right text-red-600 dark:text-red-400 font-semibold">
+                              <td className="text-right text-destructive dark:text-destructive font-semibold">
                                 {formatCurrency((m.purchase_price || 0) * (m.quantity || 0))}
+                              </td>
+                            )}
+                            {isUrgent && (
+                              <td className="text-right text-accent dark:text-accent font-semibold">
+                                {formatCurrency(m.purchase_price || 0)}
+                                <span className="block text-[10px] text-muted-foreground font-normal">break-even/unit</span>
                               </td>
                             )}
                           </tr>
@@ -807,55 +857,55 @@ export default function Reports() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
-                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Purchase Value</p>
-                  <p className="text-xl font-bold text-blue-700 dark:text-blue-300 mt-1">{formatCurrency(profitReport.stats.totalPurchaseValue)}</p>
+                <div className="bg-info-light dark:bg-blue-900/20 rounded-xl p-4">
+                  <p className="text-xs text-info dark:text-info font-medium">Purchase Value</p>
+                  <p className="text-xl font-bold text-info dark:text-info mt-1">{formatCurrency(profitReport.stats.totalPurchaseValue)}</p>
                   <div className="flex items-center gap-1 mt-1">
-                    <ArrowDownRight className="w-3 h-3 text-blue-500" />
-                    <span className="text-[10px] text-blue-500">Cost of goods</span>
+                    <ArrowDownRight className="w-3 h-3 text-info" />
+                    <span className="text-[10px] text-info">Cost of goods</span>
                   </div>
                 </div>
-                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4">
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Sale Value</p>
-                  <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">{formatCurrency(profitReport.stats.totalSaleValue)}</p>
+                <div className="bg-success-light dark:bg-success-light rounded-xl p-4">
+                  <p className="text-xs text-success dark:text-success font-medium">Sale Value</p>
+                  <p className="text-xl font-bold text-success dark:text-emerald-300 mt-1">{formatCurrency(profitReport.stats.totalSaleValue)}</p>
                   <div className="flex items-center gap-1 mt-1">
-                    <ArrowUpRight className="w-3 h-3 text-emerald-500" />
-                    <span className="text-[10px] text-emerald-500">Revenue generated</span>
+                    <ArrowUpRight className="w-3 h-3 text-success" />
+                    <span className="text-[10px] text-success">Revenue generated</span>
                   </div>
                 </div>
-                <div className="bg-teal-50 dark:bg-teal-900/20 rounded-xl p-4">
-                  <p className="text-xs text-teal-600 dark:text-teal-400 font-medium">Real Profit (ex-GST)</p>
-                  <p className="text-xl font-bold text-teal-700 dark:text-teal-300 mt-1">{formatCurrency(profitReport.stats.totalRealProfit)}</p>
+                <div className="bg-accent/10 dark:bg-accent/10 rounded-xl p-4">
+                  <p className="text-xs text-accent dark:text-accent font-medium">Real Profit (ex-GST)</p>
+                  <p className="text-xl font-bold text-accent dark:text-accent mt-1">{formatCurrency(profitReport.stats.totalRealProfit)}</p>
                   <div className="flex items-center gap-1 mt-1">
-                    <TrendingUp className="w-3 h-3 text-teal-500" />
-                    <span className="text-[10px] text-teal-500">{profitReport.stats.marginPercent.toFixed(1)}% margin</span>
+                    <TrendingUp className="w-3 h-3 text-accent" />
+                    <span className="text-[10px] text-accent">{profitReport.stats.marginPercent.toFixed(1)}% margin</span>
                   </div>
                 </div>
-                <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4">
-                  <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">Net GST (Output − Input)</p>
-                  <p className="text-xl font-bold text-purple-700 dark:text-purple-300 mt-1">{formatCurrency(profitReport.stats.totalOutputGst - profitReport.stats.totalInputGst)}</p>
+                <div className="bg-warning-light dark:bg-warning-light rounded-xl p-4">
+                  <p className="text-xs text-warning dark:text-warning font-medium">Net GST (Output − Input)</p>
+                  <p className="text-xl font-bold text-warning dark:text-warning mt-1">{formatCurrency(profitReport.stats.totalOutputGst - profitReport.stats.totalInputGst)}</p>
                   <DifferenceBadge value={profitReport.stats.totalOutputGst - profitReport.stats.totalInputGst} />
                 </div>
               </div>
               {/* Margin Progress */}
-              <div className="mt-4 p-4 bg-gray-50 dark:bg-slate-800 rounded-xl">
+              <div className="mt-4 p-4 bg-muted/50 dark:bg-muted/40 rounded-xl">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <Gauge className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Profit Margin</span>
+                    <Gauge className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground/80 dark:text-muted-foreground/40">Overall Profit Margin</span>
                   </div>
                   <span className={cn(
                     'text-lg font-bold',
-                    profitReport.stats.marginPercent >= 0 ? 'text-teal-600 dark:text-teal-400' : 'text-red-600 dark:text-red-400'
+                    profitReport.stats.marginPercent >= 0 ? 'text-accent dark:text-accent' : 'text-destructive dark:text-destructive'
                   )}>
                     {profitReport.stats.marginPercent.toFixed(1)}%
                   </span>
                 </div>
-                <div className="w-full h-3 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                   <div
                     className={cn(
                       'h-full rounded-full transition-all duration-700',
-                      profitReport.stats.marginPercent >= 30 ? 'bg-gradient-to-r from-teal-400 to-emerald-500' :
+                      profitReport.stats.marginPercent >= 30 ? 'bg-gradient-to-r from-accent to-success' :
                       profitReport.stats.marginPercent >= 15 ? 'bg-gradient-to-r from-amber-400 to-orange-500' :
                       profitReport.stats.marginPercent >= 0 ? 'bg-gradient-to-r from-red-400 to-red-500' :
                       'bg-gradient-to-r from-red-600 to-rose-600'
@@ -863,7 +913,7 @@ export default function Reports() {
                     style={{ width: `${Math.min(Math.max(profitReport.stats.marginPercent, 0), 100)}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+                <div className="flex justify-between text-[10px] text-muted-foreground/60 mt-1">
                   <span>0%</span>
                   <span>15%</span>
                   <span>30%</span>
@@ -876,18 +926,18 @@ export default function Reports() {
           {/* GST Breakup Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
             {[
-              { label: 'Input GST (paid to suppliers)', value: formatCurrency(profitReport.stats.totalInputGst), icon: '↘', gradient: 'from-indigo-500 to-indigo-600', desc: 'Tax paid on purchases' },
+              { label: 'Input GST (paid to suppliers)', value: formatCurrency(profitReport.stats.totalInputGst), icon: '↘', gradient: 'from-info to-info/80', desc: 'Tax paid on purchases' },
               { label: 'Output GST (collected from customers)', value: formatCurrency(profitReport.stats.totalOutputGst), icon: '↗', gradient: 'from-cyan-500 to-cyan-600', desc: 'Tax collected on sales' },
               { label: 'Net GST Payable (Output − Input)', value: formatCurrency(profitReport.stats.totalOutputGst - profitReport.stats.totalInputGst), icon: '∑', gradient: 'from-slate-500 to-slate-600', desc: 'Amount to remit to govt' },
             ].map(card => (
               <Card key={card.label} variant="bordered">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{card.label}</p>
+                    <p className="text-sm text-muted-foreground dark:text-muted-foreground/60">{card.label}</p>
                     <span className={cn('w-7 h-7 rounded-lg flex items-center justify-center text-white text-sm', card.gradient)}>{card.icon}</span>
                   </div>
-                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-2">{card.value}</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">{card.desc}</p>
+                  <p className="text-xl font-bold text-foreground dark:text-foreground mt-2">{card.value}</p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-0.5">{card.desc}</p>
                 </CardContent>
               </Card>
             ))}
@@ -916,22 +966,22 @@ export default function Reports() {
                       const priceDiff = r.selling_price - r.purchase_price;
                       const netGst = r.output_gst - r.input_gst;
                       return (
-                        <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                          <td className="font-medium text-gray-900 dark:text-gray-100">{r.name}</td>
-                          <td className="text-gray-600 dark:text-gray-400 font-mono text-xs">{r.batch_number}</td>
+                        <tr key={r.id} className="hover:bg-muted/50 dark:hover:bg-slate-700/50 transition-colors">
+                          <td className="font-medium text-foreground dark:text-foreground">{r.name}</td>
+                          <td className="text-muted-foreground dark:text-muted-foreground/60 font-mono text-xs">{r.batch_number}</td>
                           <td className="text-right font-medium">{r.quantity}</td>
-                          <td className="text-right text-gray-600 dark:text-gray-400">{formatCurrency(r.purchase_price)}</td>
-                          <td className="text-right text-gray-600 dark:text-gray-400">{formatCurrency(r.selling_price)}</td>
+                          <td className="text-right text-muted-foreground dark:text-muted-foreground/60">{formatCurrency(r.purchase_price)}</td>
+                          <td className="text-right text-muted-foreground dark:text-muted-foreground/60">{formatCurrency(r.selling_price)}</td>
                           <td className="text-right">
                             <DifferenceBadge value={priceDiff} />
                           </td>
-                          <td className="text-right text-gray-500 dark:text-gray-500">{formatCurrency(r.input_gst)}</td>
-                          <td className="text-right text-gray-500 dark:text-gray-500">{formatCurrency(r.output_gst)}</td>
+                          <td className="text-right text-muted-foreground dark:text-muted-foreground">{formatCurrency(r.input_gst)}</td>
+                          <td className="text-right text-muted-foreground dark:text-muted-foreground">{formatCurrency(r.output_gst)}</td>
                           <td className="text-right">
                             <DifferenceBadge value={netGst} />
                           </td>
-                          <td className={cn('text-right font-semibold', r.real_margin >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400')}>{formatCurrency(r.real_margin)}</td>
-                          <td className={cn('text-right font-semibold', r.margin_percent >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400')}>
+                          <td className={cn('text-right font-semibold', r.real_margin >= 0 ? 'text-success dark:text-success' : 'text-destructive dark:text-destructive')}>{formatCurrency(r.real_margin)}</td>
+                          <td className={cn('text-right font-semibold', r.margin_percent >= 0 ? 'text-success dark:text-success' : 'text-destructive dark:text-destructive')}>
                             <span className="inline-flex items-center gap-0.5">
                               {r.margin_percent >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                               {r.margin_percent.toFixed(1)}%
@@ -952,10 +1002,10 @@ export default function Reports() {
       {activeTab === 'sales' && filteredReport?.stats && (
         <div className="animate-fade-in-up space-y-5">
           {renderKPICards([
-            { label: t('reports.totalRevenue'), value: formatCurrency(filteredReport.stats.totalRevenue), icon: <IndianRupee className="w-4 h-4 text-white" />, gradient: 'from-emerald-500 to-emerald-600', diff: { value: `${filteredReport.stats.totalSales} transactions`, positive: true } },
-            { label: 'Total Sales', value: String(filteredReport.stats.totalSales), icon: <BarChart3 className="w-4 h-4 text-white" />, gradient: 'from-blue-500 to-blue-600' },
-            { label: t('reports.totalUnits'), value: String(filteredReport.stats.totalUnitsSold), icon: <Package className="w-4 h-4 text-white" />, gradient: 'from-teal-500 to-teal-600' },
-            { label: t('reports.avgSaleValue'), value: formatCurrency(filteredReport.stats.avgSaleValue), icon: <TrendingUp className="w-4 h-4 text-white" />, gradient: 'from-purple-500 to-purple-600', diff: { value: `${filteredReport.stats.totalUnitsSold} units total`, positive: true } },
+            { label: t('reports.totalRevenue'), value: formatCurrency(filteredReport.stats.totalRevenue), icon: <IndianRupee className="w-4 h-4 text-white" />, gradient: 'from-success to-success/80', diff: { value: `${filteredReport.stats.totalSales} transactions`, positive: true } },
+            { label: 'Total Sales', value: String(filteredReport.stats.totalSales), icon: <BarChart3 className="w-4 h-4 text-white" />, gradient: 'from-info to-info/80' },
+            { label: t('reports.totalUnits'), value: String(filteredReport.stats.totalUnitsSold), icon: <Package className="w-4 h-4 text-white" />, gradient: 'from-accent to-accent/80' },
+            { label: t('reports.avgSaleValue'), value: formatCurrency(filteredReport.stats.avgSaleValue), icon: <TrendingUp className="w-4 h-4 text-white" />, gradient: 'from-accent to-accent/80', diff: { value: `${filteredReport.stats.totalUnitsSold} units total`, positive: true } },
           ])}
 
           {/* Revenue Per Transaction Summary */}
@@ -968,17 +1018,17 @@ export default function Reports() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-success to-success/80 rounded-xl p-4">
                     <p className="text-xs text-white/80">Total Revenue</p>
                     <p className="text-2xl font-bold text-white">{formatCurrency(filteredReport.stats.totalRevenue)}</p>
                     <p className="text-[10px] text-white/60 mt-1">Across {filteredReport.stats.totalSales} sales</p>
                   </div>
-                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-info to-info/80 rounded-xl p-4">
                     <p className="text-xs text-white/80">Avg. Per Sale</p>
                     <p className="text-2xl font-bold text-white">{formatCurrency(filteredReport.stats.avgSaleValue)}</p>
                     <p className="text-[10px] text-white/60 mt-1">Per transaction</p>
                   </div>
-                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-accent to-accent/80 rounded-xl p-4">
                     <p className="text-xs text-white/80">Avg. Per Unit</p>
                     <p className="text-2xl font-bold text-white">
                       {formatCurrency(filteredReport.stats.totalUnitsSold > 0 ? filteredReport.stats.totalRevenue / filteredReport.stats.totalUnitsSold : 0)}
@@ -997,7 +1047,7 @@ export default function Reports() {
             </Card>
           )}
 
-          <SalesTrendChart data={MOCK_SALES_DATA} title="Sales Trend" className="mb-5" />
+          <SalesTrendChart data={salesTrendData} title="Sales Trend" className="mb-5" />
           {filteredReport?.sales && (
             <Card variant="bordered">
               <CardContent className="p-0 overflow-hidden">
@@ -1017,13 +1067,13 @@ export default function Reports() {
                       {filteredReport.sales.map((s: any) => {
                         const avgUnit = s.quantity > 0 ? s.total_amount / s.quantity : 0;
                         return (
-                          <tr key={s.id} className="hover:bg-teal-50/50 dark:hover:bg-teal-900/20 transition-colors">
-                            <td className="font-medium text-gray-900 dark:text-gray-100">{s.customer_name || 'Walk-in'}</td>
-                            <td className="text-gray-600 dark:text-gray-400">{s.medicine_name}</td>
-                            <td className="text-right font-medium text-gray-900 dark:text-gray-100">{s.quantity || '-'}</td>
-                            <td className="text-right font-semibold text-emerald-600 dark:text-emerald-400">{formatCurrency(s.total_amount)}</td>
-                            <td className="text-gray-500 dark:text-gray-400 text-xs">{formatDate(s.sale_date)}</td>
-                            <td className="text-right text-gray-600 dark:text-gray-400 text-xs">{formatCurrency(avgUnit)}</td>
+                          <tr key={s.id} className="hover:bg-accent/10 dark:hover:bg-accent/10 transition-colors">
+                            <td className="font-medium text-foreground dark:text-foreground">{s.customer_name || 'Walk-in'}</td>
+                            <td className="text-muted-foreground dark:text-muted-foreground/60">{s.medicine_name}</td>
+                            <td className="text-right font-medium text-foreground dark:text-foreground">{s.quantity || '-'}</td>
+                            <td className="text-right font-semibold text-success dark:text-success">{formatCurrency(s.total_amount)}</td>
+                            <td className="text-muted-foreground dark:text-muted-foreground/60 text-xs">{formatDate(s.sale_date)}</td>
+                            <td className="text-right text-muted-foreground dark:text-muted-foreground/60 text-xs">{formatCurrency(avgUnit)}</td>
                           </tr>
                         );
                       })}
@@ -1033,6 +1083,251 @@ export default function Reports() {
               </CardContent>
             </Card>
           )}
+        </div>
+      )}
+
+      {activeTab === 'margin' && marginReport && (
+        <div className="animate-fade-in-up space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="bg-gradient-to-br from-accent to-accent/80 rounded-xl p-4">
+              <p className="text-xs text-white/80">Real Margin (30d)</p>
+              <p className="text-2xl font-bold text-white">{formatCurrency(marginReport.stats.margin)}</p>
+              <p className="text-[10px] text-white/60 mt-1">Revenue minus purchase cost</p>
+            </div>
+            <div className="bg-gradient-to-br from-info to-info/80 rounded-xl p-4">
+              <p className="text-xs text-white/80">Revenue</p>
+              <p className="text-2xl font-bold text-white">{formatCurrency(marginReport.stats.revenue)}</p>
+              <p className="text-[10px] text-white/60 mt-1">At billed price</p>
+            </div>
+            <div className="bg-gradient-to-br from-success to-success/80 rounded-xl p-4">
+              <p className="text-xs text-white/80">Margin %</p>
+              <p className="text-2xl font-bold text-white">{marginReport.stats.marginPercent.toFixed(1)}%</p>
+              <p className="text-[10px] text-white/60 mt-1">{marginReport.stats.cost.toFixed(0)} purchase cost</p>
+            </div>
+          </div>
+          {marginReport.rows.length > 0 ? (
+            <Card variant="bordered">
+              <CardContent className="p-0 overflow-hidden">
+                <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+                  <table className="table-premium">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Bill</th>
+                        <th>Customer</th>
+                        <th>Medicine</th>
+                        <th className="text-right">Qty</th>
+                        <th className="text-right">Revenue</th>
+                        <th className="text-right">Cost</th>
+                        <th className="text-right">Margin</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                      {marginReport.rows.map((r: any, idx: number) => (
+                        <tr key={idx} className="hover:bg-accent/10 transition-colors">
+                          <td className="text-muted-foreground text-xs">{formatDate(r.sale_date)}</td>
+                          <td className="font-mono text-xs">{r.bill_number}</td>
+                          <td className="font-medium text-foreground">{r.customer_name || 'Walk-in'}</td>
+                          <td className="text-muted-foreground">{r.medicine_name}</td>
+                          <td className="text-right font-medium">{r.quantity}</td>
+                          <td className="text-right text-success">{formatCurrency(r.net_amount)}</td>
+                          <td className="text-right text-muted-foreground">{formatCurrency((r.purchase_price || 0) * (r.quantity || 0))}</td>
+                          <td className={`text-right font-semibold ${(r.net_amount - (r.purchase_price || 0) * (r.quantity || 0)) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            {formatCurrency(r.net_amount - (r.purchase_price || 0) * (r.quantity || 0))}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card variant="bordered">
+              <CardContent className="py-10 text-center text-muted-foreground">
+                No sale lines with cost recorded yet. New sales will capture purchase cost automatically.
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'receivables' && receivables && (
+        <div className="animate-fade-in-up space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+            <div className="bg-gradient-to-br from-accent to-accent/80 rounded-xl p-4">
+              <p className="text-xs text-white/80">Total Outstanding</p>
+              <p className="text-2xl font-bold text-white">{formatCurrency(receivables.totalOutstanding)}</p>
+              <p className="text-[10px] text-white/60 mt-1">On credit sales</p>
+            </div>
+            <div className="bg-success-light rounded-xl p-4">
+              <p className="text-xs text-success font-medium">Current (0-30d)</p>
+              <p className="text-xl font-bold text-success mt-1">{formatCurrency(receivables.buckets.current)}</p>
+            </div>
+            <div className="bg-warning-light rounded-xl p-4">
+              <p className="text-xs text-warning font-medium">31-60 days</p>
+              <p className="text-xl font-bold text-warning mt-1">{formatCurrency(receivables.buckets.d30)}</p>
+            </div>
+            <div className="bg-warning-light rounded-xl p-4">
+              <p className="text-xs text-warning font-medium">61-90 days</p>
+              <p className="text-xl font-bold text-warning mt-1">{formatCurrency(receivables.buckets.d60)}</p>
+            </div>
+            <div className="bg-destructive/10 rounded-xl p-4">
+              <p className="text-xs text-destructive font-medium">90+ days</p>
+              <p className="text-xl font-bold text-destructive mt-1">{formatCurrency(receivables.buckets.d90plus)}</p>
+            </div>
+          </div>
+          {receivables.customers.length > 0 ? (
+            <Card variant="bordered">
+              <CardContent className="p-0 overflow-hidden">
+                <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+                  <table className="table-premium">
+                    <thead>
+                      <tr>
+                        <th>Customer</th>
+                        <th className="text-right">Outstanding</th>
+                        <th>Oldest Bill</th>
+                        <th>Worst Age</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                      {receivables.customers.map((c: any) => {
+                        const oldest = c.sales.reduce((m: any, s: any) => (!m || s.age_days > m.age_days ? s : m), null);
+                        return (
+                          <tr key={c.customer_id} className="hover:bg-accent/10 transition-colors">
+                            <td>
+                              <p className="font-medium text-foreground">{c.customer_name}</p>
+                              <p className="text-xs text-muted-foreground">{c.phone || ''} · {c.sales.length} bill(s)</p>
+                            </td>
+                            <td className="text-right font-semibold text-warning">{formatCurrency(c.outstanding)}</td>
+                            <td className="text-muted-foreground text-xs">{oldest ? formatDate(oldest.sale_date) : '-'}</td>
+                            <td>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${oldest && oldest.age_days > 90 ? 'bg-destructive/10 text-destructive' : oldest && oldest.age_days > 60 ? 'bg-warning-light text-warning' : 'bg-success-light text-success'}`}>
+                                {oldest ? `${oldest.age_days} days` : '-'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card variant="bordered">
+              <CardContent className="py-10 text-center text-muted-foreground">
+                No outstanding credit. Record payments against customers from the Customers screen.
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'payables' && payables && (
+        <div className="animate-fade-in-up space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="bg-gradient-to-br from-accent to-accent/80 rounded-xl p-4">
+              <p className="text-xs text-white/80">Total Payable</p>
+              <p className="text-2xl font-bold text-white">{formatCurrency(payables.totalPayable)}</p>
+              <p className="text-[10px] text-white/60 mt-1">From {payables.count} purchase invoice(s)</p>
+            </div>
+            <div className="bg-warning-light rounded-xl p-4">
+              <p className="text-xs text-warning font-medium">Suppliers Owed</p>
+              <p className="text-xl font-bold text-warning mt-1">{payables.suppliers.length}</p>
+            </div>
+          </div>
+          {payables.suppliers.length > 0 ? (
+            <Card variant="bordered">
+              <CardContent className="p-0 overflow-hidden">
+                <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+                  <table className="table-premium">
+                    <thead>
+                      <tr>
+                        <th>Supplier</th>
+                        <th className="text-right">Bills</th>
+                        <th className="text-right">Outstanding</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                      {payables.suppliers.map((s: any, idx: number) => (
+                        <tr key={idx} className="hover:bg-accent/10 transition-colors">
+                          <td className="font-medium text-foreground">{s.supplier_name}</td>
+                          <td className="text-right text-muted-foreground">{s.bills}</td>
+                          <td className="text-right font-semibold text-warning">{formatCurrency(s.outstanding)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card variant="bordered">
+              <CardContent className="py-10 text-center text-muted-foreground">
+                No purchases recorded yet. They'll appear here when you import supplier invoices.
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'gst1' && gst1 && (
+        <div className="animate-fade-in-up space-y-5">
+          <Card variant="bordered">
+            <CardContent className="p-4">
+              <div className="flex flex-wrap items-end gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Month</label>
+                  <input
+                    type="month"
+                    value={filters.month}
+                    onChange={e => { setFilters({ ...filters, month: e.target.value }); }}
+                    onBlur={() => loadReports()}
+                    className="rounded-xl border border-border bg-background/85 px-3 py-2 text-sm"
+                  />
+                </div>
+                <Button size="sm" variant="outline" onClick={() => { setFilters({ ...filters, month: '' }); setTimeout(loadReports, 0); }}>
+                  Current Month
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="bg-gradient-to-br from-accent to-accent/80 rounded-xl p-4">
+              <p className="text-xs text-white/80">Invoices</p>
+              <p className="text-2xl font-bold text-white">{gst1.summary.count}</p>
+            </div>
+            <div className="bg-info-light rounded-xl p-4">
+              <p className="text-xs text-info font-medium">B2B (with GSTIN)</p>
+              <p className="text-xl font-bold text-info mt-1">{gst1.summary.b2b}</p>
+            </div>
+            <div className="bg-muted rounded-xl p-4">
+              <p className="text-xs text-muted-foreground font-medium">B2C (no GSTIN)</p>
+              <p className="text-xl font-bold text-foreground mt-1">{gst1.summary.b2c}</p>
+            </div>
+            <div className="bg-success-light rounded-xl p-4">
+              <p className="text-xs text-success font-medium">Taxable</p>
+              <p className="text-xl font-bold text-success mt-1">{formatCurrency(gst1.summary.taxable)}</p>
+            </div>
+            <div className="bg-warning-light rounded-xl p-4">
+              <p className="text-xs text-warning font-medium">CGST+SGST</p>
+              <p className="text-xl font-bold text-warning mt-1">{formatCurrency(gst1.summary.cgst + gst1.summary.sgst)}</p>
+            </div>
+            <div className="bg-destructive/10 rounded-xl p-4">
+              <p className="text-xs text-destructive font-medium">IGST</p>
+              <p className="text-xl font-bold text-destructive mt-1">{formatCurrency(gst1.summary.igst)}</p>
+            </div>
+          </div>
+
+          <Card variant="bordered">
+            <CardContent className="p-4 text-sm text-muted-foreground">
+              {gst1.summary.count === 0
+                ? 'No sales recorded for this month.'
+                : `Total output GST liability: ${formatCurrency(gst1.summary.cgst + gst1.summary.sgst + gst1.summary.igst)}. This is the sales-side (GSTR-1) figure. Input credit (GSTR-2B) will reconcile once purchases are recorded.`}
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

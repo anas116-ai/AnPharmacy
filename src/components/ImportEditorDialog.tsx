@@ -575,25 +575,25 @@ export default function ImportEditorDialog({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="max-w-[95vw] max-h-[90vh] flex flex-col p-0">
-        <DialogHeader className="px-4 py-3 border-b border-gray-200 flex-shrink-0">
+        <DialogHeader className="px-4 py-3 border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2 text-lg">
-              <FileSpreadsheet className="w-5 h-5 text-teal-600" />
+              <FileSpreadsheet className="w-5 h-5 text-accent" />
               Import Editor — {importResult.fileName}
-              <span className="text-sm font-normal text-gray-500">
+              <span className="text-sm font-normal text-muted-foreground">
                 ({displayRows.length} rows × {keptColumnsCount} cols)
               </span>
             </DialogTitle>
-            <button onClick={handleClose} className="p-1.5 rounded-lg hover:bg-gray-100">
-              <X className="w-4 h-4 text-gray-400" />
+            <button onClick={handleClose} className="p-1.5 rounded-lg hover:bg-muted">
+              <X className="w-4 h-4 text-muted-foreground/60" />
             </button>
           </div>
         </DialogHeader>
 
         {/* Toolbar */}
-        <div className="px-4 py-2 border-b border-gray-100 flex flex-wrap items-center gap-2 bg-gray-50/80 flex-shrink-0">
+        <div className="px-4 py-2 border-b border-border flex flex-wrap items-center gap-2 bg-muted/50/80 flex-shrink-0">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -667,27 +667,27 @@ export default function ImportEditorDialog({
             </Button>
           )}
 
-          <div className="ml-auto flex items-center gap-2 text-[10px] text-gray-500">
+          <div className="ml-auto flex items-center gap-2 text-[10px] text-muted-foreground">
             {/* Premium: Data Quality Score */}
             <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border" style={{
               borderColor: qualityStats.avgScore >= 70 ? '#10b981' : qualityStats.avgScore >= 40 ? '#f59e0b' : '#ef4444',
               backgroundColor: qualityStats.avgScore >= 70 ? '#ecfdf5' : qualityStats.avgScore >= 40 ? '#fffbeb' : '#fef2f2',
             }}>
               <span className={cn('text-[10px] font-bold',
-                qualityStats.avgScore >= 70 ? 'text-emerald-700' : qualityStats.avgScore >= 40 ? 'text-amber-700' : 'text-red-700'
+                qualityStats.avgScore >= 70 ? 'text-success' : qualityStats.avgScore >= 40 ? 'text-warning' : 'text-destructive'
               )}>
                 Quality: {qualityStats.avgScore}%
               </span>
-              <span className="text-gray-400">|</span>
-              <span className="text-emerald-600 font-medium">{qualityStats.good}</span>
-              {qualityStats.needsReview > 0 && <span className="text-amber-600 font-medium">/{qualityStats.needsReview}</span>}
-              {qualityStats.poor > 0 && <span className="text-red-600 font-medium">/{qualityStats.poor}</span>}
+              <span className="text-muted-foreground/60">|</span>
+              <span className="text-success font-medium">{qualityStats.good}</span>
+              {qualityStats.needsReview > 0 && <span className="text-warning font-medium">/{qualityStats.needsReview}</span>}
+              {qualityStats.poor > 0 && <span className="text-destructive font-medium">/{qualityStats.poor}</span>}
             </div>
-            <span>Kept: <b className="text-teal-600">{keptColumnsCount}</b> / {columns.length}</span>
+            <span>Kept: <b className="text-accent">{keptColumnsCount}</b> / {columns.length}</span>
             {activeFilterCount > 0 && (
               <Badge variant="warning" size="sm">{activeFilterCount} filters</Badge>
             )}
-            <span className="text-gray-400">
+            <span className="text-muted-foreground/60">
               History: {historyIndex + 1}/{history.length}
             </span>
           </div>
@@ -695,11 +695,11 @@ export default function ImportEditorDialog({
 
         {/* Column Manager Panel */}
         {showColManager && (
-          <div className="px-4 py-3 border-b border-gray-100 bg-amber-50/50 flex-shrink-0">
+          <div className="px-4 py-3 border-b border-border bg-warning-light/50 flex-shrink-0">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+              <p className="text-xs font-semibold text-foreground/80 flex items-center gap-1.5">
                 <Settings2 className="w-3.5 h-3.5" /> Column Manager
-                <span className="text-[10px] text-gray-500 font-normal">
+                <span className="text-[10px] text-muted-foreground font-normal">
                   (Toggle "Keep" to select columns for import)
                 </span>
               </p>
@@ -722,19 +722,19 @@ export default function ImportEditorDialog({
                   key={col.key}
                   className={cn(
                     'inline-flex items-center gap-1 px-2 py-1 rounded-lg border text-xs',
-                    col.keep ? 'bg-white border-gray-200' : 'bg-red-50 border-red-200 opacity-70'
+                    col.keep ? 'bg-background border-border' : 'bg-destructive/10 border-destructive/20 opacity-70'
                   )}
                 >
-                  <GripVertical className="w-3 h-3 text-gray-300 cursor-grab" />
+                  <GripVertical className="w-3 h-3 text-muted-foreground/40 cursor-grab" />
                   <button
                     onClick={() => toggleColumnKeep(col.key)}
-                    className="p-0.5 hover:bg-gray-100 rounded"
+                    className="p-0.5 hover:bg-muted rounded"
                     title={col.keep ? 'Mark for deletion' : 'Keep this column'}
                   >
                     {col.keep ? (
-                      <CheckSquare className="w-3.5 h-3.5 text-teal-600" />
+                      <CheckSquare className="w-3.5 h-3.5 text-accent" />
                     ) : (
-                      <Square className="w-3.5 h-3.5 text-red-400" />
+                      <Square className="w-3.5 h-3.5 text-destructive/80" />
                     )}
                   </button>
                   <Input
@@ -742,11 +742,11 @@ export default function ImportEditorDialog({
                     onChange={(e) => renameColumn(col.key, e.target.value)}
                     className="h-5 text-[10px] w-24 border-none bg-transparent p-0 focus:ring-0"
                   />
-                  <button onClick={() => toggleColumnVisibility(col.key)} className="p-0.5 hover:bg-gray-100 rounded">
-                    {col.visible ? <Eye className="w-3 h-3 text-teal-600" /> : <EyeOff className="w-3 h-3 text-gray-400" />}
+                  <button onClick={() => toggleColumnVisibility(col.key)} className="p-0.5 hover:bg-muted rounded">
+                    {col.visible ? <Eye className="w-3 h-3 text-accent" /> : <EyeOff className="w-3 h-3 text-muted-foreground/60" />}
                   </button>
-                  <button onClick={() => deleteColumn(col.key)} className="p-0.5 hover:bg-red-50 rounded">
-                    <Trash2 className="w-3 h-3 text-red-500" />
+                  <button onClick={() => deleteColumn(col.key)} className="p-0.5 hover:bg-destructive/10 rounded">
+                    <Trash2 className="w-3 h-3 text-destructive" />
                   </button>
                 </div>
               ))}
@@ -756,13 +756,13 @@ export default function ImportEditorDialog({
 
         {/* Filter Bar */}
         {activeFilterCount > 0 && (
-          <div className="px-4 py-2 border-b border-amber-100 bg-amber-50/30 flex flex-wrap items-center gap-2 flex-shrink-0">
-            <Filter className="w-3.5 h-3.5 text-amber-600" />
+          <div className="px-4 py-2 border-b border-warning/20 bg-warning-light/30 flex flex-wrap items-center gap-2 flex-shrink-0">
+            <Filter className="w-3.5 h-3.5 text-warning" />
             {Object.entries(filters).filter(([_, f]) => f.value).map(([colKey, f]) => {
               const col = columns.find(c => c.key === colKey);
               return (
-                <div key={colKey} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-amber-200 rounded-lg">
-                  <span className="text-[10px] font-medium text-gray-600">{col?.label || colKey}</span>
+                <div key={colKey} className="inline-flex items-center gap-1 px-2 py-0.5 bg-background border border-amber-200 rounded-lg">
+                  <span className="text-[10px] font-medium text-muted-foreground">{col?.label || colKey}</span>
                   <select
                     value={f.mode}
                     onChange={(e) => setFilters(prev => ({ ...prev, [colKey]: { ...f, mode: e.target.value as FilterMode } }))}
@@ -779,7 +779,7 @@ export default function ImportEditorDialog({
                     className="h-5 text-[10px] w-20 border-none"
                     placeholder="filter..."
                   />
-                  <button onClick={() => setFilters(prev => ({ ...prev, [colKey]: { mode: 'all', value: '' } }))} className="text-gray-400 hover:text-red-500">
+                  <button onClick={() => setFilters(prev => ({ ...prev, [colKey]: { mode: 'all', value: '' } }))} className="text-muted-foreground/60 hover:text-destructive">
                     <X className="w-3 h-3" />
                   </button>
                 </div>
@@ -787,7 +787,7 @@ export default function ImportEditorDialog({
             })}
             <button
               onClick={() => setFilters({})}
-              className="text-[10px] text-red-500 hover:text-red-700 font-medium ml-1"
+              className="text-[10px] text-destructive hover:text-destructive font-medium ml-1"
             >
               Clear All
             </button>
@@ -795,20 +795,20 @@ export default function ImportEditorDialog({
         )}
 
         {/* Spreadsheet Grid */}
-        <div className="flex-1 overflow-auto bg-white" ref={tableRef}>
+        <div className="flex-1 overflow-auto bg-background" ref={tableRef}>
           <table className="w-full border-collapse text-xs" style={{ minWidth: visibleColumns.length * 140 }}>
             <thead className="sticky top-0 z-10">
-              <tr className="bg-gray-50">
-                <th className="w-10 px-1 py-2 border-r border-b border-gray-200 bg-gray-100 text-center text-[10px] text-gray-500 font-medium">
+              <tr className="bg-muted/50">
+                <th className="w-10 px-1 py-2 border-r border-b border-border bg-muted text-center text-[10px] text-muted-foreground font-medium">
                   #
                 </th>
                 {visibleColumns.map(col => (
                   <th
                     key={col.key}
                     className={cn(
-                      "px-2 py-2 border-r border-b border-gray-200 text-left font-semibold text-gray-700 select-none group relative",
-                      !col.keep && "bg-red-50 text-red-400",
-                      dragColKey === col.key && 'bg-teal-50 border-t-2 border-t-teal-400',
+                      "px-2 py-2 border-r border-b border-border text-left font-semibold text-foreground/80 select-none group relative",
+                      !col.keep && "bg-destructive/10 text-destructive/80",
+                      dragColKey === col.key && 'bg-accent/10 border-t-2 border-t-teal-400',
                       dragColKey && dragColKey !== col.key && 'opacity-60'
                     )}
                     style={{ width: col.width }}
@@ -819,12 +819,12 @@ export default function ImportEditorDialog({
                     onDragEnd={handleDragEnd}
                   >
                     <div className="flex items-center gap-1">
-                      <GripVertical className="w-3.5 h-3.5 text-gray-300 cursor-grab hover:text-teal-500 flex-shrink-0 transition-colors" 
+                      <GripVertical className="w-3.5 h-3.5 text-muted-foreground/40 cursor-grab hover:text-accent flex-shrink-0 transition-colors" 
                         onMouseDown={(e) => e.stopPropagation()}
                       />
                       <button
                         onClick={() => handleSort(col.key)}
-                        className="flex-1 text-left truncate hover:text-teal-600 flex items-center gap-1"
+                        className="flex-1 text-left truncate hover:text-accent flex items-center gap-1"
                         onDoubleClick={() => {
                           const newName = prompt('Column name:', col.label);
                           if (newName) renameColumn(col.key, newName);
@@ -834,7 +834,7 @@ export default function ImportEditorDialog({
                         {col.label}
                         {sortCol === col.key && sortDir === 'asc' && <ChevronUp className="w-3 h-3 flex-shrink-0" />}
                         {sortCol === col.key && sortDir === 'desc' && <ChevronDown className="w-3 h-3 flex-shrink-0" />}
-                        {sortCol !== col.key && <ArrowUpDown className="w-3 h-3 text-gray-300 flex-shrink-0" />}
+                        {sortCol !== col.key && <ArrowUpDown className="w-3 h-3 text-muted-foreground/40 flex-shrink-0" />}
                       </button>
                       <div className="hidden group-hover:flex items-center gap-0.5 flex-shrink-0">
                         <button
@@ -842,29 +842,29 @@ export default function ImportEditorDialog({
                             const val = prompt('Filter value:', '');
                             if (val !== null) setFilters(prev => ({ ...prev, [col.key]: { mode: 'contains', value: val } }));
                           }}
-                          className="p-0.5 hover:bg-teal-100 rounded"
+                          className="p-0.5 hover:bg-accent/10 rounded"
                           title="Filter"
                         >
-                          <Filter className="w-3 h-3 text-gray-500" />
+                          <Filter className="w-3 h-3 text-muted-foreground" />
                         </button>
                         <button
                           onClick={() => toggleColumnVisibility(col.key)}
-                          className="p-0.5 hover:bg-gray-200 rounded"
+                          className="p-0.5 hover:bg-muted rounded"
                           title="Hide"
                         >
-                          <EyeOff className="w-3 h-3 text-gray-500" />
+                          <EyeOff className="w-3 h-3 text-muted-foreground" />
                         </button>
                       </div>
                     </div>
                   </th>
                 ))}
-                <th className="w-10 px-1 py-2 border-r border-b border-gray-200 bg-gray-100"></th>
+                <th className="w-10 px-1 py-2 border-r border-b border-border bg-muted"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {displayRows.length === 0 ? (
                 <tr>
-                  <td colSpan={visibleColumns.length + 2} className="px-4 py-12 text-center text-gray-400">
+                  <td colSpan={visibleColumns.length + 2} className="px-4 py-12 text-center text-muted-foreground/60">
                     No data to display
                   </td>
                 </tr>
@@ -876,18 +876,18 @@ export default function ImportEditorDialog({
                     <tr
                       key={originalIndex}
                       className={cn(
-                        'hover:bg-teal-50/20 transition-colors group',
-                        isEditing && 'bg-teal-50/40'
+                        'hover:bg-accent/10/20 transition-colors group',
+                        isEditing && 'bg-accent/10/40'
                       )}
                     >
-                      <td className="w-10 px-1 py-1.5 border-r border-b border-gray-100 text-center text-[10px] text-gray-400 relative">
+                      <td className="w-10 px-1 py-1.5 border-r border-b border-border text-center text-[10px] text-muted-foreground/60 relative">
                         <span>{originalIndex + 1}</span>
                         <button
                           onClick={() => deleteRow(originalIndex)}
-                          className="absolute inset-0 flex items-center justify-center bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute inset-0 flex items-center justify-center bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
                           title="Delete row"
                         >
-                          <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
                         </button>
                       </td>
                       {visibleColumns.map(col => {
@@ -895,7 +895,7 @@ export default function ImportEditorDialog({
                         return (
                           <td
                             key={col.key}
-                            className="px-1 py-1 border-r border-b border-gray-100 min-w-[100px]"
+                            className="px-1 py-1 border-r border-b border-border min-w-[100px]"
                             onDoubleClick={() => startEdit(originalIndex, col.key, getCellValue(row, col.key))}
                           >
                             {isCellEditing ? (
@@ -904,30 +904,30 @@ export default function ImportEditorDialog({
                                 onChange={(e) => setEditValue(e.target.value)}
                                 onBlur={commitEdit}
                                 onKeyDown={handleKeyDown}
-                                className="h-7 text-xs border-teal-300 focus:ring-teal-500"
+                                className="h-7 text-xs border-accent/40 focus:ring-accent"
                                 autoFocus
                               />
                             ) : (
-                              <div className="px-2 py-1 rounded cursor-text hover:bg-white hover:shadow-sm transition-all truncate text-gray-800 min-h-[28px] flex items-center">
+                              <div className="px-2 py-1 rounded cursor-text hover:bg-background hover:shadow-sm transition-all truncate text-foreground min-h-[28px] flex items-center">
                                 {col.key === 'quantity' && Number(getCellValue(row, col.key)) === 0 ? (
-                                  <span className="text-amber-500">0</span>
+                                  <span className="text-warning">0</span>
                                 ) : col.key === '_confidence' ? (
                                   <span className={cn(
                                     'text-[10px] font-medium',
                                     Number(getCellValue(row, col.key)) >= 85 ? 'text-green-600' :
-                                    Number(getCellValue(row, col.key)) >= 65 ? 'text-amber-600' : 'text-red-500'
+                                    Number(getCellValue(row, col.key)) >= 65 ? 'text-warning' : 'text-destructive'
                                   )}>
                                     {getCellValue(row, col.key)}%
                                   </span>
                                 ) : (
-                                  getCellValue(row, col.key) || <span className="text-gray-300 italic">empty</span>
+                                  getCellValue(row, col.key) || <span className="text-muted-foreground/40 italic">empty</span>
                                 )}
                               </div>
                             )}
                           </td>
                         );
                       })}
-                      <td className="w-10 px-1 py-1.5 border-r border-b border-gray-100"></td>
+                      <td className="w-10 px-1 py-1.5 border-r border-b border-border"></td>
                     </tr>
                   );
                 })
@@ -937,24 +937,24 @@ export default function ImportEditorDialog({
         </div>
 
         {/* Status Bar */}
-        <div className="px-4 py-2 border-t border-gray-200 bg-gray-50/80 flex items-center justify-between text-[10px] text-gray-500 flex-shrink-0">
+        <div className="px-4 py-2 border-t border-border bg-muted/50/80 flex items-center justify-between text-[10px] text-muted-foreground flex-shrink-0">
           <div className="flex items-center gap-3">
-            <span>Rows: <b className="text-gray-700">{displayRows.length}</b> / {rows.length}</span>
-            <span>Columns: <b className="text-gray-700">{keptColumnsCount}</b> / {columns.length}</span>
-            {activeFilterCount > 0 && <span>Filters: <b className="text-amber-600">{activeFilterCount}</b></span>}
-            {searchQuery && <span>Search: "<b className="text-teal-600">{searchQuery}</b>"</span>}
-            <span className="text-gray-400">
+            <span>Rows: <b className="text-foreground/80">{displayRows.length}</b> / {rows.length}</span>
+            <span>Columns: <b className="text-foreground/80">{keptColumnsCount}</b> / {columns.length}</span>
+            {activeFilterCount > 0 && <span>Filters: <b className="text-warning">{activeFilterCount}</b></span>}
+            {searchQuery && <span>Search: "<b className="text-accent">{searchQuery}</b>"</span>}
+            <span className="text-muted-foreground/60">
               Ctrl+Z Undo • Ctrl+Y Redo • Double-click to edit
             </span>
           </div>
         </div>
 
-        <DialogFooter className="px-4 py-3 border-t border-gray-200 flex-shrink-0">
+        <DialogFooter className="px-4 py-3 border-t border-border flex-shrink-0">
           <div className="flex items-center justify-between w-full">
-            <p className="text-xs text-gray-500">
-              <b className="text-teal-600">{keptColumnsCount}</b> columns selected for import. 
+            <p className="text-xs text-muted-foreground">
+              <b className="text-accent">{keptColumnsCount}</b> columns selected for import. 
               {columns.filter(c => !c.keep).length > 0 && (
-                <span className="text-red-500 ml-1">
+                <span className="text-destructive ml-1">
                   ({columns.filter(c => !c.keep).length} columns will be discarded)
                 </span>
               )}
@@ -983,10 +983,10 @@ export default function ImportEditorDialog({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ChevronsUpDown className="w-5 h-5 text-teal-600" />
+              <ChevronsUpDown className="w-5 h-5 text-accent" />
               Change Column Order
             </DialogTitle>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Drag column headers or use buttons to reorder. Click "Apply" to save changes.
             </p>
           </DialogHeader>
@@ -994,18 +994,18 @@ export default function ImportEditorDialog({
             {reorderCols.map((col, idx) => (
               <div
                 key={col.key}
-                className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-200"
+                className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border"
               >
-                <GripVertical className="w-4 h-4 text-gray-300 flex-shrink-0" />
-                <span className="text-xs text-gray-400 font-mono w-6">{idx + 1}</span>
-                <span className="flex-1 text-sm font-medium text-gray-700 truncate">
+                <GripVertical className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />
+                <span className="text-xs text-muted-foreground/60 font-mono w-6">{idx + 1}</span>
+                <span className="flex-1 text-sm font-medium text-foreground/80 truncate">
                   {col.label}
                 </span>
                 <div className="flex gap-1">
                   <button
                     onClick={() => moveColumnUp(idx)}
                     disabled={idx === 0}
-                    className="p-1 rounded hover:bg-gray-200 disabled:opacity-30 transition-colors"
+                    className="p-1 rounded hover:bg-muted disabled:opacity-30 transition-colors"
                     title="Move up"
                   >
                     <ChevronUp className="w-3.5 h-3.5" />
@@ -1013,7 +1013,7 @@ export default function ImportEditorDialog({
                   <button
                     onClick={() => moveColumnDown(idx)}
                     disabled={idx >= reorderCols.length - 1}
-                    className="p-1 rounded hover:bg-gray-200 disabled:opacity-30 transition-colors"
+                    className="p-1 rounded hover:bg-muted disabled:opacity-30 transition-colors"
                     title="Move down"
                   >
                     <ChevronDown className="w-3.5 h-3.5" />

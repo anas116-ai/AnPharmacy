@@ -82,7 +82,7 @@ export default function SupplierProfileManager() {
       label: 'Total Corrections',
       value: learningStats.totalCorrections,
       icon: Database,
-      gradient: 'from-teal-500 to-emerald-600',
+      gradient: 'from-accent to-success',
       change: '+AI Learning',
     },
     {
@@ -160,12 +160,12 @@ export default function SupplierProfileManager() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
+          <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent/80 rounded-xl flex items-center justify-center shadow-sm">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-gray-900">AI Learning & Profiles</h2>
-            <p className="text-xs text-gray-500">{learningStats.totalCorrections} total corrections · {learningStats.patternsLearned} patterns learned</p>
+            <h2 className="text-lg font-bold text-foreground">AI Learning & Profiles</h2>
+            <p className="text-xs text-muted-foreground">{learningStats.totalCorrections} total corrections · {learningStats.patternsLearned} patterns learned</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -186,7 +186,7 @@ export default function SupplierProfileManager() {
         {statsCards.map((card, i) => {
           const Icon = card.icon;
           return (
-            <div key={i} className={`bg-gradient-to-br ${card.gradient} rounded-2xl p-4 text-white shadow-soft`}>
+            <div key={i} className={`bg-gradient-to-br ${card.gradient} rounded-2xl p-4 text-white shadow-sm`}>
               <div className="flex items-center justify-between mb-2">
                 <Icon className="w-5 h-5 opacity-80" />
                 <span className="text-[10px] opacity-70 font-medium">{card.change}</span>
@@ -199,7 +199,7 @@ export default function SupplierProfileManager() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+      <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
         {[
           { id: 'stats', label: 'Statistics', icon: BarChart3 },
           { id: 'patterns', label: 'Patterns', icon: List },
@@ -214,8 +214,8 @@ export default function SupplierProfileManager() {
               className={cn(
                 'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all',
                 activeTab === tab.id
-                  ? 'bg-white text-teal-700 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-background text-accent shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground/80'
               )}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -232,14 +232,14 @@ export default function SupplierProfileManager() {
           <Card variant="bordered">
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Package className="w-4 h-4 text-teal-600" />
+                <Package className="w-4 h-4 text-accent" />
                 Pattern Distribution
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
               <div className="space-y-2">
                 {Object.entries(patternTypeCounts).length === 0 ? (
-                  <p className="text-xs text-gray-400 text-center py-4">No patterns learned yet</p>
+                  <p className="text-xs text-muted-foreground/60 text-center py-4">No patterns learned yet</p>
                 ) : (
                   Object.entries(patternTypeCounts)
                     .sort(([, a], [, b]) => b - a)
@@ -247,22 +247,22 @@ export default function SupplierProfileManager() {
                       const total = topPatterns.length || 1;
                       const pct = Math.round((count / total) * 100);
                       const colors: Record<string, string> = {
-                        medicine_name: 'bg-blue-500',
-                        batch_format: 'bg-teal-500',
-                        date_format: 'bg-amber-500',
+                        medicine_name: 'bg-info-light',
+                        batch_format: 'bg-accent/100',
+                        date_format: 'bg-warning-light',
                         field_mapping: 'bg-purple-500',
-                        manufacturer: 'bg-emerald-500',
+                        manufacturer: 'bg-success-light',
                       };
                       return (
                         <div key={type} className="flex items-center gap-3">
-                          <span className="text-xs text-gray-600 w-28 capitalize">{type.replace('_', ' ')}</span>
-                          <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
+                          <span className="text-xs text-muted-foreground w-28 capitalize">{type.replace('_', ' ')}</span>
+                          <div className="flex-1 h-5 bg-muted rounded-full overflow-hidden">
                             <div
-                              className={cn('h-full rounded-full transition-all duration-500', colors[type] || 'bg-gray-400')}
+                              className={cn('h-full rounded-full transition-all duration-500', colors[type] || 'bg-muted-foreground')}
                               style={{ width: `${pct}%` }}
                             />
                           </div>
-                          <span className="text-xs font-medium text-gray-500 w-8 text-right">{count}</span>
+                          <span className="text-xs font-medium text-muted-foreground w-8 text-right">{count}</span>
                         </div>
                       );
                     })
@@ -275,14 +275,14 @@ export default function SupplierProfileManager() {
           <Card variant="bordered">
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                <AlertTriangle className="w-4 h-4 text-warning" />
                 Most Corrected Fields
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
               <div className="space-y-2">
                 {Object.entries(learningStats.topCorrectedFields).length === 0 ? (
-                  <p className="text-xs text-gray-400 text-center py-4">No corrections recorded yet</p>
+                  <p className="text-xs text-muted-foreground/60 text-center py-4">No corrections recorded yet</p>
                 ) : (
                   Object.entries(learningStats.topCorrectedFields)
                     .sort(([, a], [, b]) => b - a)
@@ -290,8 +290,8 @@ export default function SupplierProfileManager() {
                     .map(([field, count], i) => (
                       <div key={field} className="flex items-center justify-between py-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-400 w-5">{i + 1}.</span>
-                          <span className="text-xs text-gray-700 capitalize">{field}</span>
+                          <span className="text-xs text-muted-foreground/60 w-5">{i + 1}.</span>
+                          <span className="text-xs text-foreground/80 capitalize">{field}</span>
                         </div>
                         <Badge size="sm" variant="outline">{count}x</Badge>
                       </div>
@@ -313,7 +313,7 @@ export default function SupplierProfileManager() {
                 <select
                   value={patternTypeFilter}
                   onChange={e => setPatternTypeFilter(e.target.value)}
-                  className="text-xs rounded-lg border border-gray-200 px-2 py-1.5 bg-white"
+                  className="text-xs rounded-lg border border-border px-2 py-1.5 bg-background"
                 >
                   <option value="all">All Types</option>
                   <option value="medicine_name">Medicine Name</option>
@@ -323,7 +323,7 @@ export default function SupplierProfileManager() {
                   <option value="manufacturer">Manufacturer</option>
                 </select>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
                   <Input
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
@@ -337,44 +337,44 @@ export default function SupplierProfileManager() {
           <CardContent className="p-0">
             {filteredPatterns.length === 0 ? (
               <div className="p-8 text-center">
-                <Lightbulb className="w-12 h-12 text-gray-200 mx-auto mb-3" />
-                <p className="text-sm text-gray-500">No patterns match your search</p>
+                <Lightbulb className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No patterns match your search</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
                 {filteredPatterns.map(pattern => (
-                  <div key={pattern.id} className="px-4 py-3 hover:bg-gray-50/50 transition-colors">
+                  <div key={pattern.id} className="px-4 py-3 hover:bg-muted/50/50 transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Badge
                           size="sm"
                           className={cn(
-                            pattern.patternType === 'medicine_name' ? 'bg-blue-100 text-blue-700' :
-                            pattern.patternType === 'batch_format' ? 'bg-teal-100 text-teal-700' :
-                            pattern.patternType === 'date_format' ? 'bg-amber-100 text-amber-700' :
+                            pattern.patternType === 'medicine_name' ? 'bg-blue-100 text-info' :
+                            pattern.patternType === 'batch_format' ? 'bg-accent/10 text-accent' :
+                            pattern.patternType === 'date_format' ? 'bg-amber-100 text-warning' :
                             pattern.patternType === 'field_mapping' ? 'bg-purple-100 text-purple-700' :
-                            'bg-emerald-100 text-emerald-700'
+                            'bg-success-light text-success'
                           )}
                         >
                           {pattern.patternType.replace('_', ' ')}
                         </Badge>
-                        <span className="text-xs text-gray-400">used {pattern.usageCount}x</span>
+                        <span className="text-xs text-muted-foreground/60">used {pattern.usageCount}x</span>
                       </div>
                       <span className={cn(
                         'text-[10px] font-medium px-2 py-0.5 rounded-full',
-                        pattern.confidence >= 80 ? 'bg-emerald-100 text-emerald-700' :
-                        pattern.confidence >= 60 ? 'bg-amber-100 text-amber-700' :
-                        'bg-red-100 text-red-700'
+                        pattern.confidence >= 80 ? 'bg-success-light text-success' :
+                        pattern.confidence >= 60 ? 'bg-amber-100 text-warning' :
+                        'bg-red-100 text-destructive'
                       )}>
                         {pattern.confidence}%
                       </span>
                     </div>
                     <div className="mt-1 flex items-center gap-2">
-                      <code className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-mono line-through">{pattern.pattern}</code>
-                      <span className="text-xs text-gray-400">→</span>
-                      <code className="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded font-mono">{pattern.replacement}</code>
+                      <code className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded font-mono line-through">{pattern.pattern}</code>
+                      <span className="text-xs text-muted-foreground/60">→</span>
+                      <code className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded font-mono">{pattern.replacement}</code>
                       {pattern.context && (
-                        <span className="text-[10px] text-gray-400 ml-2">context: {pattern.context}</span>
+                        <span className="text-[10px] text-muted-foreground/60 ml-2">context: {pattern.context}</span>
                       )}
                     </div>
                   </div>
@@ -394,26 +394,26 @@ export default function SupplierProfileManager() {
           <CardContent className="p-0">
             {recentCorrections.length === 0 ? (
               <div className="p-8 text-center">
-                <FileText className="w-12 h-12 text-gray-200 mx-auto mb-3" />
-                <p className="text-sm text-gray-500">No corrections made yet</p>
+                <FileText className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No corrections made yet</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
                 {recentCorrections.map(correction => (
-                  <div key={correction.id} className="px-4 py-3 hover:bg-gray-50/50 transition-colors">
+                  <div key={correction.id} className="px-4 py-3 hover:bg-muted/50/50 transition-colors">
                     <div className="flex items-center justify-between">
                       <Badge size="sm" variant="outline">{correction.field}</Badge>
-                      <span className="text-[10px] text-gray-400">
+                      <span className="text-[10px] text-muted-foreground/60">
                         {new Date(correction.timestamp).toLocaleString()}
                       </span>
                     </div>
                     <div className="mt-1.5 flex items-center gap-2">
-                      <span className="text-xs text-gray-500 line-through">{correction.originalValue}</span>
-                      <CheckCircle className="w-3 h-3 text-teal-500" />
-                      <span className="text-xs text-teal-700 font-medium">{correction.correctedValue}</span>
+                      <span className="text-xs text-muted-foreground line-through">{correction.originalValue}</span>
+                      <CheckCircle className="w-3 h-3 text-accent" />
+                      <span className="text-xs text-accent font-medium">{correction.correctedValue}</span>
                     </div>
                     {correction.context.medicineName && (
-                      <p className="text-[10px] text-gray-400 mt-0.5">
+                      <p className="text-[10px] text-muted-foreground/60 mt-0.5">
                         Medicine: {correction.context.medicineName}
                       </p>
                     )}
@@ -430,39 +430,39 @@ export default function SupplierProfileManager() {
         <Card variant="bordered">
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <Columns className="w-4 h-4 text-teal-600" />
+              <Columns className="w-4 h-4 text-accent" />
               Header Synonym Mapping Demo
             </CardTitle>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Shows how common invoice header names map to StandardField values using the synonym database
             </p>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-gray-50">
               {headerMappingDemo.map((mapping, idx) => (
-                <div key={idx} className="px-4 py-2.5 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
+                <div key={idx} className="px-4 py-2.5 flex items-center justify-between hover:bg-muted/50/50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-700 font-medium">{mapping.header}</span>
-                    <span className="text-xs text-gray-400">→</span>
+                    <span className="text-sm text-foreground/80 font-medium">{mapping.header}</span>
+                    <span className="text-xs text-muted-foreground/60">→</span>
                     <Badge
                       size="sm"
                       className={cn(
-                        mapping.confidence >= 90 ? 'bg-emerald-100 text-emerald-700' :
-                        mapping.confidence >= 60 ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-500'
+                        mapping.confidence >= 90 ? 'bg-success-light text-success' :
+                        mapping.confidence >= 60 ? 'bg-blue-100 text-info' :
+                        'bg-muted text-muted-foreground'
                       )}
                     >
                       {mapping.mappedField.replace(/_/g, ' ')}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
                       <div
-                        className={cn('h-full rounded-full', mapping.confidence >= 90 ? 'bg-emerald-500' : mapping.confidence >= 60 ? 'bg-blue-500' : 'bg-gray-300')}
+                        className={cn('h-full rounded-full', mapping.confidence >= 90 ? 'bg-success-light' : mapping.confidence >= 60 ? 'bg-info-light' : 'bg-muted')}
                         style={{ width: `${mapping.confidence}%` }}
                       />
                     </div>
-                    <span className="text-[10px] text-gray-400 w-8 text-right">{mapping.confidence}%</span>
+                    <span className="text-[10px] text-muted-foreground/60 w-8 text-right">{mapping.confidence}%</span>
                   </div>
                 </div>
               ))}
@@ -472,19 +472,19 @@ export default function SupplierProfileManager() {
       )}
 
       {/* ── Danger Zone ──────────────────────────────────────── */}
-      <Card variant="bordered" className="border-red-200">
+      <Card variant="bordered" className="border-destructive/20">
         <CardContent className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-              <Trash2 className="w-5 h-5 text-red-500" />
+              <Trash2 className="w-5 h-5 text-destructive" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">Clear All Learning Data</p>
-              <p className="text-xs text-gray-500">This will remove all learned patterns and corrections</p>
+              <p className="text-sm font-semibold text-foreground">Clear All Learning Data</p>
+              <p className="text-xs text-muted-foreground">This will remove all learned patterns and corrections</p>
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={() => setShowConfirmClear(true)}
-            className="text-red-600 border-red-200 hover:bg-red-50">
+            className="text-destructive border-destructive/20 hover:bg-destructive/10">
             <Trash2 className="w-3.5 h-3.5 mr-1" /> Clear All
           </Button>
         </CardContent>
@@ -494,12 +494,12 @@ export default function SupplierProfileManager() {
       <Dialog open={showConfirmClear} onOpenChange={o => { if (!o) setShowConfirmClear(false); }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
+            <DialogTitle className="flex items-center gap-2 text-destructive">
               <Trash2 className="w-5 h-5" /> Clear Learning Data
             </DialogTitle>
           </DialogHeader>
-          <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-            <p className="text-sm text-red-700">
+          <div className="bg-destructive/10 border border-red-100 rounded-xl p-4">
+            <p className="text-sm text-destructive">
               This will permanently delete <strong>{learningStats.totalCorrections} corrections</strong> and{' '}
               <strong>{learningStats.patternsLearned} patterns</strong>. Consider exporting first.
             </p>
@@ -516,13 +516,13 @@ export default function SupplierProfileManager() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Upload className="w-5 h-5 text-teal-600" /> Import Patterns
+              <Upload className="w-5 h-5 text-accent" /> Import Patterns
             </DialogTitle>
           </DialogHeader>
           {importResult === 'success' ? (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center">
+            <div className="bg-success-light border border-success/40 rounded-xl p-6 text-center">
               <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-              <p className="text-emerald-700 font-medium">Import successful!</p>
+              <p className="text-success font-medium">Import successful!</p>
             </div>
           ) : (
             <>
@@ -530,10 +530,10 @@ export default function SupplierProfileManager() {
                 value={importText}
                 onChange={e => setImportText(e.target.value)}
                 placeholder="Paste exported JSON data here..."
-                className="w-full h-40 rounded-xl border border-gray-200 bg-gray-50 p-4 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                className="w-full h-40 rounded-xl border border-border bg-muted/50 p-4 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-accent/30"
               />
               {importResult === 'error' && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600 flex items-center gap-2">
+                <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3 text-sm text-destructive flex items-center gap-2">
                   <X className="w-4 h-4 flex-shrink-0" /> Invalid data format
                 </div>
               )}

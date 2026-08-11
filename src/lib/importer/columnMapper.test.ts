@@ -78,10 +78,16 @@ describe('ColumnMapper', () => {
       expect(result!.field).toBe('mfg_date');
     });
 
-    it('should match "Brand" to company (brand is under company synonyms)', () => {
-      const result = mapper.findBestSynonymMatch('Brand');
+    it('should match "Brand Name" to name (brand is a product name, not company)', () => {
+      const result = mapper.findBestSynonymMatch('Brand Name');
       expect(result).not.toBeNull();
-      expect(result!.field).toBe('company');
+      expect(result!.field).toBe('name');
+    });
+
+    it('should match "Supplier" to supplier_name, not company', () => {
+      const result = mapper.findBestSynonymMatch('Supplier');
+      expect(result).not.toBeNull();
+      expect(result!.field).toBe('supplier_name');
     });
 
     it('should match "PTR" to ptr', () => {

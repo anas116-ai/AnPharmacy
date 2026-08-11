@@ -14,7 +14,7 @@ export default function ThemeToggle({ theme, onToggle, className }: ThemeToggleP
       onClick={onToggle}
       className={cn(
         'relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300',
-        'hover:bg-gray-100 active:scale-95',
+        'hover:bg-muted active:scale-95',
         'dark:hover:bg-slate-700',
         className
       )}
@@ -24,13 +24,13 @@ export default function ThemeToggle({ theme, onToggle, className }: ThemeToggleP
       <div className="relative w-5 h-5">
         <Sun
           className={cn(
-            'absolute inset-0 w-5 h-5 text-gray-500 transition-all duration-300',
+            'absolute inset-0 w-5 h-5 text-muted-foreground transition-all duration-300',
             theme === 'dark' ? 'opacity-0 rotate-90 scale-0' : 'opacity-100 rotate-0 scale-100'
           )}
         />
         <Moon
           className={cn(
-            'absolute inset-0 w-5 h-5 text-teal-400 transition-all duration-300',
+            'absolute inset-0 w-5 h-5 text-accent transition-all duration-300',
             theme === 'dark' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0'
           )}
         />

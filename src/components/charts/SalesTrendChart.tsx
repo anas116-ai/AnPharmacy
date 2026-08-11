@@ -25,21 +25,6 @@ export interface SalesTrendChartProps {
   showRevenue?: boolean;
 }
 
-export const MOCK_SALES_DATA: SalesPoint[] = [
-  { date: 'Jan', sales: 42, revenue: 12600 },
-  { date: 'Feb', sales: 55, revenue: 16500 },
-  { date: 'Mar', sales: 48, revenue: 14400 },
-  { date: 'Apr', sales: 63, revenue: 18900 },
-  { date: 'May', sales: 71, revenue: 21300 },
-  { date: 'Jun', sales: 67, revenue: 20100 },
-  { date: 'Jul', sales: 82, revenue: 24600 },
-  { date: 'Aug', sales: 78, revenue: 23400 },
-  { date: 'Sep', sales: 90, revenue: 27000 },
-  { date: 'Oct', sales: 85, revenue: 25500 },
-  { date: 'Nov', sales: 96, revenue: 28800 },
-  { date: 'Dec', sales: 104, revenue: 31200 },
-];
-
 export default function SalesTrendChart({
   data,
   title = 'Sales Trend',

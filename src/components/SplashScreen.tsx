@@ -51,7 +51,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
     <div className="fixed inset-0 bg-gradient-to-br from-[#060e1a] via-[#0A1628] to-[#0F2B4A] flex items-center justify-center overflow-hidden">
       {/* Ambient background orbs */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-emerald-500/8 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '0s' }} />
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-success-light/8 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '0s' }} />
         <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] bg-navy-400/8 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
       </div>
 
@@ -80,21 +80,21 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
         {/* Progress bar */}
         <div className="w-72 mx-auto space-y-3">
-          <div className="relative h-1.5 bg-white/8 rounded-full overflow-hidden">
+          <div className="relative h-1.5 bg-background/8 rounded-full overflow-hidden">
             <div
               className="absolute inset-y-0 left-0 rounded-full transition-all duration-300 ease-out"
               style={{
                 width: `${progress}%`,
-                background: 'linear-gradient(90deg, #059669, #10b981)',
-                boxShadow: '0 0 12px rgba(5, 150, 105, 0.2)'
+                background: 'linear-gradient(90deg, #EAB308, #FACC15)',
+                boxShadow: '0 0 12px rgba(234, 179, 8, 0.35)'
               }}
             />
           </div>
 
           <div className="flex items-center justify-center gap-2 text-navy-300/60 text-xs">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-light opacity-60" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-success-light" />
             </span>
             <span>{progress < 100 ? 'Initializing...' : 'Ready'}</span>
             <span className="text-navy-400/40 font-mono text-[10px]">{Math.round(progress)}%</span>

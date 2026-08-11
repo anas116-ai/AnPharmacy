@@ -9,30 +9,30 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow-md',
+          'bg-primary text-primary-foreground hover:bg-primary-dark shadow-sm hover:shadow-md',
         secondary:
-          'bg-slate-100 text-slate-700 hover:bg-slate-200',
+          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         destructive:
-          'bg-rose-500 text-white hover:bg-rose-600 shadow-sm hover:shadow-rose-500/20',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm',
         outline:
-          'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+          'border border-border bg-card text-foreground hover:bg-muted',
         ghost:
-          'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800',
+          'text-muted-foreground hover:bg-muted hover:text-foreground',
         link:
           'text-primary underline-offset-4 hover:underline',
         success:
-          'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm hover:shadow-emerald-500/20',
+          'bg-success text-success-foreground hover:bg-success/90 shadow-sm',
         warning:
-          'bg-amber-500 text-white hover:bg-amber-600 shadow-sm hover:shadow-amber-500/20',
+          'bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm',
         'premium-glow':
-          'bg-navy-900 text-white shadow-md shadow-emerald-500/15 hover:shadow-lg hover:shadow-emerald-500/20',
+          'bg-gradient-to-r from-accent to-emerald-700 text-white shadow-md shadow-accent/20 hover:shadow-lg hover:shadow-accent/30',
         'premium-outline':
-          'border-2 border-slate-200 bg-transparent hover:border-slate-400 hover:bg-slate-50',
+          'border-2 border-border bg-transparent hover:border-accent/50 hover:bg-muted',
 
         'primary':
-          'bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow-md',
+          'bg-primary text-primary-foreground hover:bg-primary-dark shadow-sm hover:shadow-md',
         'outline-teal':
-          'border-2 border-emerald-200 bg-card text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 dark:border-emerald-800/40 dark:text-emerald-400 dark:hover:bg-emerald-950/20 dark:hover:border-emerald-700/50 shadow-sm',
+          'border-2 border-accent/30 bg-card text-accent hover:bg-accent-light hover:border-accent/50 shadow-sm',
       },
       size: {
         xs: 'h-8 px-2.5 text-xs',

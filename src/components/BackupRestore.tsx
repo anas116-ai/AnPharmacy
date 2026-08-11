@@ -96,8 +96,8 @@ export default function BackupRestore() {
           <HardDrive className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Backup &amp; Restore</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400">AES-256 encrypted data backup</p>
+          <h2 className="text-lg font-bold text-foreground dark:text-foreground">Backup &amp; Restore</h2>
+          <p className="text-xs text-muted-foreground dark:text-muted-foreground/60">AES-256 encrypted data backup</p>
         </div>
       </div>
 
@@ -106,22 +106,22 @@ export default function BackupRestore() {
         <CardContent className="p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4 flex-1">
-              <div className="w-14 h-14 bg-teal-100 dark:bg-teal-900/40 rounded-2xl flex items-center justify-center flex-shrink-0">
-                <Shield className="w-7 h-7 text-teal-600 dark:text-teal-400" />
+              <div className="w-14 h-14 bg-accent/10 dark:bg-accent/10 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <Shield className="w-7 h-7 text-accent dark:text-accent" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Create Backup</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                <h3 className="text-lg font-semibold text-foreground dark:text-foreground">Create Backup</h3>
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground/60 mt-1 leading-relaxed">
                   Create an AES-256 encrypted backup of all your data. Backups include medicines, sales, users, and audit logs with HMAC integrity verification.
                 </p>
                 <div className="flex items-center gap-4 mt-3 flex-wrap">
-                  <span className="flex items-center gap-1.5 text-xs text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 px-2.5 py-1 rounded-lg">
+                  <span className="flex items-center gap-1.5 text-xs text-accent dark:text-accent bg-accent/10 dark:bg-accent/10 px-2.5 py-1 rounded-lg">
                     <Shield className="w-3 h-3" /> AES-256
                   </span>
-                  <span className="flex items-center gap-1.5 text-xs text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 px-2.5 py-1 rounded-lg">
+                  <span className="flex items-center gap-1.5 text-xs text-accent dark:text-accent bg-accent/10 dark:bg-accent/10 px-2.5 py-1 rounded-lg">
                     <Lock className="w-3 h-3" /> Encrypted
                   </span>
-                  <span className="flex items-center gap-1.5 text-xs text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 px-2.5 py-1 rounded-lg">
+                  <span className="flex items-center gap-1.5 text-xs text-accent dark:text-accent bg-accent/10 dark:bg-accent/10 px-2.5 py-1 rounded-lg">
                     <FileText className="w-3 h-3" /> .anpbackup
                   </span>
                 </div>
@@ -151,7 +151,7 @@ export default function BackupRestore() {
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center justify-between">
             <span className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-teal-600" />
+              <Database className="w-4 h-4 text-accent" />
               Available Backups
               <Badge variant="outline-teal" size="sm">{backups.length}</Badge>
             </span>
@@ -169,24 +169,24 @@ export default function BackupRestore() {
             </div>
           ) : backups.length === 0 ? (
             <div className="text-center py-10">
-              <Database className="w-16 h-16 text-gray-200 dark:text-slate-700 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">No backups found</p>
-              <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">Create your first backup above</p>
+              <Database className="w-16 h-16 text-muted-foreground/30 dark:text-slate-700 mx-auto mb-4" />
+              <p className="text-muted-foreground dark:text-muted-foreground/60 text-sm font-medium">No backups found</p>
+              <p className="text-muted-foreground/60 dark:text-muted-foreground text-xs mt-1">Create your first backup above</p>
             </div>
           ) : (
             <div className="space-y-2">
               {backups.map((backup, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 bg-gray-50/80 dark:bg-slate-700/50 rounded-2xl hover:bg-white dark:hover:bg-slate-700 hover:border-teal-200 dark:hover:border-teal-700 hover:shadow-soft transition-all duration-200 border border-transparent group"
+                  className="flex items-center justify-between p-4 bg-muted/50/80 dark:bg-muted/60/50 rounded-2xl hover:bg-background dark:hover:bg-slate-700 hover:border-accent/40 dark:hover:border-accent/40 hover:shadow-sm transition-all duration-200 border border-transparent group"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="w-11 h-11 bg-teal-100 dark:bg-teal-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <FileText className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                    <div className="w-11 h-11 bg-accent/10 dark:bg-accent/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-5 h-5 text-accent dark:text-accent" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{backup.name}</p>
-                      <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      <p className="text-sm font-medium text-foreground dark:text-foreground truncate">{backup.name}</p>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground dark:text-muted-foreground/60 mt-0.5">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {formatDate(backup.created)}
@@ -221,22 +221,22 @@ export default function BackupRestore() {
         {showRestoreDialog && (
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-600">
+              <DialogTitle className="flex items-center gap-2 text-warning">
                 <AlertTriangle className="w-5 h-5" />
                 Restore Backup
               </DialogTitle>
               <DialogClose onClick={() => setShowRestoreDialog(null)} />
             </DialogHeader>
             <div className="space-y-4">
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-4">
+              <div className="bg-warning-light dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-4">
                 <p className="text-sm text-amber-800 dark:text-amber-300 font-semibold mb-1">Backup Details</p>
-                <p className="text-xs text-amber-700 dark:text-amber-400">File: {showRestoreDialog.name}</p>
-                <p className="text-xs text-amber-700 dark:text-amber-400">Created: {formatDate(showRestoreDialog.created)}</p>
-                <p className="text-xs text-amber-700 dark:text-amber-400">Size: {formatSize(showRestoreDialog.size)}</p>
+                <p className="text-xs text-warning dark:text-amber-400">File: {showRestoreDialog.name}</p>
+                <p className="text-xs text-warning dark:text-amber-400">Created: {formatDate(showRestoreDialog.created)}</p>
+                <p className="text-xs text-warning dark:text-amber-400">Size: {formatSize(showRestoreDialog.size)}</p>
               </div>
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4">
-                <p className="text-sm text-red-700 dark:text-red-300 font-semibold mb-1">⚠️ Warning</p>
-                <p className="text-xs text-red-600 dark:text-red-400">
+              <div className="bg-destructive/10 dark:bg-destructive/10 border border-destructive/20 dark:border-red-800 rounded-2xl p-4">
+                <p className="text-sm text-destructive dark:text-red-300 font-semibold mb-1">Warning</p>
+                <p className="text-xs text-destructive dark:text-destructive">
                   This will replace ALL current data with the backup data. A safety backup of your current data will be created automatically before restoring.
                 </p>
               </div>

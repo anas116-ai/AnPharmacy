@@ -413,6 +413,7 @@ export function initializeBrowserAPI(): void {
         total_amount: totalAmount,
         sale_date: today(),
         processed_by: userId,
+        items: items.map((i: any) => ({ purchasePrice: i.purchasePrice || 0, sellingPrice: i.sellingPrice || 0, quantity: i.quantity, netAmount: i.netAmount || i.totalAmount || 0, medicineName: i.medicineName })),
       });
       setStore('sales', sales);
 
@@ -526,6 +527,96 @@ export function initializeBrowserAPI(): void {
           batchCount: rows.length,
         }
       };
+    },
+    getSaleMarginReport: async (days = 30) => {
+      const sales = getStore<any[]>('sales', []);
+      const rows: any[] = [];
+      const stats = { revenue: 0, cost: 0, margin: 0, marginPercent: 0 };
+      for (const s of sales) {
+        const saleItems = (s.items || []).map((i: any) => ({
+          sale_date: s.sale_date, bill_number: s.bill_number, customer_name: s.customer_name, payment_mode: s.payment_mode,
+          medicine_name: i.medicineName, quantity: i.quantity,
+          purchase_price: i.purchasePrice || 0, selling_price: i.sellingPrice || 0,
+          net_amount: i.netAmount || i.totalAmount || 0,
+        }));
+        rows.push(...saleItems);
+        const cost = saleItems.reduce((c: number, i: any) => c + (i.purchase_price || 0) * (i.quantity || 0), 0);
+        const revenue = saleItems.reduce((c: number, i: any) => c + (i.net_amount || 0), 0);
+        stats.revenue += revenue; stats.cost += cost; stats.margin += (revenue - cost);
+      }
+      stats.marginPercent = stats.revenue > 0 ? (stats.margin / stats.revenue) * 100 : 0;
+      return { success: true, rows, stats };
+    },
+    getReceivables: async () => {
+      const sales = getStore<any[]>('sales', []);
+      const customers = getStore<any[]>('customers', []);
+      const buckets = { current: 0, d30: 0, d60: 0, d90plus: 0 };
+      const byCust: any = {};
+      for (const s of sales) {
+        if ((s.payment_mode === 'credit' || s.payment_mode === 'credit_ledger') && s.customer_name && (s.net_payable || s.total_amount) > 0) {
+          const key = s.customer_name;
+          if (!byCust[key]) byCust[key] = { customer_name: key, phone: '', outstanding: 0, sales: [] };
+          const ageDays = Math.max(0, Math.floor((Date.now() - new Date(s.sale_date + 'T00:00:00').getTime()) / 86400000));
+          const bucket = ageDays > 90 ? 'd90plus' : ageDays > 60 ? 'd60' : ageDays > 30 ? 'd30' : 'current';
+          const amount = s.net_payable || s.total_amount || 0;
+          buckets[bucket] += amount;
+          byCust[key].outstanding += amount;
+          byCust[key].sales.push({ sale_date: s.sale_date, bill_number: s.bill_number, amount, outstanding: amount, age_days: ageDays });
+        }
+      }
+      return {
+        success: true,
+        customers: Object.values(byCust).sort((a: any, b: any) => b.outstanding - a.outstanding),
+        buckets,
+        totalOutstanding: Object.values(byCust).reduce((s: number, c: any) => s + c.outstanding, 0),
+      };
+    },
+    getGst1Report: async (opts?: any) => {
+      const sales = getStore<any[]>('sales', []);
+      const m = opts?.month || today().slice(0, 7);
+      const monthSales = sales.filter((s: any) => (s.sale_date || '').startsWith(m));
+      const summary = { month: m, count: monthSales.length, b2b: 0, b2c: 0, taxable: 0, cgst: 0, sgst: 0, igst: 0 };
+      for (const r of monthSales) {
+        const isB2B = !!(r.customer_gstin && r.customer_gstin.trim());
+        if (isB2B) summary.b2b++; else summary.b2c++;
+        summary.taxable += r.taxable_amount || r.total_amount || 0;
+        summary.cgst += r.cgst_amount || 0;
+        summary.sgst += r.sgst_amount || 0;
+        summary.igst += r.igst_amount || 0;
+      }
+      return { success: true, summary };
+    },
+    createPurchase: async (data: any) => {
+      const suppliers = getStore<any[]>('suppliers', []);
+      let supplierId = null;
+      if (data.supplierName || data.supplierGstin) {
+        let supplier = data.supplierGstin ? suppliers.find((s: any) => s.gstin === data.supplierGstin) : null;
+        if (!supplier) supplier = suppliers.find((s: any) => s.name === data.supplierName);
+        if (!supplier) {
+          supplier = { id: nextId(suppliers), name: data.supplierName || 'Unknown Supplier', gstin: data.supplierGstin || null, created_at: now() };
+          suppliers.push(supplier);
+          setStore('suppliers', suppliers);
+        }
+        supplierId = supplier.id;
+      }
+      const purchases = getStore<any[]>('purchases', []);
+      const p = { id: uuid(), supplier_id: supplierId, supplier_name: data.supplierName || null, supplier_gstin: data.supplierGstin || null, invoice_no: data.invoiceNo || null, invoice_date: data.invoiceDate || null, total_amount: data.totalAmount || 0, created_at: now() };
+      purchases.push(p);
+      setStore('purchases', purchases);
+      return { success: true, id: p.id, supplierId };
+    },
+    getPayables: async () => {
+      const purchases = getStore<any[]>('purchases', []);
+      const bySupplier: any = {};
+      for (const r of purchases) {
+        const key = r.supplier_id || r.supplier_name;
+        if (!bySupplier[key]) bySupplier[key] = { supplier_name: r.supplier_name || 'Unknown', outstanding: 0, bills: 0 };
+        bySupplier[key].outstanding += r.total_amount || 0;
+        bySupplier[key].bills += 1;
+      }
+      const suppliers = Object.values(bySupplier).sort((a: any, b: any) => b.outstanding - a.outstanding);
+      const totalPayable = suppliers.reduce((s: number, c: any) => s + c.outstanding, 0);
+      return { success: true, suppliers, totalPayable, count: purchases.length };
     },
     getSalesReport: async () => {
       const sales = getStore<any[]>('sales', []);
@@ -855,15 +946,45 @@ export function initializeBrowserAPI(): void {
     },
 
     // Purchase Returns
-    listPurchaseReturns: async () => ({ success: true, returns: [] }),
     createPurchaseReturn: async (data: any) => {
       const medicines = getStore<any[]>('medicines', []);
       const idx = medicines.findIndex(m => m.id === data.medicine_id);
       if (idx !== -1) {
-        medicines[idx].quantity += data.quantity;
+        // ponytail: goods leave the shelf going back to supplier (same fix as electron)
+        medicines[idx].quantity -= data.quantity;
         setStore('medicines', medicines);
       }
-      return { success: true, id: uuid() };
+      const returns = getStore<any[]>('purchase_returns', []);
+      const ret = { id: uuid(), ...data, status: 'raised', created_at: now() };
+      returns.push(ret);
+      setStore('purchase_returns', returns);
+      return { success: true, id: ret.id };
+    },
+    listPurchaseReturns: async () => {
+      const returns = getStore<any[]>('purchase_returns', []);
+      const suppliers = getStore<any[]>('suppliers', []);
+      const medicines = getStore<any[]>('medicines', []);
+      return { success: true, returns: returns.map((r: any) => ({
+        ...r,
+        supplier_name: suppliers.find((s: any) => s.id === r.supplier_id)?.name || 'Unknown',
+        medicine_name: medicines.find((m: any) => m.id === r.medicine_id)?.name || '',
+      })).reverse() };
+    },
+    updatePurchaseReturnStatus: async (data: any) => {
+      const returns = getStore<any[]>('purchase_returns', []);
+      const idx = returns.findIndex((r: any) => r.id === data.id);
+      if (idx === -1) return { success: false, error: 'Return not found' };
+      returns[idx].status = data.status;
+      if (data.status === 'dispatched') returns[idx].dispatch_date = now();
+      if (data.status === 'credited') returns[idx].credit_date = now();
+      if (data.status === 'rejected') {
+        returns[idx].reject_reason = data.rejectReason || null;
+        const medicines = getStore<any[]>('medicines', []);
+        const medIdx = medicines.findIndex((m: any) => m.id === returns[idx].medicine_id);
+        if (medIdx !== -1) { medicines[medIdx].quantity += returns[idx].quantity; setStore('medicines', medicines); }
+      }
+      setStore('purchase_returns', returns);
+      return { success: true };
     },
 
     // Sales Returns
