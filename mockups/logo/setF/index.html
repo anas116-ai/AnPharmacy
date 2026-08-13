@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AnPharmacy — Creative Logo Concepts · Set F</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --magenta-deep:#990066;
+    --magenta:#D4148C;
+    --coral:#FF5A8D;
+    --grad:linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
+    --grad-soft:linear-gradient(135deg,#990066 0%,#D4148C 52%,#FF5A8D 100%);
+    --ink:#0A0F1E;
+    --ink-2:#101E38;
+    --paper:#FFFFFF;
+    --paper-2:#F7F8FA;
+    --font-display:'Space Grotesk','Manrope',system-ui,sans-serif;
+    --font-body:'Manrope','Space Grotesk',system-ui,-apple-system,Segoe UI,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--font-body);
+    color:#E8ECF4;
+    background:
+      radial-gradient(900px 600px at 85% -5%, rgba(212,20,140,.18), transparent 60%),
+      radial-gradient(700px 500px at 0% 100%, rgba(153,0,102,.20), transparent 55%),
+      linear-gradient(180deg,#070B16 0%,#0A0F1E 40%,#0C1226 100%);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:48px 24px 96px}
+
+  /* Header */
+  header.site{display:flex;flex-direction:column;gap:18px;margin-bottom:22px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;align-self:flex-start;
+    font-family:var(--font-display);font-size:12px;letter-spacing:.28em;text-transform:uppercase;
+    color:#FF8FB4;padding:7px 14px;border:1px solid rgba(255,90,141,.35);border-radius:999px;
+    background:rgba(255,90,141,.06);
+  }
+  h1.title{
+    font-family:var(--font-display);font-weight:700;line-height:.98;letter-spacing:-.02em;
+    font-size:clamp(34px,6vw,68px);
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .sub{color:#A9B2C7;max-width:62ch;font-size:15px;line-height:1.6}
+  .palette{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .sw{display:flex;align-items:center;gap:9px;padding:7px 12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12px;color:#C7CFE0;font-family:var(--font-display);letter-spacing:.02em}
+  .sw i{width:18px;height:18px;border-radius:6px;display:inline-block;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+
+  /* Concept block */
+  .concept{
+    margin-top:54px;border:1px solid rgba(255,255,255,.07);border-radius:24px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.012));
+  }
+  .concept-head{padding:26px 28px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+  .concept-head .tag{font-family:var(--font-display);font-size:13px;letter-spacing:.22em;color:#FF8FB4;text-transform:uppercase}
+  .concept-head h2{font-family:var(--font-display);font-weight:700;font-size:clamp(22px,3.4vw,34px);letter-spacing:-.01em;color:#fff;margin-top:4px}
+  .concept-head p{max-width:48ch;color:#9AA4BA;font-size:14px;line-height:1.55;flex:1 1 280px}
+
+  .grid{display:grid;gap:18px;padding:24px 28px}
+  .lbl{font-family:var(--font-display);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7E88A0;margin-bottom:10px;display:block}
+
+  /* Presentation panels */
+  .presents{grid-template-columns:repeat(3,1fr)}
+  .panel{border-radius:18px;min-height:190px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .panel .cap{position:absolute;left:14px;top:12px;font-family:var(--font-display);font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.7}
+  .panel.light{background:var(--paper-2);color:var(--ink)}
+  .panel.light .cap{color:#5b657a}
+  .panel.dark{background:var(--ink);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+  .panel.dark .cap{color:#9aa4ba}
+  .panel.grad{background:var(--grad)}
+  .panel.grad .cap{color:rgba(255,255,255,.85)}
+
+  /* Size ramp */
+  .ramp{grid-template-columns:1fr;align-items:center}
+  .ramp-strip{display:flex;align-items:flex-end;gap:26px;flex-wrap:wrap;padding:26px 22px;border-radius:16px;background:linear-gradient(180deg,rgba(10,15,30,.9),rgba(16,30,56,.9));box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+  .ramp-item{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .ramp-item span{font-family:var(--font-display);font-size:11px;color:#7E88A0;letter-spacing:.08em}
+
+  /* Icon + lockup row */
+  .twocol{grid-template-columns:1fr 1fr}
+  .card{border-radius:16px;padding:22px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+  .card h3{font-family:var(--font-display);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#8E98B0;margin-bottom:14px;font-weight:500}
+  .tile-row{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+  .favicon{border-radius:22px;padding:14px;display:inline-flex;box-shadow:0 14px 30px rgba(153,0,102,.35),inset 0 0 0 1px rgba(255,255,255,.12)}
+  .lockup-row{display:flex;gap:34px;align-items:center;flex-wrap:wrap}
+  .lockup-stack{display:flex;flex-direction:column;align-items:center;gap:10px}
+
+  .wordmark{font-family:var(--font-display);white-space:nowrap;line-height:1;letter-spacing:-.01em}
+  .wordmark .an{font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .wordmark .rest{font-weight:300;color:#fff}
+  .wordmark.lg{font-size:30px}
+  .wordmark.sm{font-size:20px}
+  .tagline{font-family:var(--font-body);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8E98B0;margin-top:6px}
+
+  .mono-wrap{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+
+  /* Do / Don't */
+  .notes{grid-template-columns:1fr 1fr}
+  .note{border-radius:14px;padding:16px 18px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025)}
+  .note h4{font-family:var(--font-display);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .note.do h4{color:#7CE0B0}
+  .note.dont h4{color:#FF7A9A}
+  .note ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .note li{font-size:13px;color:#B7C0D4;line-height:1.45;display:flex;gap:9px;align-items:flex-start}
+  .note li b{color:#E8ECF4;font-weight:600}
+  .dot{flex:0 0 auto;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:1px}
+  .do .dot{background:rgba(124,224,176,.16);color:#7CE0B0}
+  .dont .dot{background:rgba(255,122,154,.16);color:#FF7A9A}
+
+  footer{margin-top:60px;text-align:center;color:#69728A;font-size:12px;letter-spacing:.04em}
+
+  @media (max-width:760px){
+    .presents,.twocol,.notes{grid-template-columns:1fr}
+    .wrap{padding:34px 16px 72px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site">
+    <span class="eyebrow">◆ AnPharmacy · Brand System · Set F</span>
+    <h1 class="title">Creative Logo Concepts</h1>
+    <p class="sub">Three distinctive, geometric marks built for a warm‑premium intelligent pharmacy. Each is rendered inline as SVG, locked to the magenta→coral palette, and shown across light, dark, gradient, monochrome, size ramp, app‑icon and wordmark lockups.</p>
+    <div class="palette">
+      <span class="sw"><i style="background:#990066"></i>#990066</span>
+      <span class="sw"><i style="background:#D4148C"></i>#D4148C</span>
+      <span class="sw"><i style="background:#FF5A8D"></i>#FF5A8D</span>
+      <span class="sw"><i style="background:#0A0F1E"></i>#0A0F1E</span>
+      <span class="sw"><i style="background:#F7F8FA"></i>#F7F8FA</span>
+    </div>
+  </header>
+
+  <main id="stage"></main>
+
+  <footer>Built offline‑safe · inline SVG · palette‑locked · AnPharmacy brand system</footer>
+</div>
+
+<!-- shared gradient definition -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#990066"/>
+      <stop offset="50%" stop-color="#D4148C"/>
+      <stop offset="100%" stop-color="#FF5A8D"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<script>
+const GA = 'url(#brandGrad)';
+
+function shapes(concept, f){
+  if(concept==='f1'){
+    return ''
+      + `<polygon points="24,68 14,82 34,82" fill="${f}"/>`
+      + `<polygon points="50,48 38,66 62,66" fill="${f}"/>`
+      + `<polygon points="72,26 58,48 86,48" fill="${f}"/>`;
+  }
+  if(concept==='f2'){
+    const rings=[[10,8],[19,48],[28,88],[37,128]];
+    let s='';
+    rings.forEach(([r,rot])=>{
+      s+=`<circle cx="50" cy="50" r="${r}" fill="none" stroke="${f}" stroke-width="4" pathLength="100" stroke-dasharray="82 18" transform="rotate(${rot} 50 50)" stroke-linecap="round"/>`;
+    });
+    s+=`<circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/>`;
+    return s;
+  }
+  if(concept==='f3'){
+    const col2=[0,1,2,3,4], row2=[0,1,2,3,4];
+    const set=new Set();
+    col2.forEach(r=>set.add(r+','+2));
+    row2.forEach(c=>set.add(2+','+c));
+    let s='';
+    set.forEach(k=>{
+      const [r,c]=k.split(',').map(Number);
+      const x=10+c*16, y=10+r*16;
+      const isCenter=(r===2&&c===2);
+      const fill=isCenter?'#FF5A8D':f;
+      s+=`<rect x="${x}" y="${y}" width="16" height="16" rx="4.5" fill="${fill}"/>`;
+    });
+    return s;
+  }
+  return '';
+}
+
+function mark(concept, fill, size){
+  const s = size?`width="${size}" height="${size}"`:'';
+  return `<svg viewBox="0 0 100 100" ${s} role="img" aria-label="AnPharmacy logo">${shapes(concept,fill)}</svg>`;
+}
+
+function wordmark(cls){
+  return `<span class="wordmark ${cls}"><span class="an">An</span><span class="rest">Pharmacy</span></span>`;
+}
+
+function conceptBlock(cfg){
+  const id=cfg.id;
+  const panels = `
+    <div class="panel light"><span class="cap">Light</span>${mark(id,GA,96)}</div>
+    <div class="panel dark"><span class="cap">Dark</span>${mark(id,GA,96)}</div>
+    <div class="panel grad"><span class="cap">Gradient</span>${mark(id,'#FFFFFF',96)}</div>`;
+
+  const sizes=[16,24,32,64,128,256];
+  const ramp=sizes.map(sz=>`<div class="ramp-item">${mark(id,GA,sz)}<span>${sz}px</span></div>`).join('');
+
+  const favicon=`
+    <div class="tile-row">
+      <div class="favicon" style="background:var(--grad)">${mark(id,'#FFFFFF',96)}</div>
+      <div class="favicon" style="background:var(--grad);padding:6px">${mark(id,'#FFFFFF',40)}</div>
+      <div style="color:#8E98B0;font-size:13px;line-height:1.5;max-width:24ch">Rounded‑square gradient tile, mark centered — the favicon / app‑icon.</div>
+    </div>`;
+
+  const lockups=`
+    <div class="lockup-row">
+      <div style="display:flex;align-items:center;gap:14px">${mark(id,GA,64)}${wordmark('lg')}</div>
+      <div class="lockup-stack">${mark(id,GA,56)}${wordmark('sm')}<div class="tagline">Every Medicine. Under Control.</div></div>
+    </div>`;
+
+  const mono=`
+    <div class="mono-wrap">
+      <div style="background:var(--paper-2);border-radius:16px;padding:22px;color:var(--ink)">${mark(id,'#0A0F1E',84)}</div>
+      <div style="color:#8E98B0;font-size:13px;line-height:1.5;max-width:26ch">Single ink colour for stamps, letterheads and low‑ink printing.</div>
+    </div>`;
+
+  const doItems=cfg.do.map(t=>`<li><span class="dot">✓</span><span>${t}</span></li>`).join('');
+  const dontItems=cfg.dont.map(t=>`<li><span class="dot">✕</span><span>${t}</span></li>`).join('');
+
+  return `
+  <section class="concept" id="${id}">
+    <div class="concept-head">
+      <div>
+        <div class="tag">${cfg.tag}</div>
+        <h2>${cfg.name}</h2>
+      </div>
+      <p>${cfg.desc}</p>
+    </div>
+
+    <div class="grid presents">${panels}</div>
+
+    <div class="grid ramp">
+      <span class="lbl">Size ramp — 16 → 256 px</span>
+      <div class="ramp-strip">${ramp}</div>
+    </div>
+
+    <div class="grid twocol">
+      <div class="card"><h3>App icon / favicon</h3>${favicon}</div>
+      <div class="card"><h3>Wordmark lockups</h3>${lockups}</div>
+    </div>
+
+    <div class="grid twocol">
+      <div class="card"><h3>Monochrome</h3>${mono}</div>
+      <div class="card"><h3>Concept</h3><p style="color:#B7C0D4;font-size:14px;line-height:1.6">${cfg.why}</p></div>
+    </div>
+
+    <div class="grid notes">
+      <div class="note do"><h4>Do</h4><ul>${doItems}</ul></div>
+      <div class="note dont"><h4>Don't</h4><ul>${dontItems}</ul></div>
+    </div>
+  </section>`;
+}
+
+const concepts=[
+  {
+    id:'f1', tag:'F1', name:'Ascend Triangles',
+    desc:'Three triangles stepping upward into a rising form — health trends climbing, progress made. Geometric, confident, instantly icon‑readable.',
+    why:'The ascending silhouette doubles as a growth arrow: it says the pharmacy is getting healthier, more organised, more in control with every cycle. Strong negative space keeps it crisp at 16px.',
+    do:[
+      'Keep the three triangles aligned on the ascending diagonal',
+      'Use the brand gradient or solid ink — both hold',
+      'Center the mark in the favicon tile with even padding'
+    ],
+    dont:[
+      'Don\'t stretch or squash the triangles',
+      'Don\'t recolour outside magenta→coral',
+      'Don\'t add a drop shadow that breaks the flat geometry'
+    ]
+  },
+  {
+    id:'f2', tag:'F2', name:'Ripple Pulse',
+    desc:'Concentric rings with a single gap, pulsing outward from a coral core — a ripple of care expanding to every patient. Calm, systemic, distinctive.',
+    why:'The open rings read as both a heartbeat monitor and expanding care, while the coral center is the warm focal pulse. The silhouette is unlike any clinical cross, so it stays ownable.',
+    do:[
+      'Keep the coral core dot as the single hot focal point',
+      'Let rings breathe with even spacing',
+      'Use white mark on the gradient panel for max contrast'
+    ],
+    dont:[
+      'Don\'t close the ring gaps (the gap is the motif)',
+      'Don\'t rotate all gaps to the same angle',
+      'Don\'t recolor the core outside coral'
+    ]
+  },
+  {
+    id:'f3', tag:'F3', name:'Pixel Cross',
+    desc:'A cross built from rounded squares like an LED matrix — modern, tech‑crafted. One coral cell glows as the hot focal point in the center.',
+    why:'The pixel/LED grid signals software and precision, the cross signals care, and the single coral cell adds a crafted, human spark. Reads as a confident, contemporary medical mark.',
+    do:[
+      'Keep the center cell coral as the focal accent',
+      'Preserve the rounded‑square rhythm (rx ~4.5)',
+      'Use the gradient on the remaining cells'
+    ],
+    dont:[
+      'Don\'t make the squares perfect circles or sharp rectangles',
+      'Don\'t scatter extra coral cells — one is enough',
+      'Don\'t break the plus symmetry'
+    ]
+  }
+];
+
+document.getElementById('stage').innerHTML = concepts.map(conceptBlock).join('');
+</script>
+</body>
+</html>

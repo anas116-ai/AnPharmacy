@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AnPharmacy — Logo Set C · Creative Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --magenta-deep:#990066;
+    --magenta:#D4148C;
+    --coral:#FF5A8D;
+    --brand-grad:linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
+    --ink:#0A0F1E;
+    --ink-2:#101E38;
+    --paper:#FFFFFF;
+    --paper-2:#F7F8FA;
+    --line:rgba(10,15,30,.10);
+    --display:'Space Grotesk','Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
+    --body:'Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--body);
+    color:var(--ink);
+    background:var(--paper-2);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+
+  /* ---------- Shell ---------- */
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px 90px}
+  header.hero{
+    position:relative;overflow:hidden;
+    padding:64px 22px 56px;
+    background:var(--brand-grad);
+    color:#fff;text-align:center;
+  }
+  header.hero::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(60% 80% at 20% 0%,rgba(255,255,255,.18),transparent 60%),
+      radial-gradient(50% 70% at 90% 100%,rgba(10,15,30,.28),transparent 60%);
+    pointer-events:none;
+  }
+  header.hero .tag{
+    position:relative;
+    font-family:var(--display);font-weight:500;letter-spacing:.32em;text-transform:uppercase;
+    font-size:12px;opacity:.85;
+  }
+  header.hero h1{
+    position:relative;font-family:var(--display);font-weight:700;
+    font-size:clamp(30px,6vw,52px);letter-spacing:-.02em;margin:12px 0 8px;
+  }
+  header.hero p{position:relative;max-width:620px;margin:0 auto;opacity:.92;font-size:15px}
+
+  /* ---------- Concept block ---------- */
+  .concept{padding-top:64px}
+  .concept .head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  .concept .num{
+    font-family:var(--display);font-weight:700;font-size:14px;
+    color:#fff;background:var(--brand-grad);
+    width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+    box-shadow:0 8px 22px -8px rgba(212,20,140,.6);
+  }
+  .concept h2{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.4vw,30px);letter-spacing:-.01em}
+  .concept .lead{color:#46506a;max-width:680px;margin-bottom:26px;font-size:15px}
+  .concept .lead b{color:var(--magenta);font-weight:600}
+
+  /* ---------- Presentation panels ---------- */
+  .panels{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:18px}
+  .panel{
+    position:relative;border-radius:18px;padding:30px 16px 18px;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    border:1px solid var(--line);overflow:hidden;
+  }
+  .panel .lbl{
+    font-family:var(--display);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    font-weight:600;opacity:.7;
+  }
+  .panel.light{background:var(--paper-2)}
+  .panel.dark{background:var(--ink);color:#fff;border-color:rgba(255,255,255,.08)}
+  .panel.dark .lbl{opacity:.6}
+  .panel.grad{background:var(--brand-grad);color:#fff;border-color:transparent}
+  .panel.grad .lbl{opacity:.85}
+  .panel .mark{width:128px;height:128px;display:block}
+  .panel.grad .mark{filter:drop-shadow(0 10px 20px rgba(10,15,30,.35))}
+
+  /* ---------- Grid of detail cards ---------- */
+  .grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}.panels{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:22px;
+  }
+  .card h3{
+    font-family:var(--display);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    color:#6a7286;font-weight:600;margin-bottom:16px;
+  }
+
+  /* size ramp */
+  .ramp{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+  .ramp .item{display:flex;flex-direction:column;align-items:center;gap:8px;color:#6a7286;font-size:11px;font-family:var(--display)}
+  .ramp .item svg{display:block}
+
+  /* favicon tiles */
+  .tiles{display:flex;gap:14px;flex-wrap:wrap}
+  .tile{
+    width:84px;height:84px;border-radius:22px;background:var(--brand-grad);
+    display:grid;place-items:center;box-shadow:0 14px 30px -12px rgba(153,0,102,.6);
+    position:relative;
+  }
+  .tile.dark{background:var(--ink);box-shadow:0 14px 30px -12px rgba(10,15,30,.8)}
+  .tile svg{width:54px;height:54px}
+  .tile .cap{position:absolute;bottom:8px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75);font-family:var(--display)}
+
+  /* monochrome */
+  .mono-row{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+  .mono-row .sample{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:#6a7286;font-family:var(--display);letter-spacing:.04em}
+  .mono-row .sw{width:80px;height:80px;border-radius:14px;display:grid;place-items:center;border:1px solid var(--line)}
+  .mono-row .sw.ink{background:var(--ink);border-color:transparent}
+  .mono-row .sw.paper{background:var(--paper-2)}
+
+  /* lockups */
+  .lockups{display:flex;flex-direction:column;gap:22px}
+  .lockup{display:flex;align-items:center;gap:14px}
+  .lockup.stacked{flex-direction:column;gap:10px;text-align:center}
+  .lockup .wm{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:-.01em;line-height:1}
+  .lockup .wm .an{
+    background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lockup .wm .rest{font-weight:300;color:var(--ink)}
+  .lockup .wm.white .rest{color:#fff}
+  .lockup .wm.white .an{background:linear-gradient(95deg,#fff,#ffd9e9);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lockup .tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a93a8;font-weight:600;margin-top:4px}
+  .lockup .tag.white{color:rgba(255,255,255,.7)}
+  .lockup .iconbox{width:54px;height:54px;flex:0 0 auto}
+  .lockup.stacked .iconbox{width:64px;height:64px}
+
+  /* do / dont */
+  .dodont{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:760px){.dodont{grid-template-columns:1fr}}
+  .dodont .col{border-radius:14px;padding:16px 18px;border:1px solid var(--line);background:var(--paper)}
+  .dodont .col.bad{border-color:rgba(217,20,140,.25);background:rgba(255,90,141,.04)}
+  .dodont h4{font-family:var(--display);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .dodont .good h4{color:#0a8a5a}
+  .dodont .bad h4{color:var(--magenta)}
+  .dodont ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .dodont li{font-size:13px;color:#3c455c;display:flex;gap:9px;align-items:flex-start}
+  .dodont li .b{flex:0 0 auto;font-weight:700;font-family:var(--display)}
+  .dodont .good li .b{color:#0a8a5a}
+  .dodont .bad li .b{color:var(--magenta)}
+
+  footer{margin-top:70px;text-align:center;color:#8a93a8;font-size:13px}
+  footer .bar{width:60px;height:4px;border-radius:99px;background:var(--brand-grad);margin:0 auto 14px}
+
+  .reveal{opacity:0;transform:translateY(14px);animation:rise .7s ease forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){
+    .reveal{animation:none;opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SVG DEFINITIONS ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="cgrad" x1="22" y1="12" x2="80" y2="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#D4148C"/>
+      <stop offset="50%" stop-color="#FF5A8D"/>
+      <stop offset="100%" stop-color="#990066"/>
+    </linearGradient>
+    <linearGradient id="c3v" x1="50" y1="12" x2="50" y2="88" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF5A8D"/>
+      <stop offset="100%" stop-color="#990066"/>
+    </linearGradient>
+    <linearGradient id="c3h" x1="12" y1="50" x2="88" y2="50" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#D4148C"/>
+      <stop offset="50%" stop-color="#FF5A8D"/>
+      <stop offset="100%" stop-color="#D4148C"/>
+    </linearGradient>
+    <linearGradient id="c1g" x1="30" y1="10" x2="70" y2="92" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#D4148C"/>
+      <stop offset="55%" stop-color="#FF5A8D"/>
+      <stop offset="100%" stop-color="#990066"/>
+    </linearGradient>
+    <mask id="c1cut">
+      <rect width="100" height="100" fill="#fff"/>
+      <rect x="44" y="46" width="12" height="24" fill="#000"/>
+      <rect x="38" y="52" width="24" height="12" fill="#000"/>
+    </mask>
+
+    <!-- ===== C1 Liquid Drop — color ===== -->
+    <symbol id="c1" viewBox="0 0 100 100">
+      <path d="M50 90 C50 90 80 55 80 42 A30 30 0 1 0 20 42 C20 55 50 90 50 90 Z" fill="url(#c1g)" mask="url(#c1cut)"/>
+      <ellipse cx="39" cy="36" rx="12" ry="17" fill="#fff" opacity="0.30" transform="rotate(-18 39 36)"/>
+    </symbol>
+    <!-- ===== C1 — monochrome (ink) ===== -->
+    <symbol id="c1m" viewBox="0 0 100 100">
+      <path d="M50 90 C50 90 80 55 80 42 A30 30 0 1 0 20 42 C20 55 50 90 50 90 Z" fill="currentColor" mask="url(#c1cut)"/>
+    </symbol>
+    <!-- ===== C1 — white ===== -->
+    <symbol id="c1w" viewBox="0 0 100 100">
+      <path d="M50 90 C50 90 80 55 80 42 A30 30 0 1 0 20 42 C20 55 50 90 50 90 Z" fill="#fff" mask="url(#c1cut)"/>
+    </symbol>
+
+    <!-- ===== C2 Node Web — color ===== -->
+    <symbol id="c2" viewBox="0 0 100 100">
+      <g stroke="url(#cgrad)" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.9">
+        <path d="M50 50 L24 26"/><path d="M50 50 L78 22"/>
+        <path d="M50 50 L72 78"/><path d="M50 50 L28 74"/>
+      </g>
+      <circle cx="24" cy="26" r="9" fill="url(#cgrad)"/>
+      <circle cx="78" cy="22" r="9" fill="url(#cgrad)"/>
+      <circle cx="72" cy="78" r="9" fill="url(#cgrad)"/>
+      <circle cx="28" cy="74" r="9" fill="url(#cgrad)"/>
+      <circle cx="50" cy="50" r="14" fill="#FF5A8D"/>
+      <circle cx="50" cy="50" r="14" fill="none" stroke="#fff" stroke-width="2" opacity="0.55"/>
+      <circle r="4.5" fill="#fff">
+        <animateMotion dur="4.2s" repeatCount="indefinite"
+          path="M50 50 L24 26 L50 50 L78 22 L50 50 L72 78 L50 50 L28 74 L50 50"/>
+      </circle>
+    </symbol>
+    <!-- ===== C2 — monochrome ===== -->
+    <symbol id="c2m" viewBox="0 0 100 100">
+      <g stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.85">
+        <path d="M50 50 L24 26"/><path d="M50 50 L78 22"/>
+        <path d="M50 50 L72 78"/><path d="M50 50 L28 74"/>
+      </g>
+      <circle cx="24" cy="26" r="9" fill="currentColor"/>
+      <circle cx="78" cy="22" r="9" fill="currentColor"/>
+      <circle cx="72" cy="78" r="9" fill="currentColor"/>
+      <circle cx="28" cy="74" r="9" fill="currentColor"/>
+      <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="4"/>
+      <circle r="4" fill="currentColor">
+        <animateMotion dur="4.2s" repeatCount="indefinite"
+          path="M50 50 L24 26 L50 50 L78 22 L50 50 L72 78 L50 50 L28 74 L50 50"/>
+      </circle>
+    </symbol>
+    <!-- ===== C2 — white ===== -->
+    <symbol id="c2w" viewBox="0 0 100 100">
+      <g stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.9">
+        <path d="M50 50 L24 26"/><path d="M50 50 L78 22"/>
+        <path d="M50 50 L72 78"/><path d="M50 50 L28 74"/>
+      </g>
+      <circle cx="24" cy="26" r="9" fill="#fff"/>
+      <circle cx="78" cy="22" r="9" fill="#fff"/>
+      <circle cx="72" cy="78" r="9" fill="#fff"/>
+      <circle cx="28" cy="74" r="9" fill="#fff"/>
+      <circle cx="50" cy="50" r="14" fill="none" stroke="#fff" stroke-width="4"/>
+      <circle r="4.5" fill="#fff">
+        <animateMotion dur="4.2s" repeatCount="indefinite"
+          path="M50 50 L24 26 L50 50 L78 22 L50 50 L72 78 L50 50 L28 74 L50 50"/>
+      </circle>
+    </symbol>
+
+    <!-- ===== C3 Fold Ribbon — color ===== -->
+    <symbol id="c3" viewBox="0 0 100 100">
+      <!-- top loop / knot -->
+      <path d="M41 22 C41 7 59 7 59 22" fill="none" stroke="url(#c3v)" stroke-width="8" stroke-linecap="round"/>
+      <!-- vertical ribbon (behind, tapered ends) -->
+      <path d="M43 18 L57 18 L61 50 L57 82 L43 82 L39 50 Z" fill="url(#c3v)"/>
+      <!-- contact shadow: horizontal band passes in front of vertical -->
+      <ellipse cx="50" cy="43" rx="11" ry="3.2" fill="#6e0048" opacity="0.32"/>
+      <ellipse cx="50" cy="57" rx="11" ry="3.2" fill="#6e0048" opacity="0.32"/>
+      <!-- horizontal ribbon (front, tapered ends) -->
+      <path d="M18 43 L18 57 L50 61 L82 57 L82 43 L50 39 Z" fill="url(#c3h)"/>
+      <!-- lit top edges (ribbon face catching light) -->
+      <path d="M43 18 L39 50" fill="none" stroke="#fff" stroke-width="2.4" opacity="0.6" stroke-linecap="round"/>
+      <path d="M43 18 L57 18" fill="none" stroke="#fff" stroke-width="2.2" opacity="0.5" stroke-linecap="round"/>
+      <path d="M18 43 L50 39 L82 43" fill="none" stroke="#fff" stroke-width="2.4" opacity="0.6" stroke-linecap="round"/>
+      <path d="M18 43 L18 57" fill="none" stroke="#fff" stroke-width="2" opacity="0.4" stroke-linecap="round"/>
+      <!-- fold-under shadows at the four free ends -->
+      <path d="M43 18 L57 18 L53 25 L47 25 Z" fill="#6e0048" opacity="0.40"/>
+      <path d="M43 82 L57 82 L53 75 L47 75 Z" fill="#6e0048" opacity="0.40"/>
+      <path d="M18 43 L18 57 L25 53 L25 47 Z" fill="#6e0048" opacity="0.40"/>
+      <path d="M82 43 L82 57 L75 53 L75 47 Z" fill="#6e0048" opacity="0.40"/>
+    </symbol>
+    <!-- ===== C3 — monochrome ===== -->
+    <symbol id="c3m" viewBox="0 0 100 100">
+      <path d="M41 22 C41 7 59 7 59 22" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+      <path d="M43 18 L57 18 L61 50 L57 82 L43 82 L39 50 Z" fill="currentColor"/>
+      <path d="M18 43 L18 57 L50 61 L82 57 L82 43 L50 39 Z" fill="currentColor"/>
+      <path d="M18 43 L18 57 L50 61 L82 57 L82 43 L50 39 Z" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    </symbol>
+    <!-- ===== C3 — white ===== -->
+    <symbol id="c3w" viewBox="0 0 100 100">
+      <path d="M41 22 C41 7 59 7 59 22" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M43 18 L57 18 L61 50 L57 82 L43 82 L39 50 Z" fill="#fff"/>
+      <path d="M18 43 L18 57 L50 61 L82 57 L82 43 L50 39 Z" fill="#fff"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="tag">AnPharmacy · Brand Identity</div>
+  <h1>Set C — Creative Concepts</h1>
+  <p>Three distinctive marks for a warm-premium intelligent pharmacy. Each shown in light, dark, gradient, monochrome, favicon, and lockup treatments using the mandatory magenta→coral palette only.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ===================== C1 ===================== -->
+  <section class="concept reveal" id="c1">
+    <div class="head"><span class="num">C1</span><h2>Liquid Drop</h2></div>
+    <p class="lead">A pendant <b>medicine droplet</b> with a soft highlight and a <b>cross carved into the tip as negative space</b> — friendly, instantly "medicine", and unmistakably warm.</p>
+
+    <div class="panels">
+      <div class="panel light"><span class="lbl">Light</span><svg class="mark" viewBox="0 0 100 100"><use href="#c1"/></svg></div>
+      <div class="panel dark"><span class="lbl">Dark</span><svg class="mark" viewBox="0 0 100 100"><use href="#c1"/></svg></div>
+      <div class="panel grad"><span class="lbl">Gradient</span><svg class="mark" viewBox="0 0 100 100"><use href="#c1w"/></svg></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Size ramp · 16 → 256 px</h3>
+        <div class="ramp">
+          <div class="item"><svg width="16" height="16" viewBox="0 0 100 100"><use href="#c1"/></svg>16</div>
+          <div class="item"><svg width="24" height="24" viewBox="0 0 100 100"><use href="#c1"/></svg>24</div>
+          <div class="item"><svg width="32" height="32" viewBox="0 0 100 100"><use href="#c1"/></svg>32</div>
+          <div class="item"><svg width="64" height="64" viewBox="0 0 100 100"><use href="#c1"/></svg>64</div>
+          <div class="item"><svg width="128" height="128" viewBox="0 0 100 100"><use href="#c1"/></svg>128</div>
+          <div class="item"><svg width="256" height="256" viewBox="0 0 100 100"><use href="#c1"/></svg>256</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>App icon / favicon</h3>
+        <div class="tiles">
+          <div class="tile"><svg viewBox="0 0 100 100"><use href="#c1w"/></svg><span class="cap">Tile</span></div>
+          <div class="tile dark"><svg viewBox="0 0 100 100"><use href="#c1w"/></svg><span class="cap">Ink</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px">
+      <div class="card">
+        <h3>Monochrome (stamp / letterhead)</h3>
+        <div class="mono-row">
+          <div class="sample"><div class="sw ink" style="color:#fff"><svg width="56" height="56" viewBox="0 0 100 100"><use href="#c1w"/></svg></div>On ink</div>
+          <div class="sample"><div class="sw paper" style="color:var(--ink)"><svg width="56" height="56" viewBox="0 0 100 100"><use href="#c1m"/></svg></div>On paper</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Wordmark lockups</h3>
+        <div class="lockups">
+          <div class="lockup">
+            <span class="iconbox"><svg viewBox="0 0 100 100"><use href="#c1"/></svg></span>
+            <div>
+              <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+              <div class="tag">Every Medicine. Under Control.</div>
+            </div>
+          </div>
+          <div class="lockup stacked">
+            <span class="iconbox"><svg viewBox="0 0 100 100"><use href="#c1"/></svg></span>
+            <div>
+              <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+              <div class="tag">Every Medicine. Under Control.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dodont">
+      <div class="col good">
+        <h4>Do</h4>
+        <ul>
+          <li><span class="b">+</span> Keep the cross negative-space intact down to 24px; below that the drop silhouette carries the mark.</li>
+          <li><span class="b">+</span> Use the soft highlight for a "liquid" feel.</li>
+          <li><span class="b">+</span> Place on ample padding so the drop breathes.</li>
+        </ul>
+      </div>
+      <div class="col bad">
+        <h4>Don't</h4>
+        <ul>
+          <li><span class="b">×</span> Stretch the drop into a circle or oval.</li>
+          <li><span class="b">×</span> Recolor outside the magenta→coral family.</li>
+          <li><span class="b">×</span> Add a hard outer ring or drop shadow.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== C2 ===================== -->
+  <section class="concept reveal" id="c2">
+    <div class="head"><span class="num">C2</span><h2>Node Web</h2></div>
+    <p class="lead">Four nodes linked by gradient lines with a <b>coral pulse traveling the network</b> and one <b>hot coral focal node</b> — signals software, connectivity and systemic control.</p>
+
+    <div class="panels">
+      <div class="panel light"><span class="lbl">Light</span><svg class="mark" viewBox="0 0 100 100"><use href="#c2"/></svg></div>
+      <div class="panel dark"><span class="lbl">Dark</span><svg class="mark" viewBox="0 0 100 100"><use href="#c2"/></svg></div>
+      <div class="panel grad"><span class="lbl">Gradient</span><svg class="mark" viewBox="0 0 100 100"><use href="#c2w"/></svg></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Size ramp · 16 → 256 px</h3>
+        <div class="ramp">
+          <div class="item"><svg width="16" height="16" viewBox="0 0 100 100"><use href="#c2"/></svg>16</div>
+          <div class="item"><svg width="24" height="24" viewBox="0 0 100 100"><use href="#c2"/></svg>24</div>
+          <div class="item"><svg width="32" height="32" viewBox="0 0 100 100"><use href="#c2"/></svg>32</div>
+          <div class="item"><svg width="64" height="64" viewBox="0 0 100 100"><use href="#c2"/></svg>64</div>
+          <div class="item"><svg width="128" height="128" viewBox="0 0 100 100"><use href="#c2"/></svg>128</div>
+          <div class="item"><svg width="256" height="256" viewBox="0 0 100 100"><use href="#c2"/></svg>256</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>App icon / favicon</h3>
+        <div class="tiles">
+          <div class="tile"><svg viewBox="0 0 100 100"><use href="#c2w"/></svg><span class="cap">Tile</span></div>
+          <div class="tile dark"><svg viewBox="0 0 100 100"><use href="#c2w"/></svg><span class="cap">Ink</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px">
+      <div class="card">
+        <h3>Monochrome (stamp / letterhead)</h3>
+        <div class="mono-row">
+          <div class="sample"><div class="sw ink" style="color:#fff"><svg width="56" height="56" viewBox="0 0 100 100"><use href="#c2w"/></svg></div>On ink</div>
+          <div class="sample"><div class="sw paper" style="color:var(--ink)"><svg width="56" height="56" viewBox="0 0 100 100"><use href="#c2m"/></svg></div>On paper</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Wordmark lockups</h3>
+        <div class="lockups">
+          <div class="lockup">
+            <span class="iconbox"><svg viewBox="0 0 100 100"><use href="#c2"/></svg></span>
+            <div>
+              <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+              <div class="tag">Every Medicine. Under Control.</div>
+            </div>
+          </div>
+          <div class="lockup stacked">
+            <span class="iconbox"><svg viewBox="0 0 100 100"><use href="#c2"/></svg></span>
+            <div>
+              <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+              <div class="tag">Every Medicine. Under Control.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dodont">
+      <div class="col good">
+        <h4>Do</h4>
+        <ul>
+          <li><span class="b">+</span> Let the pulse animate — it reads as "live system".</li>
+          <li><span class="b">+</span> Keep the center node as the coral focal point.</li>
+          <li><span class="b">+</span> Use on dark or gradient backgrounds for max glow.</li>
+        </ul>
+      </div>
+      <div class="col bad">
+        <h4>Don't</h4>
+        <ul>
+          <li><span class="b">×</span> Rearrange nodes into a perfect square grid.</li>
+          <li><span class="b">×</span> Make all nodes the same coral (lose the focal point).</li>
+          <li><span class="b">×</span> Freeze the pulse in static exports without note.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== C3 ===================== -->
+  <section class="concept reveal" id="c3">
+    <div class="head"><span class="num">C3</span><h2>Fold Ribbon</h2></div>
+    <p class="lead">A <b>folded ribbon crafted into a cross / care badge</b> — layered vertical-over-horizontal bands, crease highlights and a top loop give an <b>award-like, premium</b> feel.</p>
+
+    <div class="panels">
+      <div class="panel light"><span class="lbl">Light</span><svg class="mark" viewBox="0 0 100 100"><use href="#c3"/></svg></div>
+      <div class="panel dark"><span class="lbl">Dark</span><svg class="mark" viewBox="0 0 100 100"><use href="#c3"/></svg></div>
+      <div class="panel grad"><span class="lbl">Gradient</span><svg class="mark" viewBox="0 0 100 100"><use href="#c3w"/></svg></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Size ramp · 16 → 256 px</h3>
+        <div class="ramp">
+          <div class="item"><svg width="16" height="16" viewBox="0 0 100 100"><use href="#c3"/></svg>16</div>
+          <div class="item"><svg width="24" height="24" viewBox="0 0 100 100"><use href="#c3"/></svg>24</div>
+          <div class="item"><svg width="32" height="32" viewBox="0 0 100 100"><use href="#c3"/></svg>32</div>
+          <div class="item"><svg width="64" height="64" viewBox="0 0 100 100"><use href="#c3"/></svg>64</div>
+          <div class="item"><svg width="128" height="128" viewBox="0 0 100 100"><use href="#c3"/></svg>128</div>
+          <div class="item"><svg width="256" height="256" viewBox="0 0 100 100"><use href="#c3"/></svg>256</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>App icon / favicon</h3>
+        <div class="tiles">
+          <div class="tile"><svg viewBox="0 0 100 100"><use href="#c3w"/></svg><span class="cap">Tile</span></div>
+          <div class="tile dark"><svg viewBox="0 0 100 100"><use href="#c3w"/></svg><span class="cap">Ink</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px">
+      <div class="card">
+        <h3>Monochrome (stamp / letterhead)</h3>
+        <div class="mono-row">
+          <div class="sample"><div class="sw ink" style="color:#fff"><svg width="56" height="56" viewBox="0 0 100 100"><use href="#c3w"/></svg></div>On ink</div>
+          <div class="sample"><div class="sw paper" style="color:var(--ink)"><svg width="56" height="56" viewBox="0 0 100 100"><use href="#c3m"/></svg></div>On paper</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Wordmark lockups</h3>
+        <div class="lockups">
+          <div class="lockup">
+            <span class="iconbox"><svg viewBox="0 0 100 100"><use href="#c3"/></svg></span>
+            <div>
+              <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+              <div class="tag">Every Medicine. Under Control.</div>
+            </div>
+          </div>
+          <div class="lockup stacked">
+            <span class="iconbox"><svg viewBox="0 0 100 100"><use href="#c3"/></svg></span>
+            <div>
+              <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+              <div class="tag">Every Medicine. Under Control.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dodont">
+      <div class="col good">
+        <h4>Do</h4>
+        <ul>
+          <li><span class="b">+</span> Preserve the layered fold (vertical under horizontal).</li>
+          <li><span class="b">+</span> Keep crease highlights subtle and white-only.</li>
+          <li><span class="b">+</span> Use on gradient tiles for an "award badge" look.</li>
+        </ul>
+      </div>
+      <div class="col bad">
+        <h4>Don't</h4>
+        <ul>
+          <li><span class="b">×</span> Flatten the cross into a plain plus sign.</li>
+          <li><span class="b">×</span> Add extra ribbons/tails beyond the top loop.</li>
+          <li><span class="b">×</span> Rotate the mark — it's a fixed upright badge.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="bar"></div>
+    AnPharmacy · Set C — Liquid Drop · Node Web · Fold Ribbon<br/>
+    Palette locked to #990066 → #D4148C → #FF5A8D. Offline-safe; fonts degrade to system stack.
+  </footer>
+</div>
+</body>
+</html>

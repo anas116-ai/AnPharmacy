@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, Suspense, lazy } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { NAV_ITEMS } from '../lib/types';
+import { GROUP_COLORS, GROUP_LABELS } from '../lib/nav';
 import { ArrowLeft, ChevronDown, LogOut, Settings as SettingsIcon, Keyboard, Loader2, Lock, PanelLeft } from 'lucide-react';
 import Sidebar from './Sidebar';
 import ThemeToggle from './ThemeToggle';
@@ -8,6 +9,8 @@ import { useTheme } from '../hooks/useTheme';
 import { useGlobalShortcuts, KeyboardShortcut } from '../hooks/useKeyboardShortcuts';
 import KeyboardShortcutsHelp from './KeyboardShortcutsHelp';
 import NotificationBell from './NotificationBell';
+import TitleBar from './TitleBar';
+import StatusBar from './StatusBar';
 import { cn } from '../lib/utils';
 
 // Lazy-loaded route components for faster initial load
@@ -19,7 +22,6 @@ const Reports = lazy(() => import('./Reports'));
 const Settings = lazy(() => import('./Settings'));
 const Purchases = lazy(() => import('./Purchases'));
 const UserManagement = lazy(() => import('./UserManagement'));
-const ScanInvoice = lazy(() => import('./ScanInvoice'));
 const BackupRestore = lazy(() => import('./BackupRestore'));
 const Suppliers = lazy(() => import('./Suppliers'));
 const Manufacturers = lazy(() => import('./Manufacturers'));
@@ -40,7 +42,6 @@ const Reminders = lazy(() => import('./Reminders'));
 const SalesHistory = lazy(() => import('./SalesHistory'));
 const DataImportStudio = lazy(() => import('./DataImportStudio'));
 const NotificationsPanel = lazy(() => import('./NotificationsPanel'));
-const ImportHistoryLog = lazy(() => import('./ImportHistoryLog'));
 const RecycleBin = lazy(() => import('./RecycleBin'));
 
 export default function MainShell() {
@@ -54,16 +55,21 @@ export default function MainShell() {
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Distinct subtle background per navigation group — each layout reads differently
+  // Vibrant Aurora: colorful radial washes layered over the base surface
   const groupTints: Record<string, string> = {
-    overview: 'bg-gradient-to-b from-emerald-50/60 to-slate-100 dark:from-emerald-950/20 dark:to-slate-950',
-    stock: 'bg-gradient-to-b from-emerald-50/80 to-slate-100 dark:from-emerald-950/30 dark:to-slate-950',
-    sales: 'bg-gradient-to-b from-sky-50/70 to-slate-100 dark:from-sky-950/25 dark:to-slate-950',
-    returns: 'bg-gradient-to-b from-amber-50/60 to-slate-100 dark:from-amber-950/20 dark:to-slate-950',
-    people: 'bg-gradient-to-b from-violet-50/50 to-slate-100 dark:from-violet-950/20 dark:to-slate-950',
-    operations: 'bg-gradient-to-b from-cyan-50/60 to-slate-100 dark:from-cyan-950/20 dark:to-slate-950',
-    insights: 'bg-gradient-to-b from-indigo-50/50 to-slate-100 dark:from-indigo-950/20 dark:to-slate-950',
-    admin: 'bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900/40 dark:to-slate-950',
+    overview: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(16,185,129,0.16),transparent_62%)]',
+    stock: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(20,184,166,0.18),transparent_62%)]',
+    sales: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(14,165,233,0.18),transparent_62%)]',
+    returns: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(245,158,11,0.16),transparent_62%)]',
+    people: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(139,92,246,0.16),transparent_62%)]',
+    operations: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(6,182,212,0.16),transparent_62%)]',
+    insights: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(99,102,241,0.16),transparent_62%)]',
+    admin: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(148,163,184,0.13),transparent_62%)]',
   };
+
+  // Per-module accent for the header chip
+  const activeGroup = NAV_ITEMS.find(i => i.index === activeIndex)?.group || 'overview';
+  const gColor = GROUP_COLORS[activeGroup] || GROUP_COLORS.overview;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -122,6 +128,53 @@ export default function MainShell() {
 
   useGlobalShortcuts(handleNavigate);
 
+  // ── Desktop: respond to native app menu (File > Backup, Settings, About) ──
+  useEffect(() => {
+    if (!window.electronAPI?.onMenuAction) return;
+    window.electronAPI.onMenuAction((action) => {
+      if (action === 'backup') {
+        const idx = NAV_ITEMS.findIndex(i => i.label === 'Backup & Restore');
+        if (idx >= 0) handleNavigate(idx);
+      } else if (action === 'settings') {
+        handleNavigate(9);
+      } else if (action === 'about') {
+        window.electronAPI.getAppInfo().then(r => {
+          alert(`AnPharmacy v${r?.version || '1.0.0'}\nElectron ${r?.electron || ''}\nPlatform: ${r?.platform || ''}\n\nYour data lives 100% on this device — offline & private.`);
+        });
+      }
+    });
+  }, [handleNavigate]);
+
+  // ── Desktop: drag & drop invoice/import files onto the window ──
+  useEffect(() => {
+    if (!window.electronAPI?.isDesktop) return;
+    const onDragOver = (e: DragEvent) => { e.preventDefault(); };
+    const onDrop = (e: DragEvent) => {
+      e.preventDefault();
+      const files = Array.from(e.dataTransfer?.files || []);
+      if (files.length === 0) return;
+      const file = files[0];
+      const name = (file as any).name?.toLowerCase() || '';
+      // route by extension: images → Scan Invoice, spreadsheets → Data Import
+      if (/\.(png|jpe?g|pdf)$/i.test(name)) {
+        const idx = NAV_ITEMS.findIndex(i => i.label === 'Scan Invoice');
+        if (idx >= 0) handleNavigate(idx);
+      } else if (/\.(xlsx?|csv)$/i.test(name)) {
+        const idx = NAV_ITEMS.findIndex(i => i.label === 'Data Import');
+        if (idx >= 0) handleNavigate(idx);
+      }
+      if (window.electronAPI?.showNativeNotification) {
+        window.electronAPI.showNativeNotification({ title: 'File dropped', body: `Opening ${name} — pick the file inside the screen to import it.` });
+      }
+    };
+    window.addEventListener('dragover', onDragOver);
+    window.addEventListener('drop', onDrop);
+    return () => {
+      window.removeEventListener('dragover', onDragOver);
+      window.removeEventListener('drop', onDrop);
+    };
+  }, [handleNavigate]);
+
   const handleLogout = () => { logout(); };
 
   const getRoleBadge = () => {
@@ -166,7 +219,7 @@ export default function MainShell() {
       case 3: return hasPermission('view_purchases') ? <Purchases /> : <AccessDenied />;
       case 4: return hasPermission('make_sales') ? <Sales /> : <AccessDenied />;
       case 5: return hasPermission('view_reports') ? <Reports /> : <AccessDenied />;
-      case 6: return hasPermission('scan_invoices') ? <ScanInvoice /> : <AccessDenied />;
+      case 6: return hasPermission('scan_invoices') ? <DataImportStudio key="hub-scan" initialMode="scan" /> : <AccessDenied />;
       case 7: return hasPermission('manage_users') ? <UserManagement /> : <AccessDenied />;
       case 8: return <BackupRestore />;
       case 9: return <Settings />;
@@ -187,9 +240,9 @@ export default function MainShell() {
       case 24: return <Reminders />;
       case 25: return <NotificationsPanel />;
       case 26: return hasPermission('view_sales') ? <SalesHistory /> : <AccessDenied />;
-      case 27: return hasPermission('add_stock') ? <DataImportStudio /> : <AccessDenied />;
+      case 27: return hasPermission('add_stock') ? <DataImportStudio key="hub-import" initialMode="import" /> : <AccessDenied />;
       case 28: return <SupplierProfileManager />;
-      case 29: return <ImportHistoryLog />;
+      case 29: return <DataImportStudio key="hub-history" initialMode="history" />;
       case 30: return <RecycleBin />;
       default: return <Dashboard />;
     }
@@ -197,12 +250,12 @@ export default function MainShell() {
 
   const pageTitles: Record<number, string> = {
     0: 'Dashboard', 1: 'Stock Management', 2: 'Add Stock', 3: 'Purchases', 4: 'Sales',
-    5: 'Reports', 6: 'Scan Invoice', 7: 'User Management', 8: 'Backup & Restore', 9: 'Settings',
+    5: 'Reports', 6: 'Data Import', 7: 'User Management', 8: 'Backup & Restore', 9: 'Settings',
     10: 'Suppliers', 11: 'Manufacturers', 12: 'Generic Medicines', 13: 'Customers', 14: 'Purchase Returns',
     15: 'Sales Returns', 16: 'Warehouses', 17: 'Stock Transfers', 18: 'Expenses', 19: 'Pricing Rules',
     20: 'Discount Schemes', 21: 'GST & HSN', 22: 'AI Insights', 23: 'Documents', 24: 'Reminders',
-    25: 'Notifications', 26: 'Sales History', 27: 'Data Import Studio', 28: 'AI Learning & Profiles',
-    29: 'Import History', 30: 'Recycle Bin',
+    25: 'Notifications', 26: 'Sales History', 27: 'Data Import', 28: 'AI Learning & Profiles',
+    29: 'Data Import', 30: 'Recycle Bin',
   };
 
   // Expose shortcuts for the help dialog
@@ -226,7 +279,11 @@ export default function MainShell() {
   ];
 
   return (
-    <div className="flex h-screen bg-slate-100 dark:bg-slate-950">
+    <div className="flex flex-col h-screen bg-slate-100 dark:bg-slate-950">
+      {/* ───── CUSTOM WINDOW TITLEBAR (desktop only, renders null in browser) ───── */}
+      <TitleBar />
+      {/* ───── APP BODY ───── */}
+      <div className="flex flex-1 min-h-0">
       {/* ───── SIDEBAR ───── */}
       <Sidebar
         activeIndex={activeIndex}
@@ -238,12 +295,13 @@ export default function MainShell() {
 
       {/* ───── MAIN AREA ───── */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Clean app bar */}
-        <header className="h-14 bg-slate-950 border-b border-white/[0.06] flex items-center px-3 gap-2 flex-shrink-0 z-40">
+        {/* Clean app bar — aurora accent strip on top */}
+        <header className="relative h-14 bg-slate-950 border-b border-white/[0.06] flex items-center px-3 gap-2 flex-shrink-0 z-40 overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#990066] via-[#D4148C] to-[#FF5A8D] opacity-80 pointer-events-none" aria-hidden="true" />
           {/* Collapse sidebar */}
           <button
             onClick={() => setSidebarCollapsed(v => !v)}
-            className="flex-shrink-0 w-9 h-9 rounded-lg hover:bg-white/[0.06] flex items-center justify-center transition-colors cursor-pointer"
+            className="flex-shrink-0 w-9 h-9 rounded-lg hover:bg-white/[0.06] hover:text-emerald-300 flex items-center justify-center transition-colors cursor-pointer"
             aria-label="Toggle sidebar"
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
@@ -264,20 +322,33 @@ export default function MainShell() {
 
           {/* Page title + breadcrumb */}
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <span className={cn(
+              'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border flex-shrink-0',
+              gColor.activeBg, gColor.activeBorder
+            )}>
+              <span className={cn('w-1.5 h-1.5 rounded-full', gColor.dot)} />
+              {GROUP_LABELS[activeGroup]}
+            </span>
             <h1 className="text-[15px] font-semibold text-white tracking-tight truncate font-display">
               {pageTitles[activeIndex] || 'Dashboard'}
             </h1>
+            <span className="hidden md:inline-flex w-1 h-4 rounded-full bg-gradient-to-b from-[#D4148C] to-[#FF5A8D] opacity-70" />
             <nav className="hidden lg:flex items-center gap-1.5 text-xs text-muted-foreground min-w-0">
               <span className="hover:text-white cursor-pointer transition-colors flex-shrink-0" onClick={() => handleNavigate(0)}>
                 Home
               </span>
-              <span className="flex-shrink-0">/</span>
-              <span className="text-muted-foreground truncate">{pageTitles[activeIndex] || 'Dashboard'}</span>
+              <span className="flex-shrink-0 text-slate-600">/</span>
+              <span className="text-slate-400 truncate">{pageTitles[activeIndex] || 'Dashboard'}</span>
             </nav>
           </div>
 
           {/* Right controls */}
           <div className="flex items-center gap-1.5">
+            {/* Quick status pill */}
+            <span className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 text-[10px] font-semibold mr-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-subtle" />
+              Live
+            </span>
             <ThemeToggle theme={theme} onToggle={toggle} />
             <NotificationBell />
             <button
@@ -296,9 +367,9 @@ export default function MainShell() {
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.06] transition-all duration-150 group cursor-pointer"
               >
                 <div className={cn(
-                  'w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br',
-                  user?.role === 'admin' ? 'from-accent to-emerald-600' :
-                  user?.role === 'sales' ? 'from-blue-500 to-blue-600' : 'from-amber-500 to-orange-600'
+                  'w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br shadow-md',
+                  user?.role === 'admin' ? 'from-accent via-teal-400 to-emerald-500' :
+                  user?.role === 'sales' ? 'from-sky-500 via-blue-500 to-indigo-500' : 'from-amber-500 via-orange-500 to-rose-500'
                 )}>
                   {user?.displayName?.charAt(0) || 'U'}
                 </div>
@@ -345,10 +416,14 @@ export default function MainShell() {
 
         {/* Content Area */}
         <main ref={mainRef} className={cn(
-          'flex-1 overflow-auto transition-colors duration-300',
-          groupTints[NAV_ITEMS.find(i => i.index === activeIndex)?.group || 'overview']
+          'relative flex-1 overflow-auto app-mesh transition-colors duration-300'
         )}>
-          <div className="p-6 lg:p-8 max-w-[1440px] mx-auto">
+          {/* Per-module colored wash layered over the ambient mesh */}
+          <div className={cn(
+            'pointer-events-none absolute inset-0',
+            groupTints[NAV_ITEMS.find(i => i.index === activeIndex)?.group || 'overview']
+          )} />
+          <div className="relative z-10 p-6 lg:p-8 max-w-[1440px] mx-auto">
             <div className="page-enter">
               <Suspense fallback={
                 <div className="flex items-center justify-center py-32">
@@ -364,6 +439,10 @@ export default function MainShell() {
           </div>
         </main>
       </div>
+      </div>
+
+      {/* Status bar — full width under everything (desktop only) */}
+      <StatusBar />
 
       {/* Keyboard Shortcuts Help Dialog */}
       <KeyboardShortcutsHelp

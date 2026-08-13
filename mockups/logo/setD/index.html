@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AnPharmacy — Set D · Creative Logo Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --deep:#990066; --mag:#D4148C; --coral:#FF5A8D;
+    --ink:#0A0F1E; --ink2:#101E38; --paper:#FFFFFF; --paper2:#F7F8FA;
+    --grad:linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
+    --display:'Space Grotesk','Manrope',system-ui,sans-serif;
+    --body:'Manrope','Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--body);
+    color:var(--ink);
+    background:var(--paper2);
+    background-image:
+      radial-gradient(60rem 60rem at -8% -12%, rgba(212,20,140,0.10), transparent 60%),
+      radial-gradient(48rem 48rem at 108% 6%, rgba(255,90,141,0.10), transparent 55%),
+      radial-gradient(46rem 46rem at 92% 108%, rgba(153,0,102,0.08), transparent 55%);
+    background-attachment:fixed;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 90px;}
+  .gradient-text{
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  /* Header */
+  header{
+    padding:64px 0 40px;text-align:center;position:relative;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-family:var(--display);
+    font-size:12px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--mag);background:rgba(212,20,140,.08);
+    border:1px solid rgba(212,20,140,.18);padding:7px 16px;border-radius:999px;
+  }
+  header h1{
+    font-family:var(--display);font-weight:700;letter-spacing:-.03em;
+    font-size:clamp(2.2rem,6vw,4rem);line-height:1.05;margin:22px 0 14px;
+  }
+  header p{max-width:620px;margin:0 auto;color:#475569;font-size:1.05rem;line-height:1.6;}
+  .meta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px;}
+  .meta-chip{
+    font-family:var(--display);font-size:12px;font-weight:500;letter-spacing:.04em;
+    color:#334155;background:#fff;border:1px solid #e6e9f0;border-radius:9px;padding:8px 14px;
+    box-shadow:0 1px 2px rgba(15,23,42,.04);
+  }
+
+  /* Section */
+  .concept{margin-top:70px;}
+  .concept-head{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:26px;}
+  .badge{
+    width:54px;height:54px;border-radius:15px;background:var(--grad);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-family:var(--display);
+    font-weight:700;font-size:1.4rem;box-shadow:0 10px 26px -10px rgba(212,20,140,.55);
+    flex-shrink:0;
+  }
+  .concept-head h2{font-family:var(--display);font-weight:700;font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.02em;line-height:1.1;}
+  .concept-head .sub{color:#64748b;font-size:.98rem;margin-top:4px;max-width:560px;}
+
+  .panel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:760px){.panel-grid{grid-template-columns:1fr;}}
+  .panel{
+    border-radius:18px;padding:30px 18px;display:flex;flex-direction:column;align-items:center;gap:14px;
+    border:1px solid rgba(15,23,42,.07);position:relative;overflow:hidden;
+  }
+  .panel .lbl{font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;}
+  .panel.light{background:var(--paper);}
+  .panel.dark{background:var(--ink);}
+  .panel.dark .lbl{color:#94a3b8;}
+  .panel.light .lbl{color:#94a3b8;}
+  .panel.grad{background:var(--grad);}
+  .panel.grad .lbl{color:rgba(255,255,255,.85);}
+  .panel .mark{width:128px;height:128px;display:flex;align-items:center;justify-content:center;}
+  .panel .mark svg{width:100%;height:100%;}
+
+  /* Scale ramp */
+  .ramp{display:flex;align-items:flex-end;gap:26px;flex-wrap:wrap;justify-content:center;
+    background:#fff;border:1px solid rgba(15,23,42,.07);border-radius:18px;padding:34px 20px;}
+  .ramp .item{display:flex;flex-direction:column;align-items:center;gap:10px;color:#64748b;}
+  .ramp .item svg{display:block;}
+  .ramp .item span{font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:.04em;}
+  .ramp .item small{font-size:10px;color:#94a3b8;}
+
+  /* Tile row */
+  .tiles{display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+  .tile{width:104px;height:104px;border-radius:24px;background:var(--grad);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 16px 34px -14px rgba(153,0,102,.55);}
+  .tile svg{width:60%;height:60%;}
+  .tile-note{font-size:.92rem;color:#475569;max-width:280px;line-height:1.55;}
+  .tile-note b{font-family:var(--display);color:var(--ink);}
+
+  .mono-row{display:flex;align-items:center;gap:24px;flex-wrap:wrap;background:#fff;
+    border:1px solid rgba(15,23,42,.07);border-radius:18px;padding:30px 24px;color:var(--ink);}
+  .mono-row .ink{color:var(--ink);}
+  .mono-row svg{display:block;}
+
+  /* Lockup */
+  .lockups{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:760px){.lockups{grid-template-columns:1fr;}}
+  .lockup{background:#fff;border:1px solid rgba(15,23,42,.07);border-radius:18px;padding:34px 24px;
+    display:flex;align-items:center;justify-content:center;gap:0;}
+  .lockup.darkbg{background:var(--ink);}
+  .lock-h{display:flex;align-items:center;gap:14px;}
+  .lock-s{display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .wordmark{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:.95;font-size:2rem;white-space:nowrap;}
+  .wordmark .a{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .wordmark .rest{font-weight:300;color:inherit;}
+  .tagline{font-family:var(--display);font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;margin-top:6px;}
+  .tagline.light{color:#94a3b8;}
+  .tagline.dark{color:#64748b;}
+  .tagline.onink{color:rgba(255,255,255,.7);}
+
+  /* Do / Don't */
+  .rules{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;}
+  @media(max-width:760px){.rules{grid-template-columns:1fr;}}
+  .rule{border-radius:18px;padding:26px 24px;border:1px solid rgba(15,23,42,.07);}
+  .rule.do{background:#fff;}
+  .rule.dont{background:#fff;}
+  .rule h3{font-family:var(--display);font-size:1.05rem;display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .tag{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:7px;}
+  .tag.ok{background:rgba(212,20,140,.12);color:var(--mag);}
+  .tag.no{background:#fef2f2;color:#dc2626;}
+  .rule ul{list-style:none;display:flex;flex-direction:column;gap:11px;}
+  .rule li{display:flex;gap:11px;align-items:flex-start;font-size:.95rem;color:#475569;line-height:1.45;}
+  .dot{flex-shrink:0;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:1px;}
+  .dot.ok{background:rgba(212,20,140,.14);color:var(--mag);}
+  .dot.no{background:#fee2e2;color:#dc2626;}
+
+  footer{margin-top:80px;text-align:center;color:#94a3b8;font-size:.85rem;}
+  .sechdr{font-family:var(--display);font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#94a3b8;margin:30px 0 12px;display:flex;align-items:center;gap:12px;}
+  .sechdr::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(212,20,140,.25),transparent);}
+  .card-label{font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#94a3b8;margin:18px 0 10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">◆ AnPharmacy · Brand Mark Explorations</span>
+    <h1>Set&nbsp;D — <span class="gradient-text">Creative Concepts</span></h1>
+    <p>Three distinctive, non-literal directions for a new AnPharmacy logo. Each stays inside the warm-premium magenta→coral system and scales cleanly from a 16&nbsp;px favicon to a hero mark.</p>
+    <div class="meta-row">
+      <span class="meta-chip">Palette · #990066 → #D4148C → #FF5A8D</span>
+      <span class="meta-chip">Inline SVG · offline-safe</span>
+      <span class="meta-chip">3 concepts · D1 · D2 · D3</span>
+    </div>
+  </header>
+
+  <!-- ===================== D1 ===================== -->
+  <section class="concept" id="d1">
+    <div class="concept-head">
+      <div class="badge">D1</div>
+      <div>
+        <h2>Prism Refract</h2>
+        <div class="sub">A triangular prism splits one magenta beam into a coral-spectrum fan — clarity, light and pharmaceutical science made luminous.</div>
+      </div>
+    </div>
+
+    <div class="sechdr">Presentations</div>
+    <div class="panel-grid">
+      <div class="panel light"><span class="lbl">Light</span><div class="mark" data-mark="d1" data-variant="gradient"></div></div>
+      <div class="panel dark"><span class="lbl">Dark</span><div class="mark" data-mark="d1" data-variant="white"></div></div>
+      <div class="panel grad"><span class="lbl">Gradient</span><div class="mark" data-mark="d1" data-variant="white"></div></div>
+    </div>
+
+    <div class="card-label">Size ramp · 16 → 256</div>
+    <div class="ramp" data-ramp="d1"></div>
+
+    <div class="card-label">App icon / favicon tile</div>
+    <div class="tiles">
+      <div class="tile" data-mark="d1" data-variant="white" data-tile="1"></div>
+      <div class="tile" data-mark="d1" data-variant="white" data-tile="1" style="width:56px;height:56px;border-radius:14px;"></div>
+      <div class="tile" data-mark="d1" data-variant="white" data-tile="1" style="width:36px;height:36px;border-radius:9px;"></div>
+      <div class="tile-note"><b>Rounded-square tile</b> — the gradient carries the brand at 32&nbsp;px and below, so the mark stays legible even when the strokes collapse.</div>
+    </div>
+
+    <div class="card-label">Monochrome · single ink for stamps &amp; letterheads</div>
+    <div class="mono-row">
+      <div class="ink" data-mark="d1" data-variant="mono" data-size="120"></div>
+      <div style="font-family:var(--display);font-weight:300;font-size:1.4rem;color:var(--ink);">AnPharmacy</div>
+    </div>
+
+    <div class="card-label">Wordmark lockups</div>
+    <div class="lockups">
+      <div class="lockup"><div class="lock-h" data-lockup="d1" data-layout="h"></div></div>
+      <div class="lockup darkbg"><div class="lock-s" data-lockup="d1" data-layout="s" data-onink="1"></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== D2 ===================== -->
+  <section class="concept" id="d2">
+    <div class="concept-head">
+      <div class="badge">D2</div>
+      <div>
+        <h2>Atomic Care</h2>
+        <div class="sub">An atom whose nucleus is a medical cross — science and care fused into one iconic, intelligent mark that reads instantly at any size.</div>
+      </div>
+    </div>
+
+    <div class="sechdr">Presentations</div>
+    <div class="panel-grid">
+      <div class="panel light"><span class="lbl">Light</span><div class="mark" data-mark="d2" data-variant="gradient"></div></div>
+      <div class="panel dark"><span class="lbl">Dark</span><div class="mark" data-mark="d2" data-variant="white"></div></div>
+      <div class="panel grad"><span class="lbl">Gradient</span><div class="mark" data-mark="d2" data-variant="white"></div></div>
+    </div>
+
+    <div class="card-label">Size ramp · 16 → 256</div>
+    <div class="ramp" data-ramp="d2"></div>
+
+    <div class="card-label">App icon / favicon tile</div>
+    <div class="tiles">
+      <div class="tile" data-mark="d2" data-variant="white" data-tile="1"></div>
+      <div class="tile" data-mark="d2" data-variant="white" data-tile="1" style="width:56px;height:56px;border-radius:14px;"></div>
+      <div class="tile" data-mark="d2" data-variant="white" data-tile="1" style="width:36px;height:36px;border-radius:9px;"></div>
+      <div class="tile-note"><b>Gradient tile + white atom</b> — the cross-nucleus stays crisp because it sits on the densest part of the mark.</div>
+    </div>
+
+    <div class="card-label">Monochrome · single ink for stamps &amp; letterheads</div>
+    <div class="mono-row">
+      <div class="ink" data-mark="d2" data-variant="mono" data-size="120"></div>
+      <div style="font-family:var(--display);font-weight:300;font-size:1.4rem;color:var(--ink);">AnPharmacy</div>
+    </div>
+
+    <div class="card-label">Wordmark lockups</div>
+    <div class="lockups">
+      <div class="lockup"><div class="lock-h" data-lockup="d2" data-layout="h"></div></div>
+      <div class="lockup darkbg"><div class="lock-s" data-lockup="d2" data-layout="s" data-onink="1"></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== D3 ===================== -->
+  <section class="concept" id="d3">
+    <div class="concept-head">
+      <div class="badge">D3</div>
+      <div>
+        <h2>Stamp Seal</h2>
+        <div class="sub">A rounded wax-seal badge holding a bold “A” monogram with a tiny pill — official, established and trustworthy, ringed in the brand gradient.</div>
+      </div>
+    </div>
+
+    <div class="sechdr">Presentations</div>
+    <div class="panel-grid">
+      <div class="panel light"><span class="lbl">Light</span><div class="mark" data-mark="d3" data-variant="gradient"></div></div>
+      <div class="panel dark"><span class="lbl">Dark</span><div class="mark" data-mark="d3" data-variant="white"></div></div>
+      <div class="panel grad"><span class="lbl">Gradient</span><div class="mark" data-mark="d3" data-variant="white"></div></div>
+    </div>
+
+    <div class="card-label">Size ramp · 16 → 256</div>
+    <div class="ramp" data-ramp="d3"></div>
+
+    <div class="card-label">App icon / favicon tile</div>
+    <div class="tiles">
+      <div class="tile" data-mark="d3" data-variant="white" data-tile="1"></div>
+      <div class="tile" data-mark="d3" data-variant="white" data-tile="1" style="width:56px;height:56px;border-radius:14px;"></div>
+      <div class="tile" data-mark="d3" data-variant="white" data-tile="1" style="width:36px;height:36px;border-radius:9px;"></div>
+      <div class="tile-note"><b>Seal as app icon</b> — the circular badge already reads as a contained icon, so it doubles as the product tile with zero rework.</div>
+    </div>
+
+    <div class="card-label">Monochrome · single ink for stamps &amp; letterheads</div>
+    <div class="mono-row">
+      <div class="ink" data-mark="d3" data-variant="mono" data-size="120"></div>
+      <div style="font-family:var(--display);font-weight:300;font-size:1.4rem;color:var(--ink);">AnPharmacy</div>
+    </div>
+
+    <div class="card-label">Wordmark lockups</div>
+    <div class="lockups">
+      <div class="lockup"><div class="lock-h" data-lockup="d3" data-layout="h"></div></div>
+      <div class="lockup darkbg"><div class="lock-s" data-lockup="d3" data-layout="s" data-onink="1"></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== DO / DON'T ===================== -->
+  <section class="concept">
+    <div class="concept-head">
+      <div class="badge" style="background:#0A0F1E;">✓</div>
+      <div><h2>Logo Usage · Do / Don't</h2><div class="sub">Applies to all three Set&nbsp;D concepts.</div></div>
+    </div>
+    <div class="rules">
+      <div class="rule do">
+        <h3><span class="tag ok">Do</span></h3>
+        <ul>
+          <li><span class="dot ok">✓</span><span>Keep all color use inside the magenta→coral family (#990066 → #D4148C → #FF5A8D).</span></li>
+          <li><span class="dot ok">✓</span><span>Respect the clear-space: pad the mark by at least 25% of its height on all sides.</span></li>
+          <li><span class="dot ok">✓</span><span>Use the gradient tile for favicon / app-icon contexts smaller than 48&nbsp;px.</span></li>
+          <li><span class="dot ok">✓</span><span>Switch to the monochrome (ink) version for stamps, letterheads and engraving.</span></li>
+          <li><span class="dot ok">✓</span><span>Keep the aspect ratio locked — scale uniformly.</span></li>
+        </ul>
+      </div>
+      <div class="rule dont">
+        <h3><span class="tag no">Don't</span></h3>
+        <ul>
+          <li><span class="dot no">✕</span><span>Don't stretch, skew or rotate the mark.</span></li>
+          <li><span class="dot no">✕</span><span>Don't recolor outside the palette (no blues, greens or neutrals as fills).</span></li>
+          <li><span class="dot no">✕</span><span>Don't place the mark on low-contrast or clashing backgrounds without the tile.</span></li>
+          <li><span class="dot no">✕</span><span>Don't add drop-shadows, outlines or extra effects not in this system.</span></li>
+          <li><span class="dot no">✕</span><span>Don't reconstruct the “A” or cross from different weights than supplied.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>AnPharmacy · Set D exploratory logo concepts — inline SVG, brand palette only, renders offline.</footer>
+</div>
+
+<script>
+(function(){
+  var DEEP='#990066', MAG='#D4148C', CORAL='#FF5A8D';
+  var SPECTRUM=['#990066','#B3166F','#D4148C','#EE2E84','#FF5A8D'];
+  var counter=0;
+
+  function strokeFor(v){return v==='mono'?'currentColor':(v==='white'?'#ffffff':null);}
+  function fillFor(v){return strokeFor(v);}
+  function gradDef(g){
+    return '<defs><linearGradient id="'+g+'" gradientUnits="userSpaceOnUse" x1="18" y1="16" x2="82" y2="84">'+
+      '<stop offset="0%" stop-color="'+DEEP+'"/>'+
+      '<stop offset="50%" stop-color="'+MAG+'"/>'+
+      '<stop offset="100%" stop-color="'+CORAL+'"/></linearGradient></defs>';
+  }
+
+  function wrap(inner, gidUsed){
+    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+      (gidUsed?gradDef(gidUsed):'')+inner+'</svg>';
+  }
+
+  /* ---------- D1 Prism Refract ---------- */
+  function d1(v){
+    var g='g'+(counter++);
+    var s=strokeFor(v), inFill=(v==='mono'?'currentColor':(v==='white'?'#ffffff':DEEP));
+    var strokeAttr = s? 'stroke="'+s+'"' : 'stroke="url(#'+g+')"';
+    var prismFill = s ? 'none' : 'url(#'+g+')';
+    var prismOpacity = s ? '1' : '0.16';
+    var fan='';
+    var ex=62, ey=56;
+    var ends=[[96,30],[96,42],[96,54],[96,66],[96,78]];
+    for(var i=0;i<5;i++){
+      var fc = s ? s : SPECTRUM[i];
+      fan+='<line x1="'+ex+'" y1="'+ey+'" x2="'+ends[i][0]+'" y2="'+ends[i][1]+'" stroke="'+fc+'" stroke-width="3.4" stroke-linecap="round"/>';
+    }
+    var inner=
+      '<polygon points="50,20 24,76 76,76" fill="'+prismFill+'" fill-opacity="'+prismOpacity+'" '+strokeAttr+' stroke-width="3" stroke-linejoin="round"/>'+
+      '<line x1="6" y1="50" x2="36" y2="50" stroke="'+inFill+'" stroke-width="4.2" stroke-linecap="round"/>'+
+      '<line x1="36" y1="50" x2="'+ex+'" y2="'+ey+'" '+(s?'stroke="'+s+'"':'stroke="url(#'+g+')"')+' stroke-width="3" stroke-linecap="round"/>'+
+      fan;
+    return wrap(inner, s?null:g);
+  }
+
+  /* ---------- D2 Atomic Care ---------- */
+  function d2(v){
+    var g='g'+(counter++);
+    var s=strokeFor(v);
+    var strokeAttr = s? 'stroke="'+s+'"' : 'stroke="url(#'+g+')"';
+    var fillAttr = s? 'fill="'+s+'"' : 'fill="url(#'+g+')"';
+    var orbits='';
+    var rots=[0,60,120];
+    var ends=[[84,50],[67,79.4],[33,79.4]];
+    for(var i=0;i<3;i++){
+      orbits+='<ellipse cx="50" cy="50" rx="34" ry="13" transform="rotate('+rots[i]+' 50 50)" '+strokeAttr+' fill="none" stroke-width="3"/>';
+      orbits+='<circle cx="'+ends[i][0]+'" cy="'+ends[i][1]+'" r="3.6" '+fillAttr+'/>';
+    }
+    var cross=
+      '<rect x="46.5" y="41" width="7" height="18" rx="2.5" '+fillAttr+'/>'+
+      '<rect x="41" y="46.5" width="18" height="7" rx="2.5" '+fillAttr+'/>';
+    return wrap(orbits+cross, s?null:g);
+  }
+
+  /* ---------- D3 Stamp Seal ---------- */
+  function d3(v){
+    var g='g'+(counter++);
+    var s=strokeFor(v);
+    var strokeAttr = s? 'stroke="'+s+'"' : 'stroke="url(#'+g+')"';
+    var fillAttr = s? 'fill="'+s+'"' : 'fill="url(#'+g+')"';
+    var ring=
+      '<circle cx="50" cy="50" r="43" '+strokeAttr+' fill="none" stroke-width="5"/>'+
+      '<circle cx="50" cy="50" r="36" '+(s?'stroke="'+s+'"':'stroke="url(#'+g+')"')+' fill="none" stroke-width="2" opacity="0.5"/>';
+    var a=
+      '<path d="M34 74 L50 28 L66 74" '+strokeAttr+' fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>'+
+      '<rect x="37" y="55" width="26" height="8" rx="4" '+fillAttr+'/>'+
+      '<rect x="45" y="41" width="10" height="6" rx="3" '+fillAttr+'/>';
+    return wrap(ring+a, s?null:g);
+  }
+
+  var builders={d1:d1,d2:d2,d3:d3};
+
+  /* Fill simple mark holders */
+  document.querySelectorAll('[data-mark]').forEach(function(el){
+    var name=el.getAttribute('data-mark');
+    var v=el.getAttribute('data-variant');
+    var size=el.getAttribute('data-size');
+    var svg=builders[name](v);
+    if(size){ el.style.width=size+'px'; el.style.height=size+'px'; }
+    el.innerHTML=svg;
+  });
+
+  /* Size ramps */
+  document.querySelectorAll('[data-ramp]').forEach(function(el){
+    var name=el.getAttribute('data-ramp');
+    var sizes=[16,24,32,64,128,256];
+    sizes.forEach(function(sz){
+      var item=document.createElement('div');
+      item.className='item';
+      var holder=document.createElement('div');
+      holder.style.width=sz+'px';
+      holder.style.height=sz+'px';
+      holder.style.display='flex';holder.style.alignItems='center';holder.style.justifyContent='center';
+      holder.innerHTML=builders[name]('gradient');
+      item.appendChild(holder);
+      var lab=document.createElement('span');lab.textContent=sz+'px';item.appendChild(lab);
+      el.appendChild(item);
+    });
+  });
+
+  /* Lockups */
+  document.querySelectorAll('[data-lockup]').forEach(function(el){
+    var name=el.getAttribute('data-lockup');
+    var layout=el.getAttribute('data-layout');
+    var onInk=el.getAttribute('data-onink')==='1';
+    var icon=document.createElement('div');
+    icon.style.width='52px';icon.style.height='52px';icon.style.flexShrink='0';
+    icon.innerHTML=builders[name](onInk?'white':'gradient');
+    var txt=document.createElement('div');
+    txt.style.fontFamily="var(--display)";
+    txt.innerHTML='<div class="wordmark'+(onInk?'':'')+'"><span class="a">An</span><span class="rest">Pharmacy</span></div>'+
+      '<div class="tagline '+(onInk?'onink':'light')+'">Every Medicine. Under Control.</div>';
+    if(onInk){ txt.querySelector('.rest').style.color='#fff'; txt.querySelector('.tagline').style.color='rgba(255,255,255,.7)'; }
+    else { txt.querySelector('.rest').style.color='#0A0F1E'; txt.querySelector('.tagline').style.color='#94a3b8'; }
+    if(layout==='h'){ el.appendChild(icon); el.appendChild(txt); }
+    else { el.appendChild(icon); var sp=document.createElement('div');sp.style.height='12px';el.appendChild(sp); el.appendChild(txt); }
+  });
+})();
+</script>
+</body>
+</html>

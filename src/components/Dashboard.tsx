@@ -25,7 +25,7 @@ function getMonthLabel(d: Date): string { return MONTHS[d.getMonth()]; }
 function daysFromNow(d: Date): number { return Math.round((d.getTime() - Date.now()) / 86400000); }
 
   const KPI_STYLES = {
-    primary: { accent: 'from-accent to-emerald-600', iconBg: 'bg-accent-light text-accent dark:bg-accent/20 dark:text-emerald-300', border: 'border-accent/20' },
+    primary: { accent: 'from-accent to-[#FF5A8D]', iconBg: 'bg-accent-light text-accent dark:bg-accent/20 dark:text-accent', border: 'border-accent/20' },
     warning: { accent: 'from-amber-500 to-amber-400', iconBg: 'bg-warning-light text-warning dark:bg-warning/20 dark:text-amber-300', border: 'border-warning/20' },
     danger: { accent: 'from-red-500 to-red-400', iconBg: 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-red-300', border: 'border-destructive/20' },
     muted: { accent: 'from-slate-400 to-slate-300', iconBg: 'bg-muted text-muted-foreground', border: 'border-border' },
@@ -261,28 +261,28 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             <div
               key={index}
               className={cn(
-                'card-elevated overflow-hidden group hover:-translate-y-0.5 transition-all duration-200 relative',
+                'group relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg',
                 animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}
               style={{ transitionDelay: `${index * 60}ms` }}
             >
-              <div className={cn('h-1 w-full bg-gradient-to-r', styles.accent)} />
-              <div className="p-5 relative">
-                <div className="flex items-start justify-between mb-3">
-                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pt-1">{card.label}</span>
-                  <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 group-hover:scale-110 group-hover:shadow-md flex-shrink-0', styles.iconBg)}>
-                    <Icon className="w-5 h-5" />
+              <div className={cn('pointer-events-none absolute -top-14 -right-10 h-36 w-36 rounded-full bg-gradient-to-br opacity-[0.12] blur-2xl transition-opacity duration-300 group-hover:opacity-25', styles.accent)} />
+              <div className="relative">
+                <div className="flex items-start justify-between mb-4">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pt-1">{card.label}</span>
+                  <div className={cn('flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm transition-transform duration-200 group-hover:scale-110', styles.accent)}>
+                    <Icon className="h-5 w-5" />
                   </div>
                 </div>
                 <p className="text-3xl font-bold text-foreground font-data tabular-nums leading-none">{card.value}</p>
-                <div className="flex items-center gap-1.5 mt-3">
+                <div className="mt-3 flex items-center gap-1.5">
                   {'delta' in card ? (
                     <>
                       <span className={cn(
                         'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[11px] font-semibold',
                         card.deltaUp ? 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:bg-red-400/10 dark:text-red-400'
                       )}>
-                        <ArrowUpRight className={cn('w-3 h-3', !card.deltaUp && 'rotate-90')} />
+                        <ArrowUpRight className={cn('h-3 w-3', !card.deltaUp && 'rotate-90')} />
                         {card.delta}
                       </span>
                       <span className="text-[11px] text-muted-foreground">{card.footer}</span>

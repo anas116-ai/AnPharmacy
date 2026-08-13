@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useStockStore } from '../stores/stockStore';
-import { Search, Package, Calendar, Building2, AlertCircle, X, ChevronRight, Filter, Box, Upload, MapPin, AlertTriangle, Table2, LayoutGrid, RefreshCw, Activity } from 'lucide-react';
+import { Search, Package, Calendar, Building2, AlertCircle, X, ChevronRight, Filter, Box, Upload, MapPin, AlertTriangle, Table2, LayoutGrid, RefreshCw, Activity, SlidersHorizontal } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
@@ -12,6 +12,17 @@ import { useToast } from '../hooks/useToast';
 import FileImportDialog from './FileImportDialog';
 import { ImportedMedicineRow } from '../lib/fileImporter';
 import StockEditor from './StockEditor';
+
+const STOCK_FONTS: { label: string; value: string; stack: string }[] = [
+  { label: 'Inter', value: 'Inter', stack: "'Inter', system-ui, sans-serif" },
+  { label: 'Manrope', value: 'Manrope', stack: "'Manrope', system-ui, sans-serif" },
+  { label: 'Poppins', value: 'Poppins', stack: "'Poppins', system-ui, sans-serif" },
+  { label: 'Space Grotesk', value: 'Space Grotesk', stack: "'Space Grotesk', system-ui, sans-serif" },
+  { label: 'DM Sans', value: 'DM Sans', stack: "'DM Sans', system-ui, sans-serif" },
+  { label: 'Sora', value: 'Sora', stack: "'Sora', system-ui, sans-serif" },
+  { label: 'Roboto', value: 'Roboto', stack: "'Roboto', system-ui, sans-serif" },
+  { label: 'Plus Jakarta', value: 'Plus Jakarta Sans', stack: "'Plus Jakarta Sans', system-ui, sans-serif" },
+];
 
 export default function StockManagement() {
   const { medicines, setMedicines } = useStockStore();
@@ -31,6 +42,33 @@ export default function StockManagement() {
   const [viewMode, setViewMode] = useState<'editor' | 'cards'>('editor');
   const [displayLimit, setDisplayLimit] = useState(50);
   const PAGE_SIZE = 50;
+
+  // Stock display customization (Settings for the data-dense stock screen)
+  const [showDisplayMenu, setShowDisplayMenu] = useState(false);
+  const [stockFontScale, setStockFontScale] = useState(1);
+  const [stockDensity, setStockDensity] = useState<'compact' | 'standard' | 'comfortable'>('standard');
+  const [stockFontFamily, setStockFontFamily] = useState('Inter');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('anpharm_stock_display');
+      if (saved) {
+        const prefs = JSON.parse(saved);
+        setStockFontScale(prefs.fontScale || 1);
+        setStockDensity(prefs.density || 'standard');
+        if (prefs.fontFamily) setStockFontFamily(prefs.fontFamily);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('anpharm_stock_display', JSON.stringify({ fontScale: stockFontScale, density: stockDensity, fontFamily: stockFontFamily }));
+    } catch {}
+  }, [stockFontScale, stockDensity, stockFontFamily]);
+
+  const stockFontStack =
+    STOCK_FONTS.find((f) => f.value === stockFontFamily)?.stack ?? "'Inter', system-ui, sans-serif";
 
   // Use a ref to track first mount — prevents the save effect from firing on initial load
   // which could overwrite values just restored from localStorage
@@ -358,6 +396,98 @@ export default function StockManagement() {
               </button>
             </div>
 
+            {/* Display options — text size & row density for large inventories */}
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setShowDisplayMenu(v => !v)}
+                className={cn(
+                  'h-11 px-3 rounded-xl text-xs font-medium border transition-all duration-200 flex items-center gap-1.5',
+                  showDisplayMenu
+                    ? 'bg-accent/10 border-accent/40 text-accent'
+                    : 'bg-background border-border text-muted-foreground hover:border-accent/40'
+                )}
+                title="Display options: text size & row density"
+                aria-expanded={showDisplayMenu}
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                <span className="hidden sm:inline">Display</span>
+              </button>
+
+              {showDisplayMenu && (
+                <div className="absolute right-0 top-full mt-2 w-72 bg-card border border-border rounded-2xl shadow-xl dark:shadow-slate-900/50 z-30 p-4 space-y-4 animate-scale-in">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Text Size</p>
+                    <div className="flex gap-1.5">
+                      {([
+                        { v: 1, label: 'S' },
+                        { v: 1.1, label: 'M' },
+                        { v: 1.2, label: 'L' },
+                      ]).map(opt => (
+                        <button
+                          key={opt.v}
+                          onClick={() => setStockFontScale(opt.v)}
+                          className={cn(
+                            'flex-1 py-2 rounded-lg border text-xs font-semibold transition-all duration-200 cursor-pointer',
+                            stockFontScale === opt.v
+                              ? 'border-accent/60 bg-accent/10 text-accent'
+                              : 'border-border text-muted-foreground hover:border-accent/40'
+                          )}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Font Family</p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {STOCK_FONTS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => setStockFontFamily(opt.value)}
+                          style={{ fontFamily: opt.stack }}
+                          className={cn(
+                            'py-2 rounded-lg border text-xs font-medium transition-all duration-200 cursor-pointer',
+                            stockFontFamily === opt.value
+                              ? 'border-accent/60 bg-accent/10 text-accent'
+                              : 'border-border text-muted-foreground hover:border-accent/40'
+                          )}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Row Density</p>
+                    <div className="flex gap-1.5">
+                      {([
+                        { v: 'compact' as const, label: 'Compact' },
+                        { v: 'standard' as const, label: 'Standard' },
+                        { v: 'comfortable' as const, label: 'Comfortable' },
+                      ]).map(opt => (
+                        <button
+                          key={opt.v}
+                          onClick={() => setStockDensity(opt.v)}
+                          className={cn(
+                            'flex-1 py-2 rounded-lg border text-xs font-medium transition-all duration-200 cursor-pointer',
+                            stockDensity === opt.v
+                              ? 'border-accent/60 bg-accent/10 text-accent'
+                              : 'border-border text-muted-foreground hover:border-accent/40'
+                          )}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground border-t border-border pt-3">
+                    Applied instantly and saved for next time — perfect for working through thousands of records.
+                  </p>
+                </div>
+              )}
+            </div>
+
             <Button
               variant="outline-teal"
               size="sm"
@@ -542,7 +672,9 @@ export default function StockManagement() {
 
       {/* Main Content Area */}
       {viewMode === 'editor' ? (
-        <StockEditor medicines={medicines} onUpdate={handleStockEditorUpdate} externalSearchQuery={searchQuery} />
+        <div style={{ zoom: stockFontScale, fontFamily: stockFontStack }}>
+          <StockEditor medicines={medicines} onUpdate={handleStockEditorUpdate} externalSearchQuery={searchQuery} />
+        </div>
       ) : (
         <>
           <div className="flex items-center justify-between">
@@ -570,7 +702,7 @@ export default function StockManagement() {
           </div>
 
           {/* Stock List - Card View */}
-          <div className="space-y-3">
+          <div className="space-y-3" style={{ ...(stockFontScale !== 1 ? { zoom: stockFontScale } : {}), fontFamily: stockFontStack }}>
             {filteredMedicines.length === 0 ? (
               <Card variant="bordered" role="status">
                 <CardContent className="p-12 text-center">
@@ -585,9 +717,10 @@ export default function StockManagement() {
                   key={medicine.id}
                   onClick={() => setSelectedMedicine(medicine)}
                   className={cn(
-                    'bg-card rounded-2xl border border-border shadow-sm p-5 cursor-pointer',
+                    'bg-card rounded-2xl border border-border shadow-sm cursor-pointer',
                     'hover:border-accent/40 hover:shadow-md transition-all duration-200',
-                    'group'
+                    'group',
+                    stockDensity === 'compact' ? 'p-4' : stockDensity === 'comfortable' ? 'p-6' : 'p-5'
                   )}
                 >
                   <div className="flex items-start justify-between">

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AnPharmacy — Logo Showcase · Symbol + Wordmark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --deep: #990066;
+    --magenta: #D4148C;
+    --coral: #FF5A8D;
+    --ink: #0A0F1E;
+    --ink-2: #101E38;
+    --paper: #FFFFFF;
+    --paper-2: #F7F8FA;
+    --grad: linear-gradient(135deg, #990066 0%, #D4148C 50%, #FF5A8D 100%);
+    --grad-soft: linear-gradient(135deg, #990066 0%, #D4148C 52%, #FF5A8D 100%);
+    --font-display: 'Plus Jakarta Sans', system-ui, 'Segoe UI', sans-serif;
+    --font-body: 'Inter', system-ui, 'Segoe UI', sans-serif;
+    --muted: #5b6478;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--ink);
+    background: var(--paper-2);
+    background-image:
+      radial-gradient(60% 50% at 15% 0%, rgba(212,20,140,0.10), transparent 60%),
+      radial-gradient(50% 45% at 100% 10%, rgba(255,90,141,0.10), transparent 60%),
+      radial-gradient(40% 40% at 50% 100%, rgba(153,0,102,0.08), transparent 60%);
+    background-attachment: fixed;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- shared mark rendering ---------- */
+  .mark { display: block; width: 100%; height: 100%; }
+  .wordmark {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    line-height: 1;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: baseline;
+  }
+  .wordmark .an {
+    font-weight: 700;
+    background-image: var(--grad-soft);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .wordmark .rest { font-weight: 300; }
+  .wordmark.on-dark .rest { color: var(--paper); }
+  .wordmark.on-light .rest { color: var(--ink); }
+  .tagline {
+    font-family: var(--font-body);
+    font-size: 0.72em;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  /* ---------- layout ---------- */
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px 96px; }
+
+  header.masthead {
+    padding: 64px 22px 28px;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-body);
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--magenta);
+    background: rgba(212,20,140,0.08);
+    border: 1px solid rgba(212,20,140,0.18);
+    padding: 6px 12px; border-radius: 999px;
+  }
+  .eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--grad); }
+  h1.title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(30px, 6vw, 56px);
+    line-height: 1.04;
+    margin: 18px 0 10px;
+    letter-spacing: -0.02em;
+  }
+  .lede { max-width: 620px; color: var(--muted); font-size: 16px; }
+
+  section { margin-top: 56px; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+  .sec-head h2 {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 20px; margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .sec-head .idx {
+    font-family: var(--font-body); font-weight: 600; font-size: 13px;
+    color: var(--magenta); letter-spacing: 0.04em;
+  }
+  .sec-head p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  /* hero lockup card */
+  .hero-card {
+    background: var(--paper);
+    border: 1px solid rgba(16,30,56,0.08);
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 24px 60px -28px rgba(16,30,56,0.25);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 36px;
+    align-items: center;
+  }
+  .hero-lockup { display: flex; align-items: center; gap: 22px; }
+  .hero-lockup .icon-tile { width: 96px; height: 96px; flex: none; }
+  .hero-lockup .wm { font-size: 46px; }
+  .hero-side { border-left: 1px solid rgba(16,30,56,0.08); padding-left: 32px; }
+  .hero-side h3 { font-family: var(--font-display); font-weight: 700; margin: 0 0 8px; font-size: 18px; }
+  .hero-side p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  /* presentation panels */
+  .panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .panel { border-radius: 20px; padding: 34px 26px; display: flex; flex-direction: column; gap: 20px; min-height: 220px; justify-content: center; }
+  .panel .label { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
+  .panel.light { background: var(--paper); border: 1px solid rgba(16,30,56,0.08); }
+  .panel.light .label { color: var(--muted); }
+  .panel.dark { background: var(--ink); }
+  .panel.dark .label { color: rgba(255,255,255,0.55); }
+  .panel.gradient { background: var(--grad); }
+  .panel.gradient .label { color: rgba(255,255,255,0.8); }
+  .panel .row { display: flex; align-items: center; gap: 14px; }
+  .panel .row .icon { width: 46px; height: 46px; flex: none; }
+  .panel .row .wm { font-size: 26px; }
+
+  /* symbol studies */
+  .studies { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; }
+  .study {
+    border-radius: 20px; padding: 30px; display: flex; flex-direction: column; gap: 18px;
+    border: 1px solid rgba(16,30,56,0.08);
+  }
+  .study.bg-ink { background: var(--ink); }
+  .study.bg-grad { background: var(--grad); }
+  .study.bg-paper { background: var(--paper); }
+  .study .bigmark { width: 120px; height: 120px; }
+  .study h4 { font-family: var(--font-display); margin: 0; font-weight: 700; font-size: 16px; }
+  .study.bg-ink h4, .study.bg-grad h4 { color: #fff; }
+  .study p { margin: 0; font-size: 13.5px; }
+  .study.bg-ink p, .study.bg-grad p { color: rgba(255,255,255,0.78); }
+  .study.bg-paper p { color: var(--muted); }
+  .double-meaning { background: var(--paper); }
+
+  /* size ramp */
+  .ramp { background: var(--paper); border: 1px solid rgba(16,30,56,0.08); border-radius: 20px; padding: 30px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 30px 34px; }
+  .ramp .item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .ramp .item .box { width: 280px; max-width: 100%; height: auto; min-height: 280px; display: flex; align-items: center; justify-content: center; background: var(--paper-2); border-radius: 12px; }
+  .ramp .item .px { width: var(--s); height: var(--s); }
+  .ramp .item .n { font-family: var(--font-body); font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  /* icon tiles */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; }
+  .tile-card { background: var(--paper); border: 1px solid rgba(16,30,56,0.08); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .app-tile { border-radius: 22px; background: var(--grad); display: flex; align-items: center; justify-content: center; box-shadow: 0 18px 40px -20px rgba(153,0,102,0.55); }
+  .app-tile .mark { padding: 22%; }
+  .tile-card .cap { font-family: var(--font-body); font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  /* monochrome */
+  .mono { background: var(--paper); border: 1px solid rgba(16,30,56,0.08); border-radius: 20px; padding: 30px; display: flex; align-items: center; gap: 36px; flex-wrap: wrap; }
+  .mono .ink-mark { width: 64px; height: 64px; color: var(--ink); }
+  .mono .lock { display: flex; align-items: center; gap: 14px; }
+  .mono .lock .icon { width: 44px; height: 44px; color: var(--ink); }
+  .mono .lock .wm { font-size: 26px; }
+  .mono .lock .wm .an, .mono .lock .wm .rest { color: var(--ink); -webkit-text-fill-color: var(--ink); background: none; }
+
+  /* lockups */
+  .lockups { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .lockup-card { background: var(--paper); border: 1px solid rgba(16,30,56,0.08); border-radius: 20px; padding: 34px; display: flex; flex-direction: column; gap: 16px; align-items: center; justify-content: center; min-height: 200px; }
+  .lockup-card .stacked { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .lockup-card .stacked .icon { width: 84px; height: 84px; }
+  .lockup-card .stacked .wm { font-size: 34px; }
+  .lockup-card .horiz { display: flex; align-items: center; gap: 18px; }
+  .lockup-card .horiz .icon { width: 64px; height: 64px; }
+  .lockup-card .horiz .wm { font-size: 34px; }
+  .lockup-card .k { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+
+  /* do / don't */
+  .dodont { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .dn-card { border-radius: 20px; padding: 26px 28px; border: 1px solid rgba(16,30,56,0.08); }
+  .dn-card.do { background: linear-gradient(180deg, rgba(212,20,140,0.06), rgba(255,90,141,0.04)); }
+  .dn-card.dont { background: var(--paper); }
+  .dn-card h4 { font-family: var(--font-display); margin: 0 0 14px; font-size: 16px; display: flex; align-items: center; gap: 10px; }
+  .dn-card.do h4 { color: var(--magenta); }
+  .dn-card.dont h4 { color: #b4234a; }
+  .dn-card ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .dn-card li { display: flex; gap: 12px; font-size: 14px; color: #2a3142; align-items: flex-start; }
+  .dn-card li .ic { flex: none; width: 20px; height: 20px; margin-top: 1px; }
+  .dn-card.do li .ic { color: var(--magenta); }
+  .dn-card.dont li .ic { color: #b4234a; }
+  .dn-card.dont .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; }
+
+  footer { max-width: 1080px; margin: 72px auto 0; padding: 26px 22px; color: var(--muted); font-size: 12.5px; border-top: 1px solid rgba(16,30,56,0.08); }
+
+  @media (max-width: 760px) {
+    .hero-card { grid-template-columns: 1fr; }
+    .hero-side { border-left: none; padding-left: 0; border-top: 1px solid rgba(16,30,56,0.08); padding-top: 22px; }
+    .panels, .studies, .lockups, .dodont { grid-template-columns: 1fr; }
+    .ramp { gap: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== reusable mark definition (inline SVG, single source of truth) ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brandGrad" gradientUnits="userSpaceOnUse" x1="20" y1="14" x2="82" y2="88">
+      <stop offset="0%" stop-color="#990066" />
+      <stop offset="52%" stop-color="#D4148C" />
+      <stop offset="100%" stop-color="#FF5A8D" />
+    </linearGradient>
+    <!-- the "Pulse Cross": a medical cross whose crossbar is an ECG heartbeat line -->
+    <g id="markPaths">
+      <path d="M50 22 L50 78" />
+      <path d="M22 50 L38 50 L43 50 L47 36 L53 64 L57 50 L62 50 L78 50" />
+    </g>
+    <symbol id="mGrad" viewBox="0 0 100 100">
+      <use href="#markPaths" stroke="url(#brandGrad)" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="mWhite" viewBox="0 0 100 100">
+      <use href="#markPaths" stroke="#ffffff" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="mInk" viewBox="0 0 100 100">
+      <use href="#markPaths" stroke="currentColor" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+  </defs>
+</svg>
+
+<header class="masthead">
+  <span class="eyebrow"><span class="dot"></span> Variant 2 · Symbol + Wordmark</span>
+  <h1 class="title">AnPharmacy — Pulse Cross</h1>
+  <p class="lede">A refined pharmacy-plus-tech mark: a medical cross whose crossbar resolves into a heartbeat line, so a single stroke reads as <strong>care</strong> and a <strong>rising health trend</strong>. Paired with the Plus&nbsp;Jakarta Sans wordmark for a professional, traditional-brand lockup.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- HERO LOCKUP -->
+  <div class="hero-card">
+    <div class="hero-lockup">
+      <svg class="icon-tile mark" viewBox="0 0 100 100" aria-label="AnPharmacy symbol"><use href="#mGrad" /></svg>
+      <span class="wordmark on-light wm"><span class="an">An</span><span class="rest">Pharmacy</span></span>
+    </div>
+    <div class="hero-side">
+      <h3>The lockup</h3>
+      <p>Symbol left, wordmark right — the easiest placement for non-designers. Scales cleanly from a 16&nbsp;px favicon to a large hero mark while keeping the gradient voice.</p>
+    </div>
+  </div>
+
+  <!-- 1. PRESENTATIONS -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">01</span>
+      <h2>Background presentations</h2>
+      <p>Light · Dark · Gradient — the lockup holds on every surface.</p>
+    </div>
+    <div class="panels">
+      <div class="panel light">
+        <span class="label">On paper</span>
+        <div class="row">
+          <svg class="icon mark" viewBox="0 0 100 100"><use href="#mGrad" /></svg>
+          <span class="wordmark on-light wm"><span class="an">An</span><span class="rest">Pharmacy</span></span>
+        </div>
+      </div>
+      <div class="panel dark">
+        <span class="label">On ink</span>
+        <div class="row">
+          <svg class="icon mark" viewBox="0 0 100 100"><use href="#mGrad" /></svg>
+          <span class="wordmark on-dark wm"><span class="an">An</span><span class="rest">Pharmacy</span></span>
+        </div>
+      </div>
+      <div class="panel gradient">
+        <span class="label">On brand gradient</span>
+        <div class="row">
+          <svg class="icon mark" viewBox="0 0 100 100"><use href="#mWhite" /></svg>
+          <span class="wordmark on-dark wm"><span class="an" style="color:#fff;-webkit-text-fill-color:#fff;background:none;">An</span><span class="rest">Pharmacy</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. SYMBOL STUDIES -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">02</span>
+      <h2>The symbol</h2>
+      <p>One stroke, two meanings — the memorable idea.</p>
+    </div>
+    <div class="studies">
+      <div class="study bg-paper double-meaning">
+        <svg class="bigmark mark" viewBox="0 0 100 100"><use href="#mGrad" /></svg>
+        <h4>The double meaning</h4>
+        <p>The vertical stroke and the flat ends of the crossbar form a clean <strong>medical cross</strong>. The center of that same bar spikes into a heartbeat — reading as both a pulse and an <strong>upward trend</strong>. Health, and intelligent software that moves it upward.</p>
+      </div>
+      <div class="study bg-ink">
+        <svg class="bigmark mark" viewBox="0 0 100 100"><use href="#mGrad" /></svg>
+        <h4>On dark surfaces</h4>
+        <p>The gradient retains its warm-premium glow against ink <code style="color:#FF5A8D">#0A0F1E</code>, so the mark never goes clinical-cold.</p>
+      </div>
+      <div class="study bg-grad">
+        <svg class="bigmark mark" viewBox="0 0 100 100"><use href="#mWhite" /></svg>
+        <h4>As a white glyph</h4>
+        <p>Inverted to white inside the gradient tile, the Pulse Cross becomes the app icon — the tile carries the brand, the stroke stays legible at 32&nbsp;px.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. SIZE RAMP -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">03</span>
+      <h2>Size ramp</h2>
+      <p>16 → 256 px. The cross reads at every scale; the pulse stays crisp.</p>
+    </div>
+    <div class="ramp">
+      <div class="item"><div class="box"><svg class="px mark" style="--s:16px" viewBox="0 0 100 100"><use href="#mGrad" /></svg></div><span class="n">16 px</span></div>
+      <div class="item"><div class="box"><svg class="px mark" style="--s:24px" viewBox="0 0 100 100"><use href="#mGrad" /></svg></div><span class="n">24 px</span></div>
+      <div class="item"><div class="box"><svg class="px mark" style="--s:32px" viewBox="0 0 100 100"><use href="#mGrad" /></svg></div><span class="n">32 px</span></div>
+      <div class="item"><div class="box"><svg class="px mark" style="--s:64px" viewBox="0 0 100 100"><use href="#mGrad" /></svg></div><span class="n">64 px</span></div>
+      <div class="item"><div class="box"><svg class="px mark" style="--s:128px" viewBox="0 0 100 100"><use href="#mGrad" /></svg></div><span class="n">128 px</span></div>
+      <div class="item"><div class="box"><svg class="px mark" style="--s:256px;max-width:100%" viewBox="0 0 100 100"><use href="#mGrad" /></svg></div><span class="n">256 px</span></div>
+    </div>
+  </section>
+
+  <!-- 4. APP ICON / FAVICON -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">04</span>
+      <h2>App icon &amp; favicon</h2>
+      <p>Rounded-square tile, mark centered — the standalone glyph.</p>
+    </div>
+    <div class="tiles">
+      <div class="tile-card"><div class="app-tile" style="width:128px;height:128px"><svg class="mark" viewBox="0 0 100 100"><use href="#mWhite" /></svg></div><span class="cap">128 px · macOS / store</span></div>
+      <div class="tile-card"><div class="app-tile" style="width:64px;height:64px"><svg class="mark" viewBox="0 0 100 100"><use href="#mWhite" /></svg></div><span class="cap">64 px · taskbar</span></div>
+      <div class="tile-card"><div class="app-tile" style="width:32px;height:32px"><svg class="mark" viewBox="0 0 100 100"><use href="#mWhite" /></svg></div><span class="cap">32 px · favicon</span></div>
+      <div class="tile-card"><div class="app-tile" style="width:16px;height:16px"><svg class="mark" viewBox="0 0 100 100"><use href="#mWhite" /></svg></div><span class="cap">16 px · favicon</span></div>
+    </div>
+  </section>
+
+  <!-- 5. MONOCHROME -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">05</span>
+      <h2>Monochrome</h2>
+      <p>Single ink color for stamps, letterheads and one-color print.</p>
+    </div>
+    <div class="mono">
+      <svg class="ink-mark mark" viewBox="0 0 100 100"><use href="#mInk" /></svg>
+      <div class="lock">
+        <svg class="icon mark" viewBox="0 0 100 100"><use href="#mInk" /></svg>
+        <span class="wordmark wm"><span class="an">An</span><span class="rest">Pharmacy</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. LOCKUPS -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">06</span>
+      <h2>Wordmark lockups</h2>
+      <p>Horizontal and stacked, with tagline.</p>
+    </div>
+    <div class="lockups">
+      <div class="lockup-card">
+        <span class="k">Horizontal</span>
+        <div class="horiz">
+          <svg class="icon mark" viewBox="0 0 100 100"><use href="#mGrad" /></svg>
+          <span class="wordmark on-light wm"><span class="an">An</span><span class="rest">Pharmacy</span></span>
+        </div>
+      </div>
+      <div class="lockup-card">
+        <span class="k">Stacked</span>
+        <div class="stacked">
+          <svg class="icon mark" viewBox="0 0 100 100"><use href="#mGrad" /></svg>
+          <span class="wordmark on-light wm"><span class="an">An</span><span class="rest">Pharmacy</span></span>
+          <span class="tagline">Intelligent Pharmacy Management</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. DO / DON'T -->
+  <section>
+    <div class="sec-head">
+      <span class="idx">07</span>
+      <h2>Do / Don't</h2>
+      <p>Keep the mark honest to the system.</p>
+    </div>
+    <div class="dodont">
+      <div class="dn-card do">
+        <h4>
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          Do
+        </h4>
+        <ul>
+          <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Keep the symbol and wordmark together with clear space equal to the cap height of “A”.</li>
+          <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Use the brand gradient or solid ink only — both stay in-family.</li>
+          <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Invert to white inside the gradient tile for app icons.</li>
+          <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Respect the proportions — scale the whole lockup as one unit.</li>
+        </ul>
+      </div>
+      <div class="dn-card dont">
+        <h4>
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          Don't
+        </h4>
+        <ul>
+          <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg> <span>Recolor outside the magenta→coral family <span class="swatch" style="background:#2f6df6"></span><span class="swatch" style="background:#1faa59"></span> (no blue/green).</span></li>
+          <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Stretch, skew, or rotate the mark to “fit” a space.</li>
+          <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Re-architect the crossbar back into a plain line — the pulse is the idea.</li>
+          <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Add drop shadows, outlines, or glows the brief didn’t ask for.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  AnPharmacy · Logo showcase — Variant 2 (Symbol + Wordmark), “Pulse Cross”. Self-contained, offline-renderable HTML. Mark is inline SVG; no external image services used.
+</footer>
+
+</body>
+</html>

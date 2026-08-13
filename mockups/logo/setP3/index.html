@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AnPharmacy — Wordmark Combinations · Set P3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Montserrat:wght@400;500;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;600;700;800&family=Saira+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --mag-deep:#990066;
+    --mag:#D4148C;
+    --coral:#FF5A8D;
+    --brand-grad:linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
+    --brand-grad-strong:linear-gradient(135deg,#990066 0%,#D4148C 100%);
+    --brand-grad-coral:linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
+    --ink:#0A0F1E;
+    --ink-2:#101E38;
+    --paper:#FFFFFF;
+    --paper-2:#F7F8FA;
+    --sans:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--body);
+    background:var(--paper-2);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    line-height:1.5;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  /* ── Gradient text helpers ──
+     Strong 2-stop (magenta→magenta) for light paper = max contrast.
+     Coral 3-stop reserved for dark / gradient panels. */
+  .grad-text{
+    background-image:var(--brand-grad-strong);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .grad-text-coral{
+    background-image:var(--brand-grad-coral);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  /* ── Page header ── */
+  .masthead{
+    background:var(--ink);
+    background-image:radial-gradient(120% 140% at 0% 0%, #101E38 0%, #0A0F1E 60%);
+    color:#fff;
+    padding:72px 0 64px;
+    position:relative;
+    overflow:hidden;
+  }
+  .masthead::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(153,0,102,.22),rgba(255,90,141,.10));
+    mix-blend-mode:screen;pointer-events:none;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.22em;
+    text-transform:uppercase;color:#FF8FB6;
+    border:1px solid rgba(255,90,141,.35);border-radius:999px;
+    padding:6px 14px;margin-bottom:22px;position:relative;z-index:1;
+  }
+  .masthead h1{
+    font-family:var(--sans);font-weight:800;font-size:clamp(34px,6vw,58px);
+    letter-spacing:-.02em;line-height:1.05;position:relative;z-index:1;
+  }
+  .masthead h1 .grad-text{background-image:linear-gradient(135deg,#FF5A8D,#D4148C,#FF8FB6);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .masthead p{
+    max-width:640px;margin-top:18px;color:rgba(255,255,255,.7);font-size:15px;
+    position:relative;z-index:1;
+  }
+
+  /* ── Section scaffolding ── */
+  section{padding:64px 0;}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:34px;flex-wrap:wrap;}
+  .sec-head .t{font-family:var(--sans);font-weight:800;font-size:22px;letter-spacing:-.01em;}
+  .sec-head .s{font-size:13px;color:#6b7280;max-width:480px;text-align:right;}
+
+  /* ── Concept grid ── */
+  .grid8{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;}
+  @media(max-width:760px){.grid8{grid-template-columns:1fr;}}
+
+  .card{
+    background:#fff;border:1px solid #ECECF1;border-radius:18px;overflow:hidden;
+    box-shadow:0 1px 2px rgba(16,30,56,.04),0 14px 36px -22px rgba(16,30,56,.22);
+    display:flex;flex-direction:column;
+    transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:0 2px 4px rgba(16,30,56,.06),0 26px 54px -26px rgba(153,0,102,.34);}
+  .card .stage{
+    padding:46px 30px;display:flex;align-items:center;justify-content:center;
+    min-height:150px;border-bottom:1px solid #F1F1F5;position:relative;
+  }
+  .card .stage.light{background:var(--paper-2);}
+  .card .stage.dark{background:var(--ink);}
+  .card .stage.grad{background:var(--brand-grad);}
+  .wm{font-size:clamp(30px,5.4vw,46px);letter-spacing:-.02em;white-space:nowrap;}
+  .wm .an{font-weight:700;}
+  .wm .cy{font-weight:600;}
+
+  .meta{padding:18px 22px 20px;}
+  .meta .id{font-family:var(--sans);font-weight:800;font-size:13px;letter-spacing:.04em;color:var(--mag-deep);}
+  .meta .id b{color:var(--ink);}
+  .meta .desc{margin-top:6px;font-size:13.5px;color:#4b5563;line-height:1.45;}
+  .meta .spec{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;}
+  .tag{
+    font-size:11px;font-weight:600;letter-spacing:.03em;color:#6b7280;
+    background:#F4F4F8;border:1px solid #ECECF1;border-radius:7px;padding:4px 9px;
+  }
+  .tag.acc{color:var(--mag-deep);background:#FBEEF5;border-color:#F6D9E7;}
+
+  /* ── Panels row ── */
+  .panels{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  @media(max-width:860px){.panels{grid-template-columns:1fr;}}
+  .panel{border-radius:16px;overflow:hidden;border:1px solid #E7E7EC;box-shadow:0 18px 40px -28px rgba(16,30,56,.3);}
+  .panel .cap{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:13px 18px;border-bottom:1px solid rgba(0,0,0,.05);background:#fff;color:#374151;}
+  .panel .body{display:flex;align-items:center;justify-content:center;padding:54px 20px;min-height:170px;}
+  .panel.light .body{background:var(--paper-2);}
+  .panel.dark .body{background:var(--ink);}
+  .panel.grad .body{background:var(--brand-grad);}
+  .panel .wm{font-size:clamp(26px,4.2vw,38px);}
+
+  /* ── App header mock ── */
+  .appbar{
+    display:flex;align-items:center;justify-content:space-between;gap:18px;
+    border-radius:16px;padding:0 20px;height:60px;
+    background:var(--brand-grad);
+    box-shadow:0 18px 44px -22px rgba(153,0,102,.6);
+  }
+  .appbar .wm-h{font-family:'Space Grotesk',var(--sans);font-weight:600;font-size:22px;letter-spacing:-.01em;color:#fff;}
+  .appbar .nav{display:flex;gap:22px;align-items:center;}
+  .appbar .nav a{color:rgba(255,255,255,.85);text-decoration:none;font-size:13px;font-weight:500;font-family:var(--sans);}
+  .appbar .pill{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:600;color:#fff;font-family:var(--sans);}
+  @media(max-width:620px){.appbar .nav{display:none;}}
+
+  .appbar-ghost{
+    display:flex;align-items:center;gap:14px;
+    border-radius:14px;padding:0 18px;height:52px;
+    background:#fff;border:1px solid #ECECF1;box-shadow:0 12px 30px -22px rgba(16,30,56,.25);
+  }
+  .appbar-ghost .wm-h{font-family:'Plus Jakarta Sans',var(--sans);font-weight:800;font-size:20px;letter-spacing:-.01em;}
+
+  /* ── Hero band ── */
+  .hero-band{background:var(--ink);background-image:radial-gradient(130% 160% at 100% 0%,#16244a 0%,#0A0F1E 62%);border-radius:22px;padding:56px 44px;color:#fff;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:30px;flex-wrap:wrap;}
+  .hero-band::before{content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;background:var(--brand-grad);opacity:.22;filter:blur(8px);}
+  .hero-band .lock{position:relative;z-index:1;}
+  .hero-band .wm{font-size:clamp(40px,7vw,76px);}
+  .hero-band .tagline{margin-top:14px;font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:#FF8FB6;}
+  .hero-band .chip{position:relative;z-index:1;font-family:var(--sans);font-size:12px;letter-spacing:.04em;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:10px 16px;}
+
+  /* ── Monochrome ── */
+  .mono-row{display:flex;gap:26px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #ECECF1;border-radius:16px;padding:46px 40px;box-shadow:0 16px 40px -28px rgba(16,30,56,.28);}
+  .mono-row .wm{color:var(--ink);font-size:clamp(30px,5vw,54px);}
+
+  /* ── Do / Don't ── */
+  .dd{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media(max-width:720px){.dd{grid-template-columns:1fr;}}
+  .dd .col{border-radius:16px;padding:26px 26px 30px;border:1px solid #E7E7EC;background:#fff;}
+  .dd .col h3{font-family:var(--sans);font-weight:800;font-size:15px;letter-spacing:.02em;margin-bottom:16px;display:flex;align-items:center;gap:9px;}
+  .dd .do h3{color:#D4148C;}
+  .dd .dont h3{color:#990066;}
+  .dd ul{list-style:none;display:flex;flex-direction:column;gap:13px;}
+  .dd li{font-size:13.5px;color:#374151;display:flex;gap:11px;align-items:flex-start;line-height:1.45;}
+  .dd li .mk{flex:0 0 auto;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;margin-top:1px;}
+  .dd .do .mk{background:#D4148C;}
+  .dd .dont .mk{background:#990066;}
+
+  footer{padding:40px 0 60px;color:#9aa1ad;font-size:12.5px;text-align:center;}
+
+  .reveal{opacity:0;transform:translateY(18px);animation:rise .7s forwards cubic-bezier(.2,.7,.2,1);}
+  @keyframes rise{to{opacity:1;transform:none;}}
+  @media(prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <span class="eyebrow reveal">Brand Logo System · Set P3</span>
+    <h1 class="reveal" style="animation-delay:.05s">Wordmark Combinations<br><span class="grad-text">Font × Color</span></h1>
+    <p class="reveal" style="animation-delay:.1s">Eight typographic lockups of the word “AnPharmacy” — no emblem, no monogram, geometry-only. Each pairs a modern geometric sans with a brand-palette color treatment, validated on light, dark, and gradient grounds.</p>
+  </div>
+</header>
+
+<!-- ── 8 CONCEPTS ── -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="t">The 8 Combinations</div>
+      <div class="s">P3a–P3h. Single-line wordmarks, one font per concept, one brand color treatment per concept.</div>
+    </div>
+
+    <div class="grid8">
+
+      <!-- P3a -->
+      <article class="card reveal">
+        <div class="stage light">
+          <div class="wm" style="font-family:'Poppins',var(--sans);"><span class="an grad-text">An</span><span class="cy grad-text">Pharmacy</span></div>
+        </div>
+        <div class="meta">
+          <div class="id"><b>P3a</b> · Poppins + full brand gradient</div>
+          <div class="desc">Whole word bathed in the magenta→coral gradient — the boldest, most ownable read.</div>
+          <div class="spec"><span class="tag acc">Poppins</span><span class="tag acc">135° gradient</span><span class="tag">Bold</span></div>
+        </div>
+      </article>
+
+      <!-- P3b -->
+      <article class="card reveal" style="animation-delay:.04s">
+        <div class="stage light">
+          <div class="wm" style="font-family:'Plus Jakarta Sans',var(--sans);"><span class="an grad-text">An</span><span class="cy" style="color:var(--ink);">Pharmacy</span></div>
+        </div>
+        <div class="meta">
+          <div class="id"><b>P3b</b> · Plus Jakarta Sans + split two-tone</div>
+          <div class="desc">“An” carries the gradient, “Pharmacy” in ink — a quiet hierarchy that anchors the brand.</div>
+          <div class="spec"><span class="tag acc">Plus Jakarta Sans</span><span class="tag acc">An = grad</span><span class="tag">Cy = ink</span></div>
+        </div>
+      </article>
+
+      <!-- P3c -->
+      <article class="card reveal" style="animation-delay:.08s">
+        <div class="stage light">
+          <div class="wm" style="font-family:'Montserrat',var(--sans);color:var(--ink);">AnPharmacy<span class="grad-text" style="font-weight:800;">.</span></div>
+        </div>
+        <div class="meta">
+          <div class="id"><b>P3c</b> · Montserrat + ink + gradient period</div>
+          <div class="desc">Restrained ink wordmark lifted by a single gradient full-stop — punctuation as brand mark.</div>
+          <div class="spec"><span class="tag acc">Montserrat</span><span class="tag acc">grad period</span><span class="tag">Mono-ink base</span></div>
+        </div>
+      </article>
+
+      <!-- P3d -->
+      <article class="card reveal" style="animation-delay:.12s">
+        <div class="stage grad">
+          <div class="wm" style="font-family:'Space Grotesk',var(--sans);font-weight:600;color:#fff;">AnPharmacy</div>
+        </div>
+        <div class="meta">
+          <div class="id"><b>P3d</b> · Space Grotesk + white on gradient header</div>
+          <div class="desc">White wordmark tuned for the in-app header bar sitting on the brand gradient.</div>
+          <div class="spec"><span class="tag acc">Space Grotesk</span><span class="tag">White</span><span class="tag">Header use</span></div>
+        </div>
+      </article>
+
+      <!-- P3e -->
+      <article class="card reveal" style="animation-delay:.16s">
+        <div class="stage light">
+          <div class="wm" style="font-family:'Sora',var(--sans);color:var(--ink);display:inline-flex;flex-direction:column;align-items:flex-start;gap:8px;">AnPharmacy<span style="display:block;width:128px;height:3px;border-radius:3px;background:var(--brand-grad);"></span></div>
+        </div>
+        <div class="meta">
+          <div class="id"><b>P3e</b> · Sora + ink + thin gradient underline</div>
+          <div class="desc">Ink wordmark grounded by a hairline gradient rule — editorial, calm, confident.</div>
+          <div class="spec"><span class="tag acc">Sora</span><span class="tag acc">grad rule</span><span class="tag">Underline</span></div>
+        </div>
+      </article>
+
+      <!-- P3f -->
+      <article class="card reveal" style="animation-delay:.2s">
+        <div class="stage light">
+          <div class="wm" style="font-family:'Poppins',var(--sans);color:var(--ink);">AnPharmacy</div>
+        </div>
+        <div class="meta">
+          <div class="id"><b>P3f</b> · Poppins + monochrome ink</div>
+          <div class="desc">Color-stripped proof — identical geometry holds up as a single-ink stamp or letterhead.</div>
+          <div class="spec"><span class="tag acc">Poppins</span><span class="tag">1 ink</span><span class="tag">Stamp-safe</span></div>
+        </div>
+      </article>
+
+      <!-- P3g -->
+      <article class="card reveal" style="animation-delay:.24s">
+        <div class="stage light">
+          <div class="wm" style="font-family:'Saira Condensed',var(--sans);font-weight:700;letter-spacing:0;font-stretch:condensed;"><span class="an grad-text">An</span><span class="cy grad-text">Pharmacy</span></div>
+        </div>
+        <div class="meta">
+          <div class="id"><b>P3g</b> · Saira Condensed + full brand gradient</div>
+          <div class="desc">Condensed gradient wordmark — maximum density for tight nav rails and compact tiles.</div>
+          <div class="spec"><span class="tag acc">Saira Condensed</span><span class="tag acc">135° gradient</span><span class="tag">Dense</span></div>
+        </div>
+      </article>
+
+      <!-- P3h -->
+      <article class="card reveal" style="animation-delay:.28s">
+        <div class="stage light">
+          <div class="wm" style="font-family:'Plus Jakarta Sans',var(--sans);display:inline-flex;flex-direction:column;align-items:flex-start;gap:7px;"><span><span class="an grad-text">An</span><span class="cy" style="color:var(--ink);">Pharmacy</span></span><span style="display:block;width:138px;height:3px;border-radius:3px;background:var(--brand-grad);"></span></div>
+        </div>
+        <div class="meta">
+          <div class="id"><b>P3h</b> · Plus Jakarta Sans + split + underline</div>
+          <div class="desc">P3b’s two-tone hierarchy finished with a gradient rule — the most complete lockup.</div>
+          <div class="spec"><span class="tag acc">Plus Jakarta Sans</span><span class="tag acc">An=grad</span><span class="tag acc">grad rule</span></div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── PANELS: light / dark / gradient ── -->
+<section style="background:#fff;border-top:1px solid #F0F0F4;border-bottom:1px solid #F0F0F4;">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="t">Ground Validation</div>
+      <div class="s">The selected lockups (P3a, P3b, P3e, P3h) rendered on every surface the brand lives on.</div>
+    </div>
+    <div class="panels">
+      <div class="panel light">
+        <div class="cap">Light · Paper</div>
+        <div class="body"><div class="wm" style="font-family:'Plus Jakarta Sans',var(--sans);"><span class="an grad-text">An</span><span class="cy" style="color:var(--ink);">Pharmacy</span></div></div>
+      </div>
+      <div class="panel dark">
+        <div class="cap">Dark · Ink</div>
+        <div class="body"><div class="wm" style="font-family:'Plus Jakarta Sans',var(--sans);color:#fff;">An<span class="grad-text-coral" style="font-weight:800;">Pharmacy</span></div></div>
+      </div>
+      <div class="panel grad">
+        <div class="cap">Gradient · Panel</div>
+        <div class="body"><div class="wm" style="font-family:'Plus Jakarta Sans',var(--sans);font-weight:800;color:#fff;">AnPharmacy</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── APP HEADER MOCK ── -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="t">In-Product Mock</div>
+      <div class="s">App-header rendering at ~20–24px proves legibility at UI scale.</div>
+    </div>
+    <div class="appbar reveal">
+      <div class="wm-h">AnPharmacy</div>
+      <nav class="nav">
+        <a href="#">Dashboard</a><a href="#">Inventory</a><a href="#">Orders</a>
+        <span class="pill">Pharmacist</span>
+      </nav>
+    </div>
+    <div style="height:18px"></div>
+    <div class="appbar-ghost reveal" style="animation-delay:.06s">
+      <div class="wm-h"><span class="grad-text">An</span><span style="color:var(--ink);">Pharmacy</span></div>
+      <span style="font-family:var(--sans);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#9aa1ad;margin-left:6px;">Intelligent Pharmacy Management</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── HERO + TAGLINE LOCKUP ── -->
+<section style="background:#fff;border-top:1px solid #F0F0F4;border-bottom:1px solid #F0F0F4;">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="t">Hero Lockup</div>
+      <div class="s">Large-format presentation with the “Intelligent Pharmacy Management” tagline.</div>
+    </div>
+    <div class="hero-band reveal">
+      <div class="lock">
+        <div class="wm" style="font-family:'Poppins',var(--sans);"><span class="an grad-text-coral">An</span><span class="cy grad-text-coral">Pharmacy</span></div>
+        <div class="tagline">Intelligent Pharmacy Management</div>
+      </div>
+      <div class="chip">16px → 256px · one geometry</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MONOCHROME ── -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="t">Monochrome</div>
+      <div class="s">Single-ink version for stamps, letterheads, and fax/print fallbacks.</div>
+    </div>
+    <div class="mono-row reveal">
+      <div class="wm" style="font-family:'Poppins',var(--sans);font-weight:700;">AnPharmacy</div>
+      <div class="wm" style="font-family:'Montserrat',var(--sans);font-weight:700;">AnPharmacy.</div>
+      <div class="wm" style="font-family:'Plus Jakarta Sans',var(--sans);font-weight:800;">AnPharmacy</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DO / DON'T ── -->
+<section style="background:#fff;border-top:1px solid #F0F0F4;">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="t">Usage Rules</div>
+      <div class="s">Keep the wordmark disciplined — it is the whole brand.</div>
+    </div>
+    <div class="dd">
+      <div class="col do reveal">
+        <h3>✓ Do</h3>
+        <ul>
+          <li><span class="mk">✓</span><span>Keep “An” joined to “Pharmacy” — never space or break the word.</span></li>
+          <li><span class="mk">✓</span><span>Use the gradient only at 135° within the magenta→coral stops.</span></li>
+          <li><span class="mk">✓</span><span>Respect a clear-space margin ≥ the cap-height on all sides.</span></li>
+          <li><span class="mk">✓</span><span>Fall back to the monochrome ink version on low-color outputs.</span></li>
+        </ul>
+      </div>
+      <div class="col dont reveal" style="animation-delay:.06s">
+        <h3>✕ Don't</h3>
+        <ul>
+          <li><span class="mk">✕</span><span>Don’t recolor outside the palette (no blues, greens, or neutrals-as-accent).</span></li>
+          <li><span class="mk">✕</span><span>Don’t stretch, condense, or skew the wordmark.</span></li>
+          <li><span class="mk">✕</span><span>Don’t add an icon, emblem, or monogram — the type is the mark.</span></li>
+          <li><span class="mk">✕</span><span>Don’t outline or apply drop-shadows that break the flat, corporate read.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>C:\Project\AnPharmacy\mockups\logo\setP3\index.html — Set P3 · AnPharmacy wordmark system · typography only, brand palette only.</footer>
+
+</body>
+</html>

@@ -235,6 +235,8 @@ export interface NavigationItem {
   path: string;
   roles?: ('admin' | 'sales' | 'purchase_mgr' | 'pharmacist')[];
   group?: 'overview' | 'stock' | 'sales' | 'returns' | 'people' | 'operations' | 'admin' | 'insights';
+  /** Hidden items keep their routes & deep-links working but are removed from the sidebar (e.g. Scan Invoice → merged into Data Import hub) */
+  hidden?: boolean;
 }
 
 export interface BackupInfo {
@@ -251,7 +253,7 @@ export const NAV_ITEMS: NavigationItem[] = [
   { icon: '🛒', label: 'Purchases', index: 3, path: 'purchases', roles: ['admin', 'purchase_mgr'], group: 'stock' },
   { icon: '💰', label: 'Sales', index: 4, path: 'sales', roles: ['admin', 'sales', 'pharmacist'], group: 'sales' },
   { icon: '📈', label: 'Reports', index: 5, path: 'reports', roles: ['admin', 'sales', 'purchase_mgr'], group: 'sales' },
-  { icon: '📷', label: 'Scan Invoice', index: 6, path: 'scan-invoice', roles: ['admin', 'purchase_mgr'], group: 'stock' },
+  { icon: '📷', label: 'Scan Invoice', index: 6, path: 'scan-invoice', roles: ['admin', 'purchase_mgr'], group: 'stock', hidden: true },
   { icon: '👥', label: 'User Management', index: 7, path: 'users', roles: ['admin'], group: 'admin' },
   { icon: '🔒', label: 'Backup & Restore', index: 8, path: 'backup', roles: ['admin'], group: 'admin' },
   { icon: '⚙️', label: 'Settings', index: 9, path: 'settings', roles: ['admin'], group: 'admin' },
@@ -274,7 +276,7 @@ export const NAV_ITEMS: NavigationItem[] = [
   { icon: '📋', label: 'Sales History', index: 26, path: 'sales-history', roles: ['admin', 'sales', 'pharmacist'], group: 'sales' },
   { icon: '🏗️', label: 'Data Import', index: 27, path: 'data-import', roles: ['admin', 'purchase_mgr'], group: 'stock' },
   { icon: '🧠', label: 'AI Learning', index: 28, path: 'ai-learning', roles: ['admin'], group: 'insights' },
-  { icon: '📥', label: 'Import History', index: 29, path: 'import-history', roles: ['admin', 'purchase_mgr'], group: 'stock' },
+  { icon: '📥', label: 'Import History', index: 29, path: 'import-history', roles: ['admin', 'purchase_mgr'], group: 'stock', hidden: true },
   { icon: '🗑️', label: 'Recycle Bin', index: 30, path: 'recycle-bin', roles: ['admin', 'purchase_mgr'], group: 'admin' },
 ];
 

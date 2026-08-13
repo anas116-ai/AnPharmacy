@@ -30,6 +30,11 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
             unreadCount: notifications.filter(n => n.is_read === 0).length,
             isLoading: false,
           });
+          // ponytail: desktop — surface high-priority unread alerts as native OS notifications
+          const critical = notifications.find(n => n.is_read === 0 && n.type === 'critical');
+          if (critical && window.electronAPI.showNativeNotification) {
+            window.electronAPI.showNativeNotification({ title: '⚠ ' + critical.title, body: critical.message });
+          }
         } else {
           set({ error: result.error || 'Failed to fetch notifications', isLoading: false });
         }

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AnPharmacy — Wordmark Concepts (Set P2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=Sora:wght@300;400;600;700&family=Poppins:wght@400;500;600;700&family=Saira+Condensed:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --magenta-deep: #990066;
+    --magenta: #D4148C;
+    --coral: #FF5A8D;
+    --ink: #0A0F1E;
+    --ink-2: #101E38;
+    --paper: #FFFFFF;
+    --paper-2: #F7F8FA;
+    --grad: linear-gradient(135deg, #990066 0%, #D4148C 50%, #FF5A8D 100%);
+    --grad-soft: linear-gradient(95deg, #990066 0%, #D4148C 48%, #FF5A8D 100%);
+    --line: rgba(16, 30, 56, 0.08);
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: var(--paper-2);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .grad-text {
+    background-image: var(--grad-soft);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  header.masthead {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow {
+    font-family: 'Space Grotesk', var(--sans);
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--magenta);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-family: 'Plus Jakarta Sans', var(--sans);
+    font-weight: 700;
+    font-size: clamp(28px, 5vw, 46px);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .lede {
+    margin-top: 16px;
+    max-width: 640px;
+    color: #4a5568;
+    font-size: 16px;
+  }
+
+  section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 32px; flex-wrap: wrap; }
+  .sec-num {
+    font-family: 'Space Grotesk', var(--sans);
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+    background: var(--grad);
+    width: 30px; height: 30px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .sec-title { font-family: 'Plus Jakarta Sans', var(--sans); font-weight: 700; font-size: 22px; letter-spacing: -0.01em; }
+  .sec-sub { color: #718096; font-size: 14px; margin-left: auto; }
+
+  /* ---------- Concept cards ---------- */
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -24px rgba(153,0,102,.35); }
+
+  .card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .tag {
+    font-family: 'Space Grotesk', var(--sans);
+    font-weight: 700; font-size: 12px; letter-spacing: .12em;
+    color: var(--magenta); text-transform: uppercase;
+  }
+  .spec { font-size: 11px; color: #94a3b8; font-family: var(--sans); letter-spacing: .04em; text-align: right; }
+
+  .stage {
+    min-height: 120px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+    padding: 28px 18px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+  }
+  .stage.dark { background: var(--ink); }
+  .stage.grad { background: var(--grad); }
+
+  .wm { font-weight: 700; line-height: 1; white-space: nowrap; }
+  .wm-lg { font-size: clamp(34px, 6vw, 52px); }
+  .wm-xl { font-size: clamp(44px, 9vw, 78px); }
+
+  /* font families per concept */
+  .f-jakarta { font-family: 'Plus Jakarta Sans', var(--sans); }
+  .f-mont   { font-family: 'Montserrat', var(--sans); }
+  .f-space  { font-family: 'Space Grotesk', var(--sans); }
+  .f-sora   { font-family: 'Sora', var(--sans); }
+  .f-poppins{ font-family: 'Poppins', var(--sans); }
+  .f-cond   { font-family: 'Saira Condensed', var(--sans); }
+
+  /* ---------- Background matrix ---------- */
+  .bgmatrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 720px) { .bgmatrix { grid-template-columns: 1fr; } }
+  .panel { border-radius: 14px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .panel.light { background: var(--paper); border: 1px solid var(--line); }
+  .panel.dark { background: var(--ink); }
+  .panel.grad { background: var(--grad); }
+  .panel .cap { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+  .panel.light .cap { color: #94a3b8; }
+  .panel.dark .cap { color: rgba(255,255,255,.6); }
+  .panel.grad .cap { color: rgba(255,255,255,.8); }
+  .panel.dark .wm { color: #fff; }
+  .panel.grad .wm { color: #fff; }
+
+  /* ---------- Size ramp ---------- */
+  .sizerow { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 36px; padding: 8px 4px; }
+  .sizecell { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .sizecell .lab { font-size: 11px; color: #94a3b8; font-family: 'Space Grotesk', var(--sans); letter-spacing: .08em; }
+
+  /* ---------- App header mock ---------- */
+  .appbar {
+    background: var(--ink);
+    border-radius: 14px;
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; color: #fff;
+  }
+  .appbar .nav { display: flex; gap: 22px; font-size: 13px; color: rgba(255,255,255,.6); font-family: 'Space Grotesk', var(--sans); }
+  .appbar .nav span:first-child { color: #fff; }
+  @media (max-width: 600px) { .appbar .nav { display: none; } }
+
+  /* ---------- Lockups ---------- */
+  .lockups { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 720px) { .lockups { grid-template-columns: 1fr; } }
+  .lock {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 40px 28px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .divider { width: 120px; height: 4px; border-radius: 4px; background: var(--grad); }
+  .tagline {
+    font-family: 'Space Grotesk', var(--sans);
+    letter-spacing: .22em; text-transform: uppercase;
+    font-size: 12px; font-weight: 500;
+    color: #8a93a6;
+  }
+  .tagline.dark { color: rgba(255,255,255,.7); }
+
+  /* monochrome */
+  .mono-row { display: flex; gap: 40px; align-items: center; flex-wrap: wrap; }
+  .mono-stage { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 32px; }
+  .mono-stage.dark { background: var(--ink); }
+  .ink { color: var(--ink); }
+  .ink-light { color: #fff; }
+
+  /* ---------- Do / Don't ---------- */
+  .donote {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  @media (max-width: 720px) { .donote { grid-template-columns: 1fr; } }
+  .note { border-radius: 14px; padding: 24px 26px; }
+  .note.do { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--magenta); }
+  .note.dont { background: #fff; border: 1px solid var(--line); border-left: 4px solid #cbd5e1; }
+  .note h4 { font-family: 'Plus Jakarta Sans', var(--sans); font-size: 14px; margin-bottom: 12px; letter-spacing: .02em; }
+  .note ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .note li { font-size: 13.5px; color: #475569; padding-left: 22px; position: relative; }
+  .note.do li::before { content: "✓"; position: absolute; left: 0; color: var(--magenta); font-weight: 700; }
+  .note.dont li::before { content: "✕"; position: absolute; left: 0; color: #94a3b8; font-weight: 700; }
+
+  footer { padding: 36px 0 60px; color: #94a3b8; font-size: 13px; text-align: center; }
+
+  .reveal { opacity: 0; transform: translateY(14px); animation: rise .6s ease forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">AnPharmacy · Brand Wordmark System</div>
+    <h1>Set&nbsp;P2 — Professional <span class="grad-text">Typographic</span> Variations</h1>
+    <p class="lede">Six wordmark-only concepts. No icon, no monogram — the brand <em>is</em> the word. Modern geometric sans, varied per concept, restrained and corporate, locked to the warm-magenta palette.</p>
+  </div>
+</header>
+
+<!-- ============ CONCEPTS ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <span class="sec-title">The Six Concepts</span>
+      <span class="sec-sub">Light stage · hover for lift</span>
+    </div>
+
+    <div class="grid">
+
+      <!-- P2a -->
+      <div class="card reveal" style="animation-delay:.02s">
+        <div class="card-top">
+          <span class="tag">P2a</span>
+          <span class="spec">Plus Jakarta Sans · 600 · Title</span>
+        </div>
+        <div class="stage">
+          <span class="wm wm-lg f-jakarta grad-text" style="font-weight:600; letter-spacing:-0.01em;">AnPharmacy</span>
+        </div>
+      </div>
+
+      <!-- P2b -->
+      <div class="card reveal" style="animation-delay:.06s">
+        <div class="card-top">
+          <span class="tag">P2b</span>
+          <span class="spec">Montserrat · 700 · UPPER</span>
+        </div>
+        <div class="stage">
+          <span class="wm wm-lg f-mont" style="font-weight:700; letter-spacing:0.14em; color:var(--magenta-deep);">ANPHARMACY</span>
+        </div>
+      </div>
+
+      <!-- P2c -->
+      <div class="card reveal" style="animation-delay:.10s">
+        <div class="card-top">
+          <span class="tag">P2c</span>
+          <span class="spec">Space Grotesk · 500 · Wide</span>
+        </div>
+        <div class="stage">
+          <span class="wm wm-lg f-space grad-text" style="font-weight:500; letter-spacing:0.10em;">AnPharmacy</span>
+        </div>
+      </div>
+
+      <!-- P2d -->
+      <div class="card reveal" style="animation-delay:.14s">
+        <div class="card-top">
+          <span class="tag">P2d</span>
+          <span class="spec">Sora · 600 · Stacked</span>
+        </div>
+        <div class="stage" style="flex-direction:column; gap:2px;">
+          <span class="f-sora grad-text" style="font-weight:600; font-size:40px; line-height:1; letter-spacing:-0.01em;">An</span>
+          <span class="f-sora" style="font-weight:600; font-size:40px; line-height:1; letter-spacing:0.02em; color:var(--magenta-deep);">Pharmacy</span>
+        </div>
+      </div>
+
+      <!-- P2e -->
+      <div class="card reveal" style="animation-delay:.18s">
+        <div class="card-top">
+          <span class="tag">P2e</span>
+          <span class="spec">Poppins · 600 · + Divider</span>
+        </div>
+        <div class="stage" style="flex-direction:column; gap:12px;">
+          <span class="wm f-poppins grad-text" style="font-weight:600; font-size:38px; letter-spacing:-0.01em;">AnPharmacy</span>
+          <span class="divider"></span>
+          <span class="tagline">Intelligent Pharmacy Management</span>
+        </div>
+      </div>
+
+      <!-- P2f -->
+      <div class="card reveal" style="animation-delay:.22s">
+        <div class="card-top">
+          <span class="tag">P2f</span>
+          <span class="spec">Saira Condensed · 700 · Tight</span>
+        </div>
+        <div class="stage">
+          <span class="wm wm-lg f-cond grad-text" style="font-weight:700; letter-spacing:-0.02em;">AnPharmacy</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ BACKGROUND MATRIX ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <span class="sec-title">Background Treatments</span>
+      <span class="sec-sub">P2c · Space Grotesk</span>
+    </div>
+    <div class="bgmatrix">
+      <div class="panel light">
+        <span class="cap">Light</span>
+        <span class="wm f-space grad-text" style="font-weight:500; letter-spacing:0.10em; font-size:34px;">AnPharmacy</span>
+      </div>
+      <div class="panel dark">
+        <span class="cap">Dark</span>
+        <span class="wm f-space" style="font-weight:500; letter-spacing:0.10em; font-size:34px; color:#fff;">AnPharmacy</span>
+      </div>
+      <div class="panel grad">
+        <span class="cap">Gradient</span>
+        <span class="wm f-space" style="font-weight:600; letter-spacing:0.06em; font-size:34px; color:#fff;">AnPharmacy</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SIZE RAMP ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <span class="sec-title">Size Ramp</span>
+      <span class="sec-sub">16 → 256 px · P2a</span>
+    </div>
+    <div class="stage" style="justify-content:flex-start; overflow-x:auto;">
+      <div class="sizerow">
+        <div class="sizecell"><span class="f-jakarta grad-text" style="font-weight:600; font-size:16px; letter-spacing:-0.01em;">AnPharmacy</span><span class="lab">16</span></div>
+        <div class="sizecell"><span class="f-jakarta grad-text" style="font-weight:600; font-size:24px; letter-spacing:-0.01em;">AnPharmacy</span><span class="lab">24</span></div>
+        <div class="sizecell"><span class="f-jakarta grad-text" style="font-weight:600; font-size:32px; letter-spacing:-0.01em;">AnPharmacy</span><span class="lab">32</span></div>
+        <div class="sizecell"><span class="f-jakarta grad-text" style="font-weight:600; font-size:64px; letter-spacing:-0.01em;">AnPharmacy</span><span class="lab">64</span></div>
+        <div class="sizecell"><span class="f-jakarta grad-text" style="font-weight:600; font-size:112px; line-height:.8; letter-spacing:-0.01em;">AnPharmacy</span><span class="lab">128</span></div>
+        <div class="sizecell"><span class="f-jakarta grad-text" style="font-weight:600; font-size:180px; line-height:.75; letter-spacing:-0.01em;">AnPharmacy</span><span class="lab">256</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP HEADER MOCK ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <span class="sec-title">In-Product Header</span>
+      <span class="sec-sub">P2a · ~22 px</span>
+    </div>
+    <div class="appbar">
+      <span class="wm f-jakarta grad-text" style="font-weight:600; font-size:22px; letter-spacing:-0.01em;">AnPharmacy</span>
+      <nav class="nav">
+        <span>Dashboard</span><span>Inventory</span><span>Sales</span><span>Reports</span><span>Settings</span>
+      </nav>
+      <span class="tagline" style="color:rgba(255,255,255,.55); font-size:11px;">v2.4</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LOCKUPS ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <span class="sec-title">Wordmark Lockups</span>
+      <span class="sec-sub">Horizontal &amp; Stacked</span>
+    </div>
+    <div class="lockups">
+      <div class="lock">
+        <span class="wm wm-lg f-poppins grad-text" style="font-weight:600; font-size:46px;">AnPharmacy</span>
+        <span class="divider"></span>
+        <span class="tagline">Intelligent Pharmacy Management</span>
+      </div>
+      <div class="lock" style="background:var(--ink);">
+        <span class="wm wm-lg f-poppins" style="font-weight:600; font-size:46px; color:#fff;">AnPharmacy</span>
+        <span class="divider"></span>
+        <span class="tagline dark">Intelligent Pharmacy Management</span>
+      </div>
+      <div class="lock" style="grid-column:1/-1;">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+          <span class="f-sora grad-text" style="font-weight:600; font-size:54px; line-height:1;">An</span>
+          <span class="f-sora" style="font-weight:600; font-size:54px; line-height:1; color:var(--magenta-deep);">Pharmacy</span>
+        </div>
+        <span class="divider"></span>
+        <span class="tagline">Intelligent Pharmacy Management</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MONOCHROME ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <span class="sec-title">Monochrome</span>
+      <span class="sec-sub">Stamps · Letterheads</span>
+    </div>
+    <div class="mono-row">
+      <div class="mono-stage">
+        <span class="wm f-mont ink" style="font-weight:700; letter-spacing:0.14em; font-size:40px;">ANPHARMACY</span>
+      </div>
+      <div class="mono-stage dark">
+        <span class="wm f-mont ink-light" style="font-weight:700; letter-spacing:0.14em; font-size:40px;">ANPHARMACY</span>
+      </div>
+      <div class="mono-stage" style="border:2px solid var(--ink);">
+        <span class="wm f-jakarta ink" style="font-weight:600; font-size:34px;">AnPharmacy</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DO / DON'T ============ -->
+<section style="border-bottom:none;">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">07</span>
+      <span class="sec-title">Usage Notes</span>
+      <span class="sec-sub">Do / Don't</span>
+    </div>
+    <div class="donote">
+      <div class="note do">
+        <h4>Do</h4>
+        <ul>
+          <li>Keep the wordmark intact in horizontal use — the stacked lockup (P2d) is the only approved vertical split.</li>
+          <li>Use the brand gradient or solid magenta for the word.</li>
+          <li>Respect the concept's tracking; pair with the matching font.</li>
+          <li>Allow generous clear space around the mark.</li>
+        </ul>
+      </div>
+      <div class="note dont">
+        <h4>Don't</h4>
+        <ul>
+          <li>Don't stretch, skew, or condense beyond the concept setting.</li>
+          <li>Don't recolor outside #990066→#D4148C→#FF5A8D.</li>
+          <li>Don't add icons, emblems, or monograms to these wordmarks.</li>
+          <li>Don't apply drop shadows or outlines to the text.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>C:\Project\AnPharmacy\mockups\logo\setP2\index.html — AnPharmacy Set P2 wordmark showcase</footer>
+
+</body>
+</html>

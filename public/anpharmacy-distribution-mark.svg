@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="AnPharmacy">
+  <defs>
+    <linearGradient id="pill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#990066"/>
+      <stop offset="100%" stop-color="#FF5A8D"/>
+    </linearGradient>
+    <linearGradient id="flow" gradientUnits="userSpaceOnUse" x1="38" y1="54" x2="84" y2="54">
+      <stop offset="0%" stop-color="#D4148C"/>
+      <stop offset="100%" stop-color="#FF5A8D"/>
+    </linearGradient>
+  </defs>
+  <!-- medicine capsule -->
+  <rect x="18" y="34" width="15" height="40" rx="7.5" fill="url(#pill)"/>
+  <!-- distribution arrow -->
+  <path d="M38,54 H62" stroke="url(#flow)" stroke-width="7" stroke-linecap="round"/>
+  <path d="M60,46 L74,54 L60,62 Z" fill="url(#flow)"/>
+  <!-- controlled node -->
+  <circle cx="84" cy="54" r="11" fill="none" stroke="url(#flow)" stroke-width="7"/>
+  <circle cx="84" cy="54" r="4" fill="url(#flow)"/>
+</svg>

@@ -1,6 +1,19 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
+  // Desktop platform flag + window controls
+  isDesktop: true,
+  getAppInfo: () => ipcRenderer.invoke('app:getInfo'),
+  minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
+  toggleMaximize: () => ipcRenderer.invoke('window:toggleMaximize'),
+  closeWindow: () => ipcRenderer.invoke('window:close'),
+  hideWindow: () => ipcRenderer.invoke('window:hide'),
+  showWindow: () => ipcRenderer.invoke('window:show'),
+  isWindowMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+  onWindowMaximized: (callback) => ipcRenderer.on('window:maximized', (event, maximized) => callback(maximized)),
+  showNativeNotification: (data) => ipcRenderer.invoke('notify:show', data),
+  onMenuAction: (callback) => ipcRenderer.on('menu:action', (event, action) => callback(action)),
+
   // Database
   dbInit: () => ipcRenderer.invoke('db:init'),
 
@@ -172,4 +185,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Supplier Analytics
   getSupplierAnalytics: () => ipcRenderer.invoke('suppliers:getAnalytics'),
+
+  // Pharmacy / Company Profile
+  getCompanyProfile: () => ipcRenderer.invoke('company:getProfile'),
+  saveCompanyProfile: (data) => ipcRenderer.invoke('company:saveProfile', data),
 });

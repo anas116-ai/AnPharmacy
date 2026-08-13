@@ -80,11 +80,12 @@ interface ImportSessionState {
 
 export type ImportStep = 
   | 'select' 
-  | 'parse' 
+  | 'parse'
+  | 'preview'
   | 'mapping' 
   | 'validation' 
   | 'review' 
-  | 'preview' 
+  | 'commit'
   | 'complete';
 
 function generateSessionId(): string {
@@ -250,7 +251,7 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
       set({
         session: updatedSession,
         isProcessing: false,
-        activeStep: 'mapping',
+        activeStep: 'preview',
         gridState: { ...get().gridState, columns: gridColumns },
         matchedProfileName: matchedProfile?.name || null,
         showProfileDialog: matchedProfile !== null,
@@ -406,7 +407,7 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
     const session = get().session;
     if (!session || session.sheets.length === 0) return;
 
-    set({ activeStep: 'preview' });
+    set({ activeStep: 'commit' });
 
     const activeSheet = session.sheets[session.activeSheetIndex];
     let rowsAdded = 0;
@@ -535,11 +536,19 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
         return best;
       };
 
-      // Small helper for safe integer parsing
-      const safeInt = (v: string, fallback: number | null = null): number | null => {
-        const n = parseInt(v);
-        return isNaN(n) ? fallback : n;
-      };
+// Small helper for safe integer parsing
+  const safeInt = (v: string, fallback: number | null = null): number | null => {
+    const cleaned = String(v).replace(/[₹$€£,\s%]/g, '').trim();
+    const n = parseInt(cleaned);
+    return isNaN(n) ? fallback : n;
+  };
+
+  // Small helper for safe numeric parsing (currency symbols, commas, % stripped)
+  const parseNumeric = (v: string): number => {
+    const cleaned = String(v ?? '').replace(/[₹$€£,\s%]/g, '').trim();
+    const n = parseFloat(cleaned);
+    return isNaN(n) ? 0 : n;
+  };
 
       for (let i = 0; i < activeSheet.rows.length; i++) {
         if (session.deletedRowIndices.has(i)) continue;
@@ -583,13 +592,13 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
             case 'mfg_date': medicine.mfg_date = strVal; break;
             case 'expiry_date': medicine.expiry_date = strVal; break;
             case 'hsn_code': medicine.hsn_code = strVal; break;
-            case 'mrp': medicine.mrp = parseFloat(strVal) || 0; break;
-            case 'ptr': medicine.ptr = parseFloat(strVal) || 0; break;
-            case 'pts': medicine.pts = parseFloat(strVal) || 0; break;
-            case 'purchase_price': medicine.purchase_price = parseFloat(strVal) || 0; break;
-            case 'selling_price': medicine.selling_price = parseFloat(strVal) || 0; break;
-            case 'quantity': medicine.quantity = parseFloat(strVal) || 0; break;
-            case 'free_qty': medicine.free_qty = parseFloat(strVal) || 0; break;
+            case 'mrp': medicine.mrp = parseNumeric(strVal); break;
+            case 'ptr': medicine.ptr = parseNumeric(strVal); break;
+            case 'pts': medicine.pts = parseNumeric(strVal); break;
+            case 'purchase_price': medicine.purchase_price = parseNumeric(strVal); break;
+            case 'selling_price': medicine.selling_price = parseNumeric(strVal); break;
+            case 'quantity': medicine.quantity = parseNumeric(strVal); break;
+            case 'free_qty': medicine.free_qty = parseNumeric(strVal); break;
             case 'company': medicine.company = strVal; break;
             case 'manufacturer_name': medicine.manufacturer_name = strVal; break;
             case 'manufacturer_id': medicine.manufacturer_id = safeInt(strVal); break;
@@ -603,12 +612,12 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
             case 'barcode': medicine.barcode = strVal; break;
             case 'schedule_type': medicine.schedule_type = strVal; break;
             case 'gst_percent': 
-              medicine.purchase_gst_percent = parseFloat(strVal) || 5;
-              medicine.sale_gst_percent = parseFloat(strVal) || 12;
+              medicine.purchase_gst_percent = parseNumeric(strVal) || 5;
+              medicine.sale_gst_percent = parseNumeric(strVal) || 12;
               break;
-            case 'purchase_gst_percent': medicine.purchase_gst_percent = parseFloat(strVal) || 5; break;
-            case 'sale_gst_percent': medicine.sale_gst_percent = parseFloat(strVal) || 12; break;
-            case 'discount_percent': medicine.discount_percent = parseFloat(strVal) || 0; break;
+            case 'purchase_gst_percent': medicine.purchase_gst_percent = parseNumeric(strVal) || 5; break;
+            case 'sale_gst_percent': medicine.sale_gst_percent = parseNumeric(strVal) || 12; break;
+            case 'discount_percent': medicine.discount_percent = parseNumeric(strVal); break;
             case 'pack_size': medicine.pack_size = strVal; break;
             case 'invoice_no': medicine.invoice_no = strVal; break;
             case 'invoice_date': medicine.invoice_date = strVal; break;
@@ -619,19 +628,19 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
             case 'due_date': medicine.due_date = strVal; break;
             case 'dispatch_location': medicine.dispatch_location = strVal; break;
             case 'item_code': medicine.item_code = strVal; break;
-            case 'loose_quantity': medicine.loose_quantity = parseFloat(strVal) || 0; break;
-            case 'total_base_units': medicine.total_base_units = parseFloat(strVal) || 0; break;
-            case 'scheme_qty': medicine.scheme_qty = parseFloat(strVal) || 0; break;
+            case 'loose_quantity': medicine.loose_quantity = parseNumeric(strVal); break;
+            case 'total_base_units': medicine.total_base_units = parseNumeric(strVal); break;
+            case 'scheme_qty': medicine.scheme_qty = parseNumeric(strVal); break;
             case 'scheme_bonus_code': medicine.scheme_bonus_code = strVal; break;
-            case 'retailer_margin_percent': medicine.retailer_margin_percent = parseFloat(strVal) || 0; break;
-            case 'min_margin_percent': medicine.min_margin_percent = parseFloat(strVal) || 0; break;
+            case 'retailer_margin_percent': medicine.retailer_margin_percent = parseNumeric(strVal); break;
+            case 'min_margin_percent': medicine.min_margin_percent = parseNumeric(strVal); break;
             case 'low_stock_alert': medicine.low_stock_alert = safeInt(strVal, 20)!; break;
             case 'max_stock_limit': medicine.max_stock_limit = safeInt(strVal); break;
             case 'expiry_returnable': medicine.expiry_returnable = safeInt(strVal); break;
-            case 'taxable_amount': medicine.taxable_amount = parseFloat(strVal) || 0; break;
-            case 'cgst_amount': medicine.cgst_amount = parseFloat(strVal) || 0; break;
-            case 'sgst_amount': medicine.sgst_amount = parseFloat(strVal) || 0; break;
-            case 'igst_amount': medicine.igst_amount = parseFloat(strVal) || 0; break;
+            case 'taxable_amount': medicine.taxable_amount = parseNumeric(strVal); break;
+            case 'cgst_amount': medicine.cgst_amount = parseNumeric(strVal); break;
+            case 'sgst_amount': medicine.sgst_amount = parseNumeric(strVal); break;
+            case 'igst_amount': medicine.igst_amount = parseNumeric(strVal); break;
             case 'num_cartons': medicine.num_cartons = safeInt(strVal, 0)!; break;
             case 'cold_chain': medicine.cold_chain = safeInt(strVal, 0)!; break;
           }
@@ -732,13 +741,13 @@ export const useImportSessionStore = create<ImportSessionState>((set, get) => ({
 
       // Persist via bulk API call (handles both browser localStorage and Electron)
       if (window.electronAPI) {
-        try {
-          await window.electronAPI.saveAllStock({ medicines: updatedStock });
-        } catch (e) {
-          // Fallback: save directly to localStorage
-          try { localStorage.setItem('anpharm_medicines', JSON.stringify(updatedStock)); } catch {}
+        const result = await window.electronAPI.saveAllStock({ medicines: updatedStock });
+        if (!result || !result.success) {
+          // Surface the real DB error instead of silently continuing
+          throw new Error(result?.error || 'Stock save failed (unknown error)');
         }
-        // Refresh stock + dashboard stats from the canonical DB rows (ids may differ after bulk save)
+        // Keep in-memory store in sync even if the post-save refresh fails
+        setMedicines(updatedStock);
         await useStockStore.getState().refreshAll();
       } else {
         // No API available — save directly to localStorage as fallback

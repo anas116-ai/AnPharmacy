@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AnPharmacy — Set H · Creative Logo Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --magenta-deep:#990066;
+    --magenta:#D4148C;
+    --coral:#FF5A8D;
+    --brand-grad:linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
+    --ink:#0A0F1E;
+    --ink-2:#101E38;
+    --paper:#FFFFFF;
+    --paper-2:#F7F8FA;
+    --font-display:'Sora','Plus Jakarta Sans',system-ui,sans-serif;
+    --font-body:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--font-body);
+    color:#E7EAF3;
+    background:
+      radial-gradient(60rem 60rem at 8% -14%, rgba(153,0,102,.22), transparent 55%),
+      radial-gradient(54rem 54rem at 104% 4%, rgba(212,20,140,.18), transparent 55%),
+      radial-gradient(50rem 50rem at 90% 112%, rgba(255,90,141,.16), transparent 55%),
+      var(--ink);
+    min-height:100vh;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:clamp(28px,5vw,72px) clamp(18px,4vw,40px) 90px}
+
+  /* ── Header ── */
+  header{margin-bottom:clamp(36px,6vw,64px);animation:fadeUp .7s cubic-bezier(.16,1,.3,1) both}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--coral);
+    padding:7px 14px;border:1px solid rgba(255,90,141,.35);border-radius:999px;
+    background:rgba(255,90,141,.08);
+  }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--coral);box-shadow:0 0 12px var(--coral)}
+  h1{
+    font-family:var(--font-display);font-weight:800;
+    font-size:clamp(34px,6vw,60px);line-height:1.02;letter-spacing:-.03em;
+    margin:20px 0 14px;
+  }
+  h1 .gm{
+    background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{max-width:62ch;color:#AEB6CC;font-size:clamp(15px,1.6vw,17px)}
+  .setmeta{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+  .chip{
+    font-size:12.5px;font-weight:500;color:#C9CFE0;
+    padding:6px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.1);
+    background:rgba(255,255,255,.04);
+  }
+
+  /* ── Section ── */
+  .concept{margin-top:clamp(40px,6vw,72px);animation:fadeUp .7s cubic-bezier(.16,1,.3,1) both}
+  .concept-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+  .concept-no{
+    font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.18em;
+    color:var(--coral);
+  }
+  .concept-title{font-family:var(--font-display);font-weight:700;font-size:clamp(20px,3vw,28px);letter-spacing:-.02em}
+  .concept-sub{color:#9AA3BC;font-size:14px;margin-left:auto;max-width:46ch;text-align:right}
+
+  .panels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){.panels{grid-template-columns:1fr}}
+  .panel{
+    border-radius:18px;padding:30px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;
+    position:relative;overflow:hidden;transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s;
+    min-height:188px;justify-content:center;
+  }
+  .panel:hover{transform:translateY(-4px)}
+  .panel.light{background:var(--paper);box-shadow:0 18px 40px -24px rgba(0,0,0,.6)}
+  .panel.dark{background:var(--ink-2);box-shadow:0 18px 40px -22px rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.06)}
+  .panel.grad{background:var(--brand-grad);box-shadow:0 22px 50px -20px rgba(212,20,140,.55)}
+  .panel .label{
+    position:absolute;top:12px;left:14px;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  }
+  .panel.light .label{color:#9aa3b8}
+  .panel.dark .label{color:rgba(255,255,255,.55)}
+  .panel.grad .label{color:rgba(255,255,255,.8)}
+  .panel .mark-lg{width:118px;height:118px}
+
+  /* ── Grid of detail rows ── */
+  .detail{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:760px){.detail{grid-template-columns:1fr}}
+
+  .card{
+    background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;padding:22px 22px 24px;
+  }
+  .card h4{font-family:var(--font-display);font-size:13px;font-weight:600;letter-spacing:.04em;color:#C9CFE0;margin-bottom:16px;text-transform:uppercase}
+
+  /* size ramp */
+  .ramp{display:flex;align-items:flex-end;gap:clamp(14px,3vw,34px);flex-wrap:wrap;padding:8px 2px}
+  .ramp .item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .ramp .sz{height:auto;display:block}
+  .ramp .px{font-size:11px;color:#8a93ad;font-variant-numeric:tabular-nums}
+
+  /* favicon + mono */
+  .tiles{display:flex;gap:22px;flex-wrap:wrap;align-items:center}
+  .favi{
+    width:96px;height:96px;border-radius:24px;background:var(--brand-grad);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 18px 40px -16px rgba(212,20,140,.6),inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  .favi svg{width:58px;height:58px;color:#fff}
+  .mono{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--ink)}
+  .mono .swatch{width:96px;height:96px;border-radius:18px;background:var(--paper);display:flex;align-items:center;justify-content:center;border:1px solid rgba(10,15,30,.1)}
+  .mono svg{width:56px;height:56px;color:var(--ink)}
+  .mono .cap{font-size:11.5px;color:#8a93ad}
+
+  /* lockups */
+  .lockup{display:flex;align-items:center;gap:14px}
+  .lockup.stacked{flex-direction:column;gap:10px;text-align:center}
+  .lockup svg{width:54px;height:54px;flex-shrink:0}
+  .lockup.stacked svg{width:64px;height:64px}
+  .word{font-family:var(--font-display);font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
+  .lockup.stacked .word{font-size:34px}
+  .word .an{background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .word .rest{font-weight:300;color:#E7EAF3}
+  .lockup.stacked .word .rest{color:#C9CFE0}
+  .tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);margin-top:4px;font-weight:600}
+  .lockup.stacked .tag{margin-top:2px}
+
+  /* Do / Don't */
+  .rules{margin-top:clamp(44px,7vw,80px);animation:fadeUp .7s cubic-bezier(.16,1,.3,1) both}
+  .rules h2{font-family:var(--font-display);font-size:clamp(22px,3.4vw,30px);letter-spacing:-.02em;margin-bottom:6px}
+  .rules p.sub{color:#9AA3BC;font-size:14px;margin-bottom:24px}
+  .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.rgrid{grid-template-columns:1fr}}
+  .rcol{border-radius:18px;padding:24px;border:1px solid rgba(255,255,255,.09)}
+  .rcol.do{background:linear-gradient(160deg,rgba(255,90,141,.1),rgba(255,255,255,.02));border-color:rgba(255,90,141,.28)}
+  .rcol.dont{background:linear-gradient(160deg,rgba(120,130,160,.1),rgba(255,255,255,.02));border-color:rgba(160,170,200,.22)}
+  .rcol h3{font-family:var(--font-display);font-size:15px;letter-spacing:.04em;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+  .rcol.do h3{color:#FF8FB1}
+  .rcol.dont h3{color:#B9C1D8}
+  .rcol ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .rcol li{font-size:14px;color:#D7DCEA;display:flex;gap:11px;align-items:flex-start;line-height:1.45}
+  .rcol li .ic{flex-shrink:0;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin-top:1px}
+  .do li .ic{background:rgba(255,90,141,.18);color:var(--coral)}
+  .dont li .ic{background:rgba(160,170,200,.16);color:#AEB6CC}
+
+  footer{margin-top:54px;text-align:center;color:#69708a;font-size:12.5px}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ══ Hidden symbol library (inline SVG source of truth) ══ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#990066"/>
+      <stop offset="50%" stop-color="#D4148C"/>
+      <stop offset="100%" stop-color="#FF5A8D"/>
+    </linearGradient>
+
+    <!-- H1 Plus A (colored) -->
+    <symbol id="h1" viewBox="0 0 100 100">
+      <g fill="none" stroke="url(#g)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22,84 L46,33"/>
+        <path d="M78,84 L54,33"/>
+        <path d="M30,55 L70,55"/>
+      </g>
+      <path d="M46,11 H54 V22 H63 V30 H54 V37 H46 V30 H37 V22 H46 Z" fill="url(#g)"/>
+    </symbol>
+    <!-- H1 Plus A (mono) -->
+    <symbol id="h1m" viewBox="0 0 100 100">
+      <g fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22,84 L46,33"/>
+        <path d="M78,84 L54,33"/>
+        <path d="M30,55 L70,55"/>
+      </g>
+      <path d="M46,11 H54 V22 H63 V30 H54 V37 H46 V30 H37 V22 H46 Z" fill="currentColor"/>
+    </symbol>
+
+    <!-- H2 Rx Cube (colored) -->
+    <symbol id="h2" viewBox="0 0 100 100">
+      <polygon points="50,18 82,38 50,58 18,38" fill="#FF5A8D"/>
+      <polygon points="18,38 50,58 50,82 18,62" fill="#990066"/>
+      <polygon points="82,38 50,58 50,82 82,62" fill="#D4148C"/>
+      <g fill="none" stroke="url(#g)" stroke-width="4" stroke-linejoin="round">
+        <polygon points="50,18 82,38 50,58 18,38"/>
+        <polygon points="18,38 50,58 50,82 18,62"/>
+        <polygon points="82,38 50,58 50,82 82,62"/>
+      </g>
+      <text x="50" y="59" text-anchor="middle" dominant-baseline="middle"
+            font-family="'Sora','Plus Jakarta Sans',sans-serif" font-size="25" font-weight="700" fill="#FFFFFF" letter-spacing="-1">Rx</text>
+    </symbol>
+    <!-- H2 Rx Cube (mono) — outline-only cube so Rx reads on light & dark -->
+    <symbol id="h2m" viewBox="0 0 100 100">
+      <g fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round">
+        <polygon points="50,18 82,38 50,58 18,38"/>
+        <polygon points="18,38 50,58 50,82 18,62"/>
+        <polygon points="82,38 50,58 50,82 82,62"/>
+      </g>
+      <text x="50" y="59" text-anchor="middle" dominant-baseline="middle"
+            font-family="'Sora','Plus Jakarta Sans',sans-serif" font-size="25" font-weight="700" fill="currentColor" letter-spacing="-1">Rx</text>
+    </symbol>
+
+    <!-- H3 Dot Cross (colored) -->
+    <symbol id="h3" viewBox="0 0 100 100">
+      <g fill="#990066">
+        <circle cx="50" cy="14" r="6"/><circle cx="50" cy="32" r="6"/><circle cx="50" cy="68" r="6"/><circle cx="50" cy="86" r="6"/>
+        <circle cx="14" cy="50" r="6"/><circle cx="32" cy="50" r="6"/><circle cx="68" cy="50" r="6"/><circle cx="86" cy="50" r="6"/>
+      </g>
+      <circle cx="50" cy="50" r="7" fill="#FF5A8D"/>
+    </symbol>
+    <!-- H3 Dot Cross (mono) -->
+    <symbol id="h3m" viewBox="0 0 100 100">
+      <g fill="currentColor">
+        <circle cx="50" cy="14" r="6"/><circle cx="50" cy="32" r="6"/><circle cx="50" cy="68" r="6"/><circle cx="50" cy="86" r="6"/>
+        <circle cx="14" cy="50" r="6"/><circle cx="32" cy="50" r="6"/><circle cx="68" cy="50" r="6"/><circle cx="86" cy="50" r="6"/>
+        <circle cx="50" cy="50" r="7"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow"><span class="dot"></span>AnPharmacy · Brand Logo Exploration</span>
+    <h1>Set H — <span class="gm">Creative Concepts</span></h1>
+    <p class="lede">Three original marks that move beyond the templated “pill + cross”. Each is built as inline SVG, holds the warm-premium magenta→coral palette, and is engineered to read from a 16&nbsp;px favicon to a 256&nbsp;px hero.</p>
+    <div class="setmeta">
+      <span class="chip">H1 · Plus A</span>
+      <span class="chip">H2 · Rx Cube</span>
+      <span class="chip">H3 · Dot Cross</span>
+      <span class="chip">Palette · #990066 → #FF5A8D</span>
+      <span class="chip">Format · inline SVG, offline-safe</span>
+    </div>
+  </header>
+
+  <!-- ════════ H1 ════════ -->
+  <section class="concept">
+    <div class="concept-head">
+      <span class="concept-no">H1</span>
+      <span class="concept-title">Plus A</span>
+      <span class="concept-sub">An “A” whose apex is a medical plus — monogram and care symbol in one stroke. Compact, app-icon friendly.</span>
+    </div>
+
+    <div class="panels">
+      <div class="panel light"><span class="label">Light</span><svg class="mark-lg"><use href="#h1"/></svg></div>
+      <div class="panel dark"><span class="label">Dark</span><svg class="mark-lg"><use href="#h1"/></svg></div>
+      <div class="panel grad"><span class="label">Gradient</span><svg class="mark-lg" style="color:#fff"><use href="#h1m"/></svg></div>
+    </div>
+
+    <div class="detail">
+      <div class="card">
+        <h4>Size ramp · 16 → 256</h4>
+        <div class="ramp">
+          <div class="item"><svg class="sz" style="width:16px;height:16px"><use href="#h1"/></svg><span class="px">16</span></div>
+          <div class="item"><svg class="sz" style="width:24px;height:24px"><use href="#h1"/></svg><span class="px">24</span></div>
+          <div class="item"><svg class="sz" style="width:32px;height:32px"><use href="#h1"/></svg><span class="px">32</span></div>
+          <div class="item"><svg class="sz" style="width:64px;height:64px"><use href="#h1"/></svg><span class="px">64</span></div>
+          <div class="item"><svg class="sz" style="width:128px;height:128px"><use href="#h1"/></svg><span class="px">128</span></div>
+          <div class="item"><svg class="sz" style="width:256px;height:256px;max-width:100%"><use href="#h1"/></svg><span class="px">256</span></div>
+        </div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:22px">
+        <div>
+          <h4>Favicon / App tile</h4>
+          <div class="tiles">
+            <div class="favi"><svg><use href="#h1m"/></svg></div>
+            <div class="mono">
+              <div class="swatch"><svg><use href="#h1m"/></svg></div>
+              <span class="cap">Monochrome · ink</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4>Wordmark lockups</h4>
+          <div class="tiles" style="gap:30px">
+            <div class="lockup"><svg><use href="#h1"/></svg><div><span class="word"><span class="an">An</span><span class="rest">Pharmacy</span></span><div class="tag">Every Medicine. Under Control.</div></div></div>
+            <div class="lockup stacked"><svg><use href="#h1"/></svg><div><span class="word"><span class="an">An</span><span class="rest">Pharmacy</span></span><div class="tag">Under Control</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ H2 ════════ -->
+  <section class="concept">
+    <div class="concept-head">
+      <span class="concept-no">H2</span>
+      <span class="concept-title">Rx Cube</span>
+      <span class="concept-sub">An isometric 3D cube bearing “Rx” — dimensionality and solidity for a tech-forward pharmacy platform. Gradient edges, white Rx.</span>
+    </div>
+
+    <div class="panels">
+      <div class="panel light"><span class="label">Light</span><svg class="mark-lg"><use href="#h2"/></svg></div>
+      <div class="panel dark"><span class="label">Dark</span><svg class="mark-lg"><use href="#h2"/></svg></div>
+      <div class="panel grad"><span class="label">Gradient</span><svg class="mark-lg" style="color:#fff"><use href="#h2m"/></svg></div>
+    </div>
+
+    <div class="detail">
+      <div class="card">
+        <h4>Size ramp · 16 → 256</h4>
+        <div class="ramp">
+          <div class="item"><svg class="sz" style="width:16px;height:16px"><use href="#h2"/></svg><span class="px">16</span></div>
+          <div class="item"><svg class="sz" style="width:24px;height:24px"><use href="#h2"/></svg><span class="px">24</span></div>
+          <div class="item"><svg class="sz" style="width:32px;height:32px"><use href="#h2"/></svg><span class="px">32</span></div>
+          <div class="item"><svg class="sz" style="width:64px;height:64px"><use href="#h2"/></svg><span class="px">64</span></div>
+          <div class="item"><svg class="sz" style="width:128px;height:128px"><use href="#h2"/></svg><span class="px">128</span></div>
+          <div class="item"><svg class="sz" style="width:256px;height:256px;max-width:100%"><use href="#h2"/></svg><span class="px">256</span></div>
+        </div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:22px">
+        <div>
+          <h4>Favicon / App tile</h4>
+          <div class="tiles">
+            <div class="favi"><svg><use href="#h2m"/></svg></div>
+            <div class="mono">
+              <div class="swatch"><svg><use href="#h2m"/></svg></div>
+              <span class="cap">Monochrome · ink</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4>Wordmark lockups</h4>
+          <div class="tiles" style="gap:30px">
+            <div class="lockup"><svg><use href="#h2"/></svg><div><span class="word"><span class="an">An</span><span class="rest">Pharmacy</span></span><div class="tag">Every Medicine. Under Control.</div></div></div>
+            <div class="lockup stacked"><svg><use href="#h2"/></svg><div><span class="word"><span class="an">An</span><span class="rest">Pharmacy</span></span><div class="tag">Under Control</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ H3 ════════ -->
+  <section class="concept">
+    <div class="concept-head">
+      <span class="concept-no">H3</span>
+      <span class="concept-title">Dot Cross</span>
+      <span class="concept-sub">A cross/plus formed by an LED-Braille dot matrix. Playful, scalable, tech. One coral dot is the focal point — reads instantly even tiny.</span>
+    </div>
+
+    <div class="panels">
+      <div class="panel light"><span class="label">Light</span><svg class="mark-lg"><use href="#h3"/></svg></div>
+      <div class="panel dark"><span class="label">Dark</span><svg class="mark-lg"><use href="#h3"/></svg></div>
+      <div class="panel grad"><span class="label">Gradient</span><svg class="mark-lg" style="color:#fff"><use href="#h3m"/></svg></div>
+    </div>
+
+    <div class="detail">
+      <div class="card">
+        <h4>Size ramp · 16 → 256</h4>
+        <div class="ramp">
+          <div class="item"><svg class="sz" style="width:16px;height:16px"><use href="#h3"/></svg><span class="px">16</span></div>
+          <div class="item"><svg class="sz" style="width:24px;height:24px"><use href="#h3"/></svg><span class="px">24</span></div>
+          <div class="item"><svg class="sz" style="width:32px;height:32px"><use href="#h3"/></svg><span class="px">32</span></div>
+          <div class="item"><svg class="sz" style="width:64px;height:64px"><use href="#h3"/></svg><span class="px">64</span></div>
+          <div class="item"><svg class="sz" style="width:128px;height:128px"><use href="#h3"/></svg><span class="px">128</span></div>
+          <div class="item"><svg class="sz" style="width:256px;height:256px;max-width:100%"><use href="#h3"/></svg><span class="px">256</span></div>
+        </div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:22px">
+        <div>
+          <h4>Favicon / App tile</h4>
+          <div class="tiles">
+            <div class="favi"><svg><use href="#h3m"/></svg></div>
+            <div class="mono">
+              <div class="swatch"><svg><use href="#h3m"/></svg></div>
+              <span class="cap">Monochrome · ink</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4>Wordmark lockups</h4>
+          <div class="tiles" style="gap:30px">
+            <div class="lockup"><svg><use href="#h3"/></svg><div><span class="word"><span class="an">An</span><span class="rest">Pharmacy</span></span><div class="tag">Every Medicine. Under Control.</div></div></div>
+            <div class="lockup stacked"><svg><use href="#h3"/></svg><div><span class="word"><span class="an">An</span><span class="rest">Pharmacy</span></span><div class="tag">Under Control</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ Do / Don't ════════ -->
+  <section class="rules">
+    <h2>Logo Guidelines</h2>
+    <p class="sub">Shared Do / Don&rsquo;t for the Set H marks — applies to whichever concept is selected.</p>
+    <div class="rgrid">
+      <div class="rcol do">
+        <h3>✓ Do</h3>
+        <ul>
+          <li><span class="ic">✓</span><span>Keep the mark within the magenta→coral family only (#990066 · #D4148C · #FF5A8D).</span></li>
+          <li><span class="ic">✓</span><span>Scale uniformly — the same SVG holds from 16&nbsp;px favicon to 256&nbsp;px hero.</span></li>
+          <li><span class="ic">✓</span><span>Preserve clear space: pad the mark by ≥25% of its height on every side.</span></li>
+          <li><span class="ic">✓</span><span>Use the gradient, dark, and light presentations as provided — they are tuned for contrast.</span></li>
+          <li><span class="ic">✓</span><span>Use the monochrome ink version for stamps, letterheads and engraving.</span></li>
+        </ul>
+      </div>
+      <div class="rcol dont">
+        <h3>✕ Don&rsquo;t</h3>
+        <ul>
+          <li><span class="ic">✕</span><span>Don&rsquo;t stretch, squash or rotate the mark — always lock aspect ratio.</span></li>
+          <li><span class="ic">✕</span><span>Don&rsquo;t recolor outside the palette (no blue, green, or neutral greys on the mark).</span></li>
+          <li><span class="ic">✕</span><span>Don&rsquo;t add drop-shadows, outlines or glows not in the source SVG.</span></li>
+          <li><span class="ic">✕</span><span>Don&rsquo;t place on a clashing background without the provided tile or clear space.</span></li>
+          <li><span class="ic">✕</span><span>Don&rsquo;t reconstruct the mark in a different font/grid — keep the SVG source of truth.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>AnPharmacy · Set H creative concepts — inline SVG, brand palette only, offline-safe.</footer>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AnPharmacy — Logo Concepts · Set A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --magenta-deep:#990066;
+    --magenta:#D4148C;
+    --coral:#FF5A8D;
+    --grad:linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
+    --ink:#0A0F1E;
+    --ink-2:#101E38;
+    --paper:#FFFFFF;
+    --paper-2:#F7F8FA;
+    --display:'Space Grotesk','Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
+    --body:'Manrope','Space Grotesk',system-ui,-apple-system,Segoe UI,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--body);
+    background:var(--paper-2);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  .mark{display:block;}
+
+  /* ---------- Header ---------- */
+  header.hero{
+    background:var(--grad);
+    color:#fff;
+    padding:54px 24px 60px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::after{
+    content:"";
+    position:absolute;inset:0;
+    background:radial-gradient(900px 300px at 85% -10%,rgba(255,255,255,.22),transparent 60%);
+    pointer-events:none;
+  }
+  .wrap{max-width:1120px;margin:0 auto;position:relative;z-index:1;}
+  .eyebrow{
+    font-family:var(--display);
+    font-weight:600;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    font-size:12px;
+    opacity:.85;
+  }
+  header.hero h1{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:clamp(30px,6vw,56px);
+    line-height:1.02;
+    letter-spacing:-.02em;
+    margin:14px 0 14px;
+  }
+  header.hero p.lead{
+    max-width:620px;
+    font-size:clamp(15px,2.2vw,18px);
+    font-weight:400;
+    opacity:.95;
+  }
+  .pillset{
+    display:inline-flex;gap:8px;margin-top:22px;flex-wrap:wrap;
+  }
+  .pillset span{
+    font-family:var(--display);font-weight:600;font-size:12px;
+    letter-spacing:.04em;
+    background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.3);
+    padding:7px 13px;border-radius:999px;
+    backdrop-filter:blur(4px);
+  }
+
+  /* ---------- Sections ---------- */
+  main{padding:8px 24px 80px;}
+  section.concept{
+    max-width:1120px;margin:0 auto;
+    padding:46px 0;
+    border-bottom:1px solid rgba(10,15,30,.08);
+  }
+  section.concept:last-child{border-bottom:none;}
+  .c-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+  .c-num{
+    font-family:var(--display);font-weight:700;font-size:13px;
+    color:#fff;background:var(--grad);
+    width:30px;height:30px;border-radius:9px;
+    display:inline-flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .c-title{font-family:var(--display);font-weight:700;font-size:clamp(22px,4vw,32px);letter-spacing:-.01em;}
+  .c-tag{font-weight:500;color:var(--magenta);font-size:14px;margin-left:auto;}
+  .c-desc{max-width:680px;color:#3b4254;font-size:15px;margin-bottom:26px;}
+
+  /* presentation panels */
+  .panels{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .panel{
+    border-radius:18px;padding:34px 18px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;min-height:200px;
+    position:relative;overflow:hidden;
+  }
+  .panel .p-label{
+    font-family:var(--display);font-weight:600;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  .panel.light{background:var(--paper);border:1px solid rgba(10,15,30,.08);}
+  .panel.light .p-label{color:#9aa1b1;}
+  .panel.dark{background:var(--ink);}
+  .panel.dark .p-label{color:rgba(255,255,255,.55);}
+  .panel.grad{background:var(--grad);}
+  .panel.grad .p-label{color:rgba(255,255,255,.8);}
+
+  /* size ramp */
+  .ramp{display:flex;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-top:30px;
+    padding:26px;border-radius:18px;background:var(--paper);border:1px solid rgba(10,15,30,.08);}
+  .ramp .r-item{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .ramp .r-item span{font-family:var(--display);font-size:11px;color:#9aa1b1;font-weight:600;}
+  .ramp .r-item.ink{background:var(--ink);padding:14px;border-radius:12px;}
+
+  /* utility row */
+  .util{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+  .card{background:var(--paper);border:1px solid rgba(10,15,30,.08);border-radius:18px;padding:24px;}
+  .card h4{font-family:var(--display);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9aa1b1;margin-bottom:16px;font-weight:600;}
+
+  .tile{width:84px;height:84px;border-radius:22px;background:var(--grad);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 14px 30px -12px rgba(153,0,102,.6);}
+  .tile svg{width:52px;height:52px;}
+  .mono-sw{width:84px;height:84px;border-radius:22px;background:var(--paper-2);border:1px solid rgba(10,15,30,.1);
+    display:flex;align-items:center;justify-content:center;}
+  .mono-sw svg{width:50px;height:50px;color:var(--ink);}
+
+  /* lockups */
+  .lockup{display:flex;align-items:center;gap:14px;}
+  .lockup.stacked{flex-direction:column;gap:8px;text-align:center;}
+  .lockup .wm{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:-.02em;line-height:1;}
+  .lockup .wm .an{background:linear-gradient(95deg,#990066 0%,#D4148C 48%,#FF5A8D 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .lockup .wm .rest{font-weight:300;color:var(--ink);}
+  .lockup .tag{font-family:var(--display);font-weight:600;font-size:10px;letter-spacing:.22em;
+    text-transform:uppercase;color:#9aa1b1;margin-top:3px;}
+  .lockups-dark{background:var(--ink);}
+  .lockups-dark .lockup .wm .rest{color:#fff;}
+  .lockups-dark .lockup .tag{color:rgba(255,255,255,.5);}
+
+  /* do / dont */
+  .dodont{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+  .dd{border-radius:16px;padding:18px 20px;border:1px solid rgba(10,15,30,.08);}
+  .dd.do{background:#f4fbf6;border-color:#cdeed6;}
+  .dd.dont{background:#fdf4f7;border-color:#f6d3df;}
+  .dd h5{font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .dd.do h5{color:#1f9d57;}
+  .dd.dont h5{color:#c2185b;}
+  .dd ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .dd li{font-size:13.5px;color:#41485a;display:flex;gap:8px;align-items:flex-start;}
+  .dd li::before{content:"";flex-shrink:0;width:16px;height:16px;margin-top:2px;border-radius:50%;
+    background-size:10px;background-position:center;background-repeat:no-repeat;}
+  .dd.do li::before{background:#1f9d57 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6 9 17l-5-5'/></svg>") center/10px no-repeat;}
+  .dd.dont li::before{background:#c2185b url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'><path d='M18 6 6 18M6 6l12 12'/></svg>") center/10px no-repeat;}
+
+  /* footer */
+  footer{padding:40px 24px 70px;text-align:center;color:#8b91a3;font-size:13px;}
+  footer .wrap{max-width:760px;}
+  footer .gradbar{height:6px;border-radius:999px;background:var(--grad);margin-bottom:22px;}
+
+  @media(max-width:720px){
+    .panels{grid-template-columns:1fr;}
+    .util,.dodont{grid-template-columns:1fr;}
+    .c-tag{margin-left:0;}
+  }
+
+  /* ---------- motion ---------- */
+  .orbit{transform-origin:50% 50%;animation:spin 16s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .core{transform-origin:50% 50%;animation:pulse 3.2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+  .bloom-vein{stroke-dasharray:140;stroke-dashoffset:140;animation:draw 2.4s ease-out forwards;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  .swirl{stroke-dasharray:260;stroke-dashoffset:260;animation:draw 2.6s ease-out forwards;}
+  .swirl.b{animation-delay:.25s;}
+  @media(prefers-reduced-motion:reduce){
+    .orbit,.core,.bloom-vein,.swirl{animation:none;}
+    .bloom-vein,.swirl{stroke-dashoffset:0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- shared gradient defs -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gradMain" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#990066"/>
+      <stop offset="50%" stop-color="#D4148C"/>
+      <stop offset="100%" stop-color="#FF5A8D"/>
+    </linearGradient>
+    <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF5A8D"/>
+      <stop offset="100%" stop-color="#990066"/>
+    </linearGradient>
+    <radialGradient id="glowCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFD3E1"/>
+      <stop offset="45%" stop-color="#FF5A8D"/>
+      <stop offset="100%" stop-color="#FF5A8D" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Brand Identity · Exploration</div>
+    <h1>AnPharmacy — Logo Concepts</h1>
+    <p class="lead">Three fresh, distinctive directions for a warm-premium pharmacy platform. All marks stay strictly inside the magenta → coral family and are built as inline SVG for crisp 16px-to-hero scaling.</p>
+    <div class="pillset"><span>A1 · Capsule Orbit</span><span>A2 · Pulse Bloom</span><span>A3 · Mortar Swirl</span></div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ A1 ============ -->
+  <section class="concept" id="a1">
+    <div class="c-head">
+      <span class="c-num">A1</span>
+      <span class="c-title">Capsule Orbit</span>
+      <span class="c-tag">pharma object in motion</span>
+    </div>
+    <p class="c-desc">A gradient capsule arcs around a glowing coral nucleus on a thin orbital ring — the pill in perpetual, automated motion. It signals software-driven pharmacy operations while staying unmistakably pharmaceutical.</p>
+
+    <div class="panels">
+      <div class="panel light">
+        <span class="p-label">Light · paper</span>
+        <svg class="mark" width="120" height="120" viewBox="0 0 100 100" aria-label="Capsule Orbit logo">
+          <g class="orbit">
+            <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="url(#ringGrad)" stroke-width="3" transform="rotate(-20 50 54)"/>
+            <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+              <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="url(#gradMain)"/>
+              <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+            </g></g>
+          </g>
+          <circle class="core" cx="50" cy="50" r="13" fill="url(#glowCore)"/>
+          <circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/>
+        </svg>
+      </div>
+      <div class="panel dark">
+        <span class="p-label">Dark · ink</span>
+        <svg class="mark" width="120" height="120" viewBox="0 0 100 100" aria-label="Capsule Orbit logo">
+          <g class="orbit">
+            <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="url(#ringGrad)" stroke-width="3" transform="rotate(-20 50 54)"/>
+            <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+              <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="url(#gradMain)"/>
+              <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+            </g></g>
+          </g>
+          <circle class="core" cx="50" cy="50" r="13" fill="url(#glowCore)"/>
+          <circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/>
+        </svg>
+      </div>
+      <div class="panel grad">
+        <span class="p-label">Gradient panel</span>
+        <svg class="mark" width="120" height="120" viewBox="0 0 100 100" aria-label="Capsule Orbit logo">
+          <g class="orbit">
+            <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="#fff" stroke-width="3" opacity=".85" transform="rotate(-20 50 54)"/>
+            <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+              <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="#fff"/>
+            </g></g>
+          </g>
+          <circle class="core" cx="50" cy="50" r="13" fill="#fff" opacity=".9"/>
+          <circle cx="50" cy="50" r="5.5" fill="#FFE3EC"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="ramp">
+      <div class="r-item"><svg class="mark" width="16" height="16" viewBox="0 0 100 100"><g class="orbit">
+      <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="url(#ringGrad)" stroke-width="3" transform="rotate(-20 50 54)"/>
+      <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+        <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="url(#gradMain)"/>
+        <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+      </g></g>
+    </g>
+    <circle class="core" cx="50" cy="50" r="13" fill="url(#glowCore)"/>
+    <circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/></svg><span>16</span></div>
+      <div class="r-item"><svg class="mark" width="24" height="24" viewBox="0 0 100 100"><g class="orbit">
+      <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="url(#ringGrad)" stroke-width="3" transform="rotate(-20 50 54)"/>
+      <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+        <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="url(#gradMain)"/>
+        <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+      </g></g>
+    </g>
+    <circle class="core" cx="50" cy="50" r="13" fill="url(#glowCore)"/>
+    <circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/></svg><span>24</span></div>
+      <div class="r-item"><svg class="mark" width="32" height="32" viewBox="0 0 100 100"><g class="orbit">
+      <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="url(#ringGrad)" stroke-width="3" transform="rotate(-20 50 54)"/>
+      <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+        <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="url(#gradMain)"/>
+        <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+      </g></g>
+    </g>
+    <circle class="core" cx="50" cy="50" r="13" fill="url(#glowCore)"/>
+    <circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/></svg><span>32</span></div>
+      <div class="r-item"><svg class="mark" width="64" height="64" viewBox="0 0 100 100"><g class="orbit">
+      <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="url(#ringGrad)" stroke-width="3" transform="rotate(-20 50 54)"/>
+      <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+        <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="url(#gradMain)"/>
+        <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+      </g></g>
+    </g>
+    <circle class="core" cx="50" cy="50" r="13" fill="url(#glowCore)"/>
+    <circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/></svg><span>64</span></div>
+      <div class="r-item"><svg class="mark" width="128" height="128" viewBox="0 0 100 100"><g class="orbit">
+      <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="url(#ringGrad)" stroke-width="3" transform="rotate(-20 50 54)"/>
+      <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+        <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="url(#gradMain)"/>
+        <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+      </g></g>
+    </g>
+    <circle class="core" cx="50" cy="50" r="13" fill="url(#glowCore)"/>
+    <circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/></svg><span>128</span></div>
+      <div class="r-item"><svg class="mark" width="256" height="256" viewBox="0 0 100 100"><g class="orbit">
+      <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="url(#ringGrad)" stroke-width="3" transform="rotate(-20 50 54)"/>
+      <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+        <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="url(#gradMain)"/>
+        <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+      </g></g>
+    </g>
+    <circle class="core" cx="50" cy="50" r="13" fill="url(#glowCore)"/>
+    <circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/></svg><span>256</span></div>
+    </div>
+
+    <div class="util">
+      <div class="card">
+        <h4>Favicon / App Icon</h4>
+        <div class="tile">
+          <svg class="mark" viewBox="0 0 100 100" aria-label="Capsule Orbit app icon">
+            <g class="orbit">
+              <ellipse cx="50" cy="54" rx="33" ry="12" fill="none" stroke="#fff" stroke-width="3" opacity=".85" transform="rotate(-20 50 54)"/>
+              <g transform="rotate(-20 50 54)"><g transform="translate(50 42)">
+                <rect x="-15" y="-6" width="30" height="12" rx="6" fill="#fff"/>
+              </g></g>
+            </g>
+            <circle class="core" cx="50" cy="50" r="12" fill="#fff" opacity=".9"/>
+            <circle cx="50" cy="50" r="5" fill="#FF5A8D"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card">
+        <h4>Monochrome · letterhead</h4>
+        <div class="mono-sw">
+          <svg class="mark" viewBox="0 0 100 100" aria-label="Capsule Orbit monochrome" style="color:#0A0F1E">
+            <g class="orbit">
+              <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="currentColor" stroke-width="3" transform="rotate(-20 50 54)"/>
+              <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+                <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="currentColor"/>
+              </g></g>
+            </g>
+            <circle cx="50" cy="50" r="11" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="util">
+      <div class="card">
+        <h4>Lockup · horizontal</h4>
+        <div class="lockup">
+          <svg class="mark" width="44" height="44" viewBox="0 0 100 100"><g class="orbit">
+      <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="url(#ringGrad)" stroke-width="3" transform="rotate(-20 50 54)"/>
+      <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+        <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="url(#gradMain)"/>
+        <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+      </g></g>
+    </g>
+    <circle class="core" cx="50" cy="50" r="13" fill="url(#glowCore)"/>
+    <circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/></svg>
+          <div>
+            <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+            <div class="tag">Every Medicine. Under Control.</div>
+          </div>
+        </div>
+      </div>
+      <div class="card lockups-dark">
+        <h4 style="color:rgba(255,255,255,.5)">Lockup · stacked</h4>
+        <div class="lockup stacked">
+          <svg class="mark" width="56" height="56" viewBox="0 0 100 100"><g class="orbit">
+      <ellipse cx="50" cy="54" rx="35" ry="13" fill="none" stroke="url(#ringGrad)" stroke-width="3" transform="rotate(-20 50 54)"/>
+      <g transform="rotate(-20 50 54)"><g transform="translate(50 41)">
+        <rect x="-16" y="-6.5" width="32" height="13" rx="6.5" fill="url(#gradMain)"/>
+        <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+      </g></g>
+    </g>
+    <circle class="core" cx="50" cy="50" r="13" fill="url(#glowCore)"/>
+    <circle cx="50" cy="50" r="5.5" fill="#FF5A8D"/></svg>
+          <div>
+            <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+            <div class="tag">Every Medicine. Under Control.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dodont">
+      <div class="dd do"><h5>Do</h5><ul>
+        <li>Keep the orbit ring thin and the nucleus glowing.</li>
+        <li>Respect the clear space — no elements closer than the ring radius.</li>
+        <li>Use the gradient panel or dark treatment for app surfaces.</li>
+      </ul></div>
+      <div class="dd dont"><h5>Don't</h5><ul>
+        <li>Stretch the capsule or flatten the orbital ring.</li>
+        <li>Recolor outside magenta → coral, or add drop shadows.</li>
+        <li>Freeze the orbit in presentations — let it spin subtly.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- ============ A2 ============ -->
+  <section class="concept" id="a2">
+    <div class="c-head">
+      <span class="c-num">A2</span>
+      <span class="c-title">Pulse Bloom</span>
+      <span class="c-tag">care that grows</span>
+    </div>
+    <p class="c-desc">A clinical ECG heartbeat line travels left to right, then peels upward and unfurls into a blooming petal. Health monitoring meets growth and optimism — a warm, memorable silhouette that is pure AnPharmacy.</p>
+
+    <div class="panels">
+      <div class="panel light">
+        <span class="p-label">Light · paper</span>
+        <svg class="mark" width="130" height="130" viewBox="0 0 100 100" aria-label="Pulse Bloom logo"><path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="url(#gradMain)" opacity=".55"/>
+    <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="url(#gradMain)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="url(#gradMain)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="url(#gradMain)" stroke-width="2.6" stroke-linecap="round"/></svg>
+      </div>
+      <div class="panel dark">
+        <span class="p-label">Dark · ink</span>
+        <svg class="mark" width="130" height="130" viewBox="0 0 100 100" aria-label="Pulse Bloom logo"><path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="url(#gradMain)" opacity=".55"/>
+    <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="url(#gradMain)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="url(#gradMain)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="url(#gradMain)" stroke-width="2.6" stroke-linecap="round"/></svg>
+      </div>
+      <div class="panel grad">
+        <span class="p-label">Gradient panel</span>
+        <svg class="mark" width="130" height="130" viewBox="0 0 100 100" aria-label="Pulse Bloom logo">
+          <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="#fff" opacity=".55"/>
+          <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="ramp">
+      <div class="r-item"><svg class="mark" width="16" height="16" viewBox="0 0 100 100"><path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="url(#gradMain)" opacity=".55"/>
+    <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="url(#gradMain)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="url(#gradMain)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="url(#gradMain)" stroke-width="2.6" stroke-linecap="round"/></svg><span>16</span></div>
+      <div class="r-item"><svg class="mark" width="24" height="24" viewBox="0 0 100 100"><path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="url(#gradMain)" opacity=".55"/>
+    <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="url(#gradMain)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="url(#gradMain)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="url(#gradMain)" stroke-width="2.6" stroke-linecap="round"/></svg><span>24</span></div>
+      <div class="r-item"><svg class="mark" width="32" height="32" viewBox="0 0 100 100"><path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="url(#gradMain)" opacity=".55"/>
+    <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="url(#gradMain)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="url(#gradMain)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="url(#gradMain)" stroke-width="2.6" stroke-linecap="round"/></svg><span>32</span></div>
+      <div class="r-item"><svg class="mark" width="64" height="64" viewBox="0 0 100 100"><path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="url(#gradMain)" opacity=".55"/>
+    <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="url(#gradMain)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="url(#gradMain)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="url(#gradMain)" stroke-width="2.6" stroke-linecap="round"/></svg><span>64</span></div>
+      <div class="r-item"><svg class="mark" width="128" height="128" viewBox="0 0 100 100"><path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="url(#gradMain)" opacity=".55"/>
+    <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="url(#gradMain)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="url(#gradMain)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="url(#gradMain)" stroke-width="2.6" stroke-linecap="round"/></svg><span>128</span></div>
+      <div class="r-item"><svg class="mark" width="256" height="256" viewBox="0 0 100 100"><path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="url(#gradMain)" opacity=".55"/>
+    <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="url(#gradMain)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="url(#gradMain)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="url(#gradMain)" stroke-width="2.6" stroke-linecap="round"/></svg><span>256</span></div>
+    </div>
+
+    <div class="util">
+      <div class="card">
+        <h4>Favicon / App Icon</h4>
+        <div class="tile">
+          <svg class="mark" viewBox="0 0 100 100" aria-label="Pulse Bloom app icon">
+            <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="#fff" opacity=".55"/>
+            <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/>
+            <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card">
+        <h4>Monochrome · letterhead</h4>
+        <div class="mono-sw">
+          <svg class="mark" viewBox="0 0 100 100" aria-label="Pulse Bloom monochrome" style="color:#0A0F1E">
+            <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="currentColor" opacity=".55"/>
+            <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/>
+            <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="util">
+      <div class="card">
+        <h4>Lockup · horizontal</h4>
+        <div class="lockup">
+          <svg class="mark" width="46" height="46" viewBox="0 0 100 100"><path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="url(#gradMain)" opacity=".55"/>
+    <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="url(#gradMain)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="url(#gradMain)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="url(#gradMain)" stroke-width="2.6" stroke-linecap="round"/></svg>
+          <div>
+            <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+            <div class="tag">Every Medicine. Under Control.</div>
+          </div>
+        </div>
+      </div>
+      <div class="card lockups-dark">
+        <h4 style="color:rgba(255,255,255,.5)">Lockup · stacked</h4>
+        <div class="lockup stacked">
+          <svg class="mark" width="60" height="60" viewBox="0 0 100 100"><path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="url(#gradMain)" opacity=".55"/>
+    <path d="M60,62 C50,52 54,30 88,26 C90,46 78,62 60,62 Z" fill="none" stroke="url(#gradMain)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M14,66 L30,66 L37,54 L44,80 L53,38 L60,62" fill="none" stroke="url(#gradMain)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="bloom-vein" d="M60,60 C66,50 74,38 86,28" fill="none" stroke="url(#gradMain)" stroke-width="2.6" stroke-linecap="round"/></svg>
+          <div>
+            <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+            <div class="tag">Every Medicine. Under Control.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dodont">
+      <div class="dd do"><h5>Do</h5><ul>
+        <li>Keep the pulse stroke and petal as one continuous gesture.</li>
+        <li>Let the petal read as growth — never as a separate blob.</li>
+        <li>Use the bloom animation on launch/splash screens.</li>
+      </ul></div>
+      <div class="dd dont"><h5>Don't</h5><ul>
+        <li>Flip or mirror the mark — the pulse must read left → right.</li>
+        <li>Recolor the petal green or any non-palette hue.</li>
+        <li>Thin the stroke below 4px at small sizes (loses the spike).</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- ============ A3 ============ -->
+  <section class="concept" id="a3">
+    <div class="c-head">
+      <span class="c-num">A3</span>
+      <span class="c-title">Mortar Swirl</span>
+      <span class="c-tag">heritage in motion</span>
+    </div>
+    <p class="c-desc">The mortar-and-pestle distilled to two intertwining gradient strokes that spiral around a glowing point — heritage pharmacy reimagined as elegant, modern motion. No literal bowl; just the essence of blending and care.</p>
+
+    <div class="panels">
+      <div class="panel light">
+        <span class="p-label">Light · paper</span>
+        <svg class="mark" width="120" height="120" viewBox="0 0 100 100" aria-label="Mortar Swirl logo"><path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round"/>
+    <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round" opacity=".92"/>
+    <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/></svg>
+      </div>
+      <div class="panel dark">
+        <span class="p-label">Dark · ink</span>
+        <svg class="mark" width="120" height="120" viewBox="0 0 100 100" aria-label="Mortar Swirl logo"><path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round"/>
+    <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round" opacity=".92"/>
+    <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/></svg>
+      </div>
+      <div class="panel grad">
+        <span class="p-label">Gradient panel</span>
+        <svg class="mark" width="120" height="120" viewBox="0 0 100 100" aria-label="Mortar Swirl logo">
+          <path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+          <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".9"/>
+          <circle cx="50" cy="50" r="4.5" fill="#FFE3EC"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="ramp">
+      <div class="r-item"><svg class="mark" width="16" height="16" viewBox="0 0 100 100"><path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round"/>
+    <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round" opacity=".92"/>
+    <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/></svg><span>16</span></div>
+      <div class="r-item"><svg class="mark" width="24" height="24" viewBox="0 0 100 100"><path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round"/>
+    <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round" opacity=".92"/>
+    <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/></svg><span>24</span></div>
+      <div class="r-item"><svg class="mark" width="32" height="32" viewBox="0 0 100 100"><path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round"/>
+    <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round" opacity=".92"/>
+    <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/></svg><span>32</span></div>
+      <div class="r-item"><svg class="mark" width="64" height="64" viewBox="0 0 100 100"><path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round"/>
+    <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round" opacity=".92"/>
+    <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/></svg><span>64</span></div>
+      <div class="r-item"><svg class="mark" width="128" height="128" viewBox="0 0 100 100"><path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round"/>
+    <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round" opacity=".92"/>
+    <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/></svg><span>128</span></div>
+      <div class="r-item"><svg class="mark" width="256" height="256" viewBox="0 0 100 100"><path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round"/>
+    <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round" opacity=".92"/>
+    <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/></svg><span>256</span></div>
+    </div>
+
+    <div class="util">
+      <div class="card">
+        <h4>Favicon / App Icon</h4>
+        <div class="tile">
+          <svg class="mark" viewBox="0 0 100 100" aria-label="Mortar Swirl app icon">
+            <path d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+            <path d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".9"/>
+            <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card">
+        <h4>Monochrome · letterhead</h4>
+        <div class="mono-sw">
+          <svg class="mark" viewBox="0 0 100 100" aria-label="Mortar Swirl monochrome" style="color:#0A0F1E">
+            <path d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+            <path d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" opacity=".85"/>
+            <circle cx="50" cy="50" r="4.5" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="util">
+      <div class="card">
+        <h4>Lockup · horizontal</h4>
+        <div class="lockup">
+          <svg class="mark" width="44" height="44" viewBox="0 0 100 100"><path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round"/>
+    <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round" opacity=".92"/>
+    <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/></svg>
+          <div>
+            <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+            <div class="tag">Every Medicine. Under Control.</div>
+          </div>
+        </div>
+      </div>
+      <div class="card lockups-dark">
+        <h4 style="color:rgba(255,255,255,.5)">Lockup · stacked</h4>
+        <div class="lockup stacked">
+          <svg class="mark" width="56" height="56" viewBox="0 0 100 100"><path class="swirl" d="M22,68 C20,42 42,30 62,38 C78,45 76,66 56,66 C42,66 38,54 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round"/>
+    <path class="swirl b" d="M78,32 C80,58 58,70 38,62 C22,55 24,34 44,34 C58,34 62,46 50,50" fill="none" stroke="url(#gradMain)" stroke-width="6" stroke-linecap="round" opacity=".92"/>
+    <circle cx="50" cy="50" r="4.5" fill="#FF5A8D"/></svg>
+          <div>
+            <div class="wm"><span class="an">An</span><span class="rest">Pharmacy</span></div>
+            <div class="tag">Every Medicine. Under Control.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dodont">
+      <div class="dd do"><h5>Do</h5><ul>
+        <li>Keep both strokes equal weight — they are one balanced swirl.</li>
+        <li>Center the glowing pestle point where the curves meet.</li>
+        <li>Animate the strokes drawing on, like blending.</li>
+      </ul></div>
+      <div class="dd dont"><h5>Don't</h5><ul>
+        <li>Add a literal bowl or cross — abstraction is the point.</li>
+        <li>Separate the two strokes or let them touch awkwardly.</li>
+        <li>Recolor one stroke differently (breaks the family).</li>
+      </ul></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="gradbar"></div>
+    AnPharmacy brand exploration · Set A — Capsule Orbit / Pulse Bloom / Mortar Swirl. All marks inline SVG, magenta→coral only, offline-safe. Reference direction adapted from the existing <code>src/lib/Logo.tsx</code> system.
+  </div>
+</footer>
+
+</body>
+</html>

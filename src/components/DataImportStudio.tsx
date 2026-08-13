@@ -1,11 +1,11 @@
 /**
- * Data Import Studio — Main Component
+ * Data Import Studio Ã¢â‚¬â€ Main Component
  * 
  * Enterprise-grade import workspace. No stock updates happen until
  * the user explicitly clicks "Commit to Stock".
  * 
  * Workflow:
- *   Select File → Parse → Column Mapping → Validate → Review → Preview → Commit
+ *   Select File Ã¢â€ â€™ Parse Ã¢â€ â€™ Column Mapping Ã¢â€ â€™ Validate Ã¢â€ â€™ Review Ã¢â€ â€™ Preview Ã¢â€ â€™ Commit
  * 
  * Features:
  * - Multi-format support (Excel, CSV, PDF, OCR)
@@ -18,7 +18,7 @@
  * - Recycle Bin integration
  */
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback, Suspense, lazy } from 'react';
 import { useImportSessionStore, ImportStep } from '../stores/importSessionStore';
 import { useStockStore } from '../stores/stockStore';
 import { useToast } from '../hooks/useToast';
@@ -36,12 +36,17 @@ import {
   Undo2, Redo2, Grid3X3, Map, ShieldCheck, FileCheck,
   ListChecks, BarChart3, History, Bookmark, Sparkles,
   Loader2, RotateCcw, Package, HelpCircle, Maximize2, Minimize2,
+  ChevronLeft, ChevronRight, Type, ZoomIn, ZoomOut, ScanLine,
   Lightbulb, Target, Zap
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
 import { ACCEPTED_FILE_TYPES } from '../lib/fileImporter';
 import VirtualDataGrid, { DataGridColumn } from './DataImportStudio/VirtualDataGrid';
 import { importProfileStore } from '../lib/importer/importProfileStore';
+
+// Hub sub-views (lazy so the studio itself loads instantly)
+const ScanInvoice = lazy(() => import('./ScanInvoice'));
+const ImportHistoryView = lazy(() => import('./DataImportStudio/ImportHistoryView'));
 import { 
   ColumnMapping, AIMappingSuggestion, UnknownColumnInfo,
   ValidationRecord, ValidationSummary, CommitSummary,
@@ -49,31 +54,38 @@ import {
   FIELD_SYNONYMS,
 } from '../lib/importer/types';
 
-// ═════════════════════════════════════════════════════════════════════
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 // STEP CONFIGURATION
-// ═════════════════════════════════════════════════════════════════════
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 
 interface StepConfig {
   id: ImportStep;
   label: string;
   icon: React.ElementType;
   description: string;
+  activeBg: string;
 }
 
 const STEPS: StepConfig[] = [
-  { id: 'select', label: 'Select File', icon: Upload, description: 'Choose your import file' },
-  { id: 'mapping', label: 'Map Columns', icon: Map, description: 'Map file columns to stock fields' },
-  { id: 'validation', label: 'Validate', icon: ShieldCheck, description: 'Review validation results' },
-  { id: 'review', label: 'Review', icon: ListChecks, description: 'Review and edit imported data' },
-  { id: 'preview', label: 'Preview', icon: Eye, description: 'Preview changes before commit' },
-  { id: 'complete', label: 'Complete', icon: FileCheck, description: 'Import completed' },
+  { id: 'select', label: 'Select File', icon: Upload, description: 'Choose your import file', activeBg: 'bg-blue-600 border-blue-600' },
+  { id: 'preview', label: 'Data Preview', icon: Eye, description: 'Review parsed data before mapping', activeBg: 'bg-cyan-600 border-cyan-600' },
+  { id: 'mapping', label: 'Map Columns', icon: Map, description: 'Map file columns to stock fields', activeBg: 'bg-violet-600 border-violet-600' },
+  { id: 'validation', label: 'Validate', icon: ShieldCheck, description: 'Review validation results', activeBg: 'bg-amber-500 border-amber-500' },
+  { id: 'review', label: 'Review', icon: ListChecks, description: 'Review and edit imported data', activeBg: 'bg-emerald-600 border-emerald-600' },
+  { id: 'commit', label: 'Commit', icon: FileCheck, description: 'Preview changes & commit to stock', activeBg: 'bg-orange-500 border-orange-500' },
+  { id: 'complete', label: 'Complete', icon: FileCheck, description: 'Import completed', activeBg: 'bg-green-600 border-green-600' },
 ];
 
-// ═════════════════════════════════════════════════════════════════════
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 // MAIN COMPONENT
-// ═════════════════════════════════════════════════════════════════════
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 
-export default function DataImportStudio() {
+interface DataImportStudioProps {
+  /** Open the hub on a specific tab (used by legacy routes) */
+  initialMode?: 'import' | 'scan' | 'history';
+}
+
+export default function DataImportStudio({ initialMode = 'import' }: DataImportStudioProps) {
   const {
     session, activeStep, isProcessing, processingMessage, error,
     validationSummary, showProfileDialog, matchedProfileName,
@@ -95,8 +107,46 @@ export default function DataImportStudio() {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Load draft on mount
+  // Data Import hub — Import Files / Scan Invoice / Import History
+  const [mode, setMode] = useState<'import' | 'scan' | 'history'>(initialMode);
+
+  // Display preferences (persisted for users who need bigger/clearer text)
+  const FONT_OPTIONS = [
+    { label: 'Default', value: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" },
+    { label: 'Inter', value: "'Inter', system-ui, sans-serif" },
+    { label: 'Serif', value: "Georgia, 'Times New Roman', serif" },
+    { label: 'Mono', value: "'Cascadia Mono', Consolas, monospace" },
+  ];
+  const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('anpharm_import_font') || FONT_OPTIONS[0].value);
+  const [fontScale, setFontScale] = useState(() => {
+    const s = parseFloat(localStorage.getItem('anpharm_import_fontscale') || '1');
+    return isNaN(s) || s < 0.8 ? 1 : Math.min(s, 1.6);
+  });
+  useEffect(() => { localStorage.setItem('anpharm_import_font', fontFamily); }, [fontFamily]);
+  useEffect(() => { localStorage.setItem('anpharm_import_fontscale', String(fontScale)); }, [fontScale]);
+
+  // Pagination for data preview / validation tables
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(25);
+  useEffect(() => { setPage(0); }, [activeStep, session?.id]);
+
+  const studioStyle: React.CSSProperties = { fontFamily, zoom: fontScale };
+
+  // Mapped rows + per-row validation status for the Validate screen (built once per session)
+  const mappedTable = useMemo(() => {
+    if (!session || session.sheets.length === 0) return null;
+    const sheet = session.sheets[session.activeSheetIndex];
+    const vCols = session.columnMappings.filter(m => m.isMapped && !m.isHidden);
+    const headers = vCols.map(m => m.displayLabel);
+    const rows = sheet.rows.map(row => vCols.map(m => row[sheet.headers.indexOf(m.sourceColumn)] ?? ''));
+    const statusByRow: Record<number, string> = {};
+    session.validationResults.forEach(r => { statusByRow[r.rowIndex] = r.status; });
+    return { headers, rows, statusByRow };
+  }, [session]);
+
+  // Load draft on mount (import mode only — Scan/History tabs don't need it)
   useEffect(() => {
+    if (initialMode !== 'import') return;
     const hasDraft = loadDraft();
     if (hasDraft) {
       toast.info('Draft Restored', 'A saved draft was found and restored.');
@@ -194,9 +244,9 @@ export default function DataImportStudio() {
     }
   };
 
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   // RENDER: STEP INDICATOR
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   const renderStepIndicator = () => (
     <div className="flex items-center gap-1 mb-6 overflow-x-auto pb-2">
       {STEPS.map((step, idx) => {
@@ -213,9 +263,9 @@ export default function DataImportStudio() {
               disabled={!isClickable}
               className={cn(
                 'flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-semibold transition-all duration-200 whitespace-nowrap border',
-                isActive && 'bg-slate-900 text-white border-slate-900 shadow-md',
+                isActive && cn('text-white shadow-md', step.activeBg),
                 isPast && 'bg-background dark:bg-muted/40 text-success dark:text-success border-success/40 dark:border-success/40 hover:shadow-sm cursor-pointer',
-                !isActive && !isPast && 'bg-background dark:bg-muted/40 text-slate-400 dark:text-slate-400 border-slate-200 dark:border-border cursor-default'
+                !isActive && !isPast && 'bg-background dark:bg-muted/40 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-border cursor-default'
               )}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -234,9 +284,163 @@ export default function DataImportStudio() {
     </div>
   );
 
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   // RENDER: FILE SELECT
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+  // Shared paginated data table (used by Data Preview + Validation)
+  // ponytail: one table for both screens; 500 max per page keeps render cheap
+  const renderPagedTable = (
+    headers: string[],
+    rows: any[][],
+    rowStatus?: Record<number, string>,
+    rowStatusForIndex?: (rowIdx: number) => { label: string; cls: string } | null
+  ) => {
+    const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+    const p = Math.min(page, pageCount - 1);
+    const start = p * pageSize;
+    const slice = rows.slice(start, start + pageSize);
+    return (
+      <div className="space-y-2">
+        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-background shadow-sm">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="px-2 py-2 text-left font-bold text-slate-700 border-r border-slate-200 w-10">#</th>
+                {headers.map((header, idx) => (
+                  <th key={idx} className="px-2 py-2 text-left font-bold text-slate-700 border-r border-slate-200 whitespace-nowrap">
+                    {header || `(col ${idx + 1})`}
+                  </th>
+                ))}
+                {rowStatusForIndex && <th className="px-2 py-2 text-left font-bold text-slate-700">Status</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {slice.map((row, rIdx) => {
+                const globalIdx = start + rIdx;
+                const status = rowStatusForIndex ? rowStatusForIndex(globalIdx) : null;
+                return (
+                  <tr key={globalIdx} className={globalIdx % 2 === 0 ? 'bg-background' : 'bg-slate-50/60'}>
+                    <td className="px-2 py-1.5 border-r border-slate-100 border-t border-slate-100/60 text-slate-400 text-[10px]">{globalIdx + 1}</td>
+                    {row.map((cell, colIdx) => (
+                      <td key={colIdx} className="px-2 py-1.5 border-r border-slate-100 border-t border-slate-100/60 max-w-[220px] truncate">
+                        <span className={cn(
+                          'font-mono',
+                          cell === '' || cell === null || cell === undefined ? 'text-slate-300' : 'text-slate-800'
+                        )}>
+                          {cell ?? '—'}
+                        </span>
+                      </td>
+                    ))}
+                    {rowStatusForIndex && (
+                      <td className="px-2 py-1.5 border-t border-slate-100/60">
+                        {status ? <Badge variant={status.label === 'Error' ? 'destructive' : status.label === 'Warning' ? 'warning' : 'success'} size="sm">{status.label}</Badge> : '—'}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+              {slice.length === 0 && (
+                <tr><td colSpan={headers.length + (rowStatusForIndex ? 2 : 1)} className="px-2 py-6 text-center text-slate-400">No rows to display</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        {/* Pagination controls */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+          <div className="flex items-center gap-2 text-xs text-slate-700">
+            <span className="font-medium">Rows per page:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
+              className="px-1.5 py-1 rounded-md border border-slate-300 bg-background text-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {[10, 25, 50, 100, 500].map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+            <span className="font-medium">
+              Showing {rows.length === 0 ? 0 : start + 1}–{Math.min(start + pageSize, rows.length)} of <strong>{rows.length.toLocaleString()}</strong>
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-700">Page {p + 1} / {pageCount}</span>
+            <Button size="sm" variant="outline" disabled={p <= 0} onClick={() => setPage(p - 1)} className="gap-1">
+              <ChevronLeft className="w-3.5 h-3.5" /> Prev
+            </Button>
+            <Button size="sm" variant="outline" disabled={p >= pageCount - 1} onClick={() => setPage(p + 1)} className="gap-1">
+              Next <ChevronRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Font family + size controls (accessibility: bigger/clearer text on demand)
+  const renderDisplayControls = () => (
+    <div className="flex items-center gap-1.5" title="Display options: font family and text size">
+      <Type className="w-4 h-4 text-slate-500" />
+      <select
+        value={fontFamily}
+        onChange={(e) => setFontFamily(e.target.value)}
+        className="px-2 py-1 rounded-md border border-slate-300 bg-background text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        {FONT_OPTIONS.map(f => <option key={f.label} value={f.value}>{f.label}</option>)}
+      </select>
+      <div className="flex items-center rounded-md border border-slate-300 bg-background">
+        <button
+          onClick={() => setFontScale(s => Math.max(0.8, Math.round((s - 0.1) * 100) / 100))}
+          className="px-1.5 py-1 text-slate-600 hover:bg-slate-100 rounded-l-md"
+          title="Decrease text size"
+        >
+          <ZoomOut className="w-3.5 h-3.5" />
+        </button>
+        <span className="px-1 text-xs font-bold text-slate-700 border-x border-slate-200">{Math.round(fontScale * 100)}%</span>
+        <button
+          onClick={() => setFontScale(s => Math.min(1.6, Math.round((s + 0.1) * 100) / 100))}
+          className="px-1.5 py-1 text-slate-600 hover:bg-slate-100 rounded-r-md"
+          title="Increase text size"
+        >
+          <ZoomIn className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+
+  // Data Import hub — mode switcher (Import Files / Scan Invoice / Import History)
+  const renderModeTabs = () => {
+    const modes: { id: 'import' | 'scan' | 'history'; label: string; desc: string; icon: React.ElementType }[] = [
+      { id: 'import', label: 'Import Files', desc: 'Excel · CSV · PDF', icon: FileSpreadsheet },
+      { id: 'scan', label: 'Scan Invoice', desc: 'Camera · Upload · OCR', icon: ScanLine },
+      { id: 'history', label: 'Import History', desc: 'Past imports & results', icon: History },
+    ];
+    return (
+      <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700">
+        {modes.map(m => {
+          const Icon = m.icon;
+          const active = mode === m.id;
+          return (
+            <button
+              key={m.id}
+              onClick={() => setMode(m.id)}
+              className={cn(
+                'flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer',
+                active
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700/60'
+              )}
+              aria-pressed={active}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{m.label}</span>
+              <span className={cn('hidden sm:block text-[10px] font-medium', active ? 'text-emerald-50/80' : 'text-slate-400 dark:text-slate-500')}>
+                {m.desc}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
   const renderFileSelect = () => (
     <div className="space-y-6">
       <div className="text-center">
@@ -307,11 +511,128 @@ export default function DataImportStudio() {
         })}
       </div>
     </div>
-  );
+);
 
-  // ═════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // RENDER: DATA PREVIEW (New Step)
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  const renderDataPreview = () => {
+    if (!session || session.sheets.length === 0) return null;
+    
+    const activeSheet = session.sheets[session.activeSheetIndex];
+    const totalRows = activeSheet.totalRows;
+    const totalCols = activeSheet.totalCols;
+    const headers = activeSheet.headers;
+    
+    // Detect potential issues
+    const emptyHeaderCount = headers.filter(h => !h || h.trim() === '').length;
+    const duplicateHeaders = headers.filter((h, i) => headers.indexOf(h) !== i && h.trim()).length > 0;
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-slate-900">Data Preview</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Review the parsed data before mapping columns. {totalRows} rows Ã— {totalCols} columns detected.
+            </p>
+          </div>
+          <Badge variant={emptyHeaderCount > 0 ? 'warning' : 'success'} size="sm" className="gap-1">
+            <Check className="w-3 h-3" />
+            {emptyHeaderCount > 0 ? `${emptyHeaderCount} empty headers` : 'All headers present'}
+          </Badge>
+        </div>
+
+        {/* File Info Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: 'Total Rows', value: totalRows.toLocaleString(), color: 'text-navy-700 bg-navy-50', icon: FileSpreadsheet },
+            { label: 'Columns', value: totalCols, color: 'text-emerald-700 bg-emerald-50', icon: Columns },
+            { label: 'File Size', value: session.fileSize ? `${(session.fileSize / 1024).toFixed(1)} KB` : 'â€”', color: 'text-amber-700 bg-amber-50', icon: File },
+            { label: 'Format', value: session.source.toUpperCase(), color: 'text-violet-700 bg-violet-50', icon: HelpCircle },
+          ].map(item => {
+            const Icon = item.icon;
+            return (
+              <Card key={item.label} variant="bordered" className="p-3">
+                <div className="flex items-center gap-2">
+                  <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', item.color)}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-800">{item.value}</p>
+                    <p className="text-[10px] text-slate-500">{item.label}</p>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Warnings */}
+        {(emptyHeaderCount > 0 || duplicateHeaders) && (
+          <Card variant="bordered" className="bg-warning-light border-amber-200">
+            <CardContent className="p-3 flex items-center gap-3">
+              <AlertTriangle className="w-4 h-4 text-warning" />
+              <div className="text-xs text-amber-800 space-y-1">
+                {emptyHeaderCount > 0 && <p>âš  {emptyHeaderCount} column(s) have empty headers â€” they will be skipped</p>}
+                {duplicateHeaders && <p>âš  Duplicate column headers detected â€” please verify mapping</p>}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Column Headers Overview */}
+        <div className="space-y-2">
+          <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Detected Columns ({headers.length})</h4>
+          <div className="flex flex-wrap gap-1.5">
+            {headers.map((header, idx) => (
+              <span
+                key={header}
+                className={cn(
+                  'px-2 py-1 rounded text-[10px] font-mono border cursor-default',
+                  header && header.trim() 
+                    ? 'bg-background border-slate-200 text-slate-700' 
+                    : 'bg-amber-50 border-amber-200 text-amber-700'
+                )}
+                title={`Column ${idx + 1}: ${header || '(empty)'}`}
+              >
+                {header || `(empty ${idx + 1})`}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Full Data Table (paginated) */}
+        <div className="space-y-2">
+          <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+            All Rows ({activeSheet.rows.length.toLocaleString()}) — every row visible via pagination
+          </h4>
+          {renderPagedTable(headers, activeSheet.rows)}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+          <Button size="sm" variant="outline" onClick={() => setActiveStep('select')}>
+            <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+            Change File
+          </Button>
+          <Button 
+            size="sm" 
+            variant="primary" 
+            onClick={() => setActiveStep('mapping')}
+            className="gap-2"
+          >
+            Continue to Column Mapping
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // RENDER: COLUMN MAPPING
-  // ═════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const renderColumnMapping = () => {
     if (!session) return null;
     const { columnMappings, aiSuggestions, unknownColumns } = session;
@@ -365,7 +686,7 @@ export default function DataImportStudio() {
                   <div>
                     <p className="text-sm font-semibold text-amber-900">Import Profile Found</p>
                     <p className="text-xs text-warning mt-0.5">
-                      Profile: <strong>{matchedProfileName}</strong> — Apply saved column mappings?
+                      Profile: <strong>{matchedProfileName}</strong> Ã¢â‚¬â€ Apply saved column mappings?
                     </p>
                   </div>
                 </div>
@@ -446,7 +767,7 @@ export default function DataImportStudio() {
                         : 'bg-warning-light border-amber-300 text-amber-800'
                     )}
                   >
-                    <option value="">— Skip / Do Not Import —</option>
+                    <option value="">Ã¢â‚¬â€ Skip / Do Not Import Ã¢â‚¬â€</option>
                     {PROTECTED_SCHEMA_FIELDS.map(field => (
                       <option key={field.key} value={field.key}>
                         {field.label} {field.required ? '*' : ''}
@@ -588,9 +909,9 @@ export default function DataImportStudio() {
     );
   };
 
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   // RENDER: VALIDATION RESULTS
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   const renderValidation = () => {
     if (!session || !validationSummary) return null;
     
@@ -602,7 +923,7 @@ export default function DataImportStudio() {
           <div>
             <h3 className="text-base font-semibold text-slate-900">Validation Results</h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              {hasIssues ? 'Issues found — review before proceeding' : 'All rows pass validation'}
+              {hasIssues ? 'Issues found Ã¢â‚¬â€ review before proceeding' : 'All rows pass validation'}
             </p>
           </div>
         </div>
@@ -631,6 +952,21 @@ export default function DataImportStudio() {
             );
           })}
         </div>
+
+        {/* Mapped Data (paginated, with per-row validation status) */}
+        {mappedTable && (
+        <div className="space-y-2">
+          <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+            Validated Data — All Rows ({mappedTable.rows.length.toLocaleString()})
+          </h4>
+          {renderPagedTable(mappedTable.headers, mappedTable.rows, undefined, (idx) => {
+            const st = mappedTable.statusByRow[idx];
+            if (st === 'error') return { label: 'Error', cls: '' };
+            if (st === 'warning') return { label: 'Warning', cls: '' };
+            return { label: 'Valid', cls: '' };
+          })}
+        </div>
+        )}
 
         {/* Issue Details */}
         {hasIssues && (
@@ -683,9 +1019,9 @@ export default function DataImportStudio() {
     );
   };
 
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   // RENDER: DATA REVIEW (Virtual Data Grid)
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   const renderDataReview = () => {
     if (!session || session.sheets.length === 0) return null;
     
@@ -725,9 +1061,9 @@ export default function DataImportStudio() {
           <div>
             <h3 className="text-base font-semibold text-slate-900">Review Import Data</h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              {activeSheet.totalRows - deletedSet.size} rows · {visibleColumns.length} columns
-              {deletedSet.size > 0 && ` · ${deletedSet.size} deleted`}
-              {activeSheet.totalRows > 500 && ` · Virtual scroll active`}
+              {activeSheet.totalRows - deletedSet.size} rows Ã‚Â· {visibleColumns.length} columns
+              {deletedSet.size > 0 && ` Ã‚Â· ${deletedSet.size} deleted`}
+              {activeSheet.totalRows > 500 && ` Ã‚Â· Virtual scroll active`}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -780,9 +1116,9 @@ export default function DataImportStudio() {
     );
   };
 
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   // RENDER: COMMIT PREVIEW
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   const renderCommitPreview = () => {
     if (!session || !session.commitSummary) return null;
     const summary = session.commitSummary;
@@ -867,7 +1203,7 @@ export default function DataImportStudio() {
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0 ml-2">
                   <span className="font-mono text-slate-600">{item.quantity} qty</span>
-                  <span className="font-mono text-slate-500">₹{item.mrp}</span>
+                  <span className="font-mono text-slate-500">Ã¢â€šÂ¹{item.mrp}</span>
                   {item.action === 'add' && <Badge variant="success" size="sm">New</Badge>}
                   {item.action === 'update' && <Badge variant="warning" size="sm">Update</Badge>}
                   {item.action === 'skip' && <Badge variant="secondary" size="sm">Skip</Badge>}
@@ -882,6 +1218,16 @@ export default function DataImportStudio() {
             )}
           </CardContent>
         </Card>
+
+        {/* Full Imported Data (paginated) */}
+        {mappedTable && (
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              Imported Data — All Rows ({mappedTable.rows.length.toLocaleString()})
+            </h4>
+            {renderPagedTable(mappedTable.headers, mappedTable.rows)}
+          </div>
+        )}
 
         {/* Commit Actions */}
         <div className="flex items-center justify-between pt-2">
@@ -951,9 +1297,9 @@ export default function DataImportStudio() {
     );
   };
 
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   // RENDER: COMPLETE
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   const renderComplete = () => {
     if (!session || !session.commitSummary) return null;
 
@@ -985,6 +1331,18 @@ export default function DataImportStudio() {
           ))}
         </div>
 
+        {/* Committed Data (paginated) */}
+        {mappedTable && (
+          <div className="max-w-3xl mx-auto text-left">
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                Committed Data — All Rows ({mappedTable.rows.length.toLocaleString()})
+              </h4>
+              {renderPagedTable(mappedTable.headers, mappedTable.rows)}
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex items-center justify-center gap-3">
           <Button variant="outline" onClick={() => {
@@ -1007,9 +1365,9 @@ export default function DataImportStudio() {
     );
   };
 
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   // RENDER: LOADING OVERLAY
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   if (isProcessing) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -1022,9 +1380,9 @@ export default function DataImportStudio() {
     );
   }
 
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   // RENDER: ERROR STATE
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   if (error) {
     return (
       <div className="text-center py-12 space-y-4">
@@ -1041,9 +1399,9 @@ export default function DataImportStudio() {
     );
   }
 
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   // FULLSCREEN / MAXIMIZE HELPERS
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   const toggleFullscreen = () => {
     setIsFullscreen(f => !f);
     setIsMaximized(false);
@@ -1060,19 +1418,36 @@ export default function DataImportStudio() {
     document.body.style.overflow = '';
   };
 
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   // MAIN RENDER
-  // ═════════════════════════════════════════════════════════════════
+  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+  // Non-import modes (Scan Invoice / Import History) live inside the hub
+  if (mode !== 'import') {
+    return (
+      <div style={studioStyle} className="space-y-4 animate-fade-in">
+        {renderModeTabs()}
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-32">
+            <Loader2 className="w-8 h-8 text-success animate-spin" />
+          </div>
+        }>
+          {mode === 'scan' ? <ScanInvoice /> : <ImportHistoryView />}
+        </Suspense>
+      </div>
+    );
+  }
+
   if (isMaximized && !isFullscreen) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-background dark:bg-slate-900 flex flex-col animate-fade-in">
+      <div style={studioStyle} className="fixed inset-0 z-[9999] bg-background dark:bg-slate-900 flex flex-col animate-fade-in">
         {/* Maximized Header */}
         <div className="flex items-center justify-between px-6 py-3 bg-slate-50 border-b border-slate-200">
           <div>
             <h2 className="text-lg font-bold text-slate-900">Data Import Studio</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Maximized view • Professional import workspace</p>
+            <p className="text-xs text-slate-500 mt-0.5">Maximized view Ã¢â‚¬Â¢ Professional import workspace</p>
           </div>
           <div className="flex items-center gap-2">
+            {renderDisplayControls()}
             <Button size="sm" variant="outline" onClick={dismissMinimize} className="gap-1">
               <Minimize2 className="w-4 h-4" /> Minimize
             </Button>
@@ -1081,6 +1456,8 @@ export default function DataImportStudio() {
             </Button>
           </div>
         </div>
+        {/* Data Import hub tabs */}
+        <div className="px-6 pt-3">{renderModeTabs()}</div>
         {/* Maximized Content */}
         <div className="flex-1 overflow-auto p-6">
           {renderStepIndicator()}
@@ -1090,10 +1467,11 @@ export default function DataImportStudio() {
           )}>
             <CardContent className="p-6">
               {activeStep === 'select' && renderFileSelect()}
+              {activeStep === 'preview' && renderDataPreview()}
               {activeStep === 'mapping' && renderColumnMapping()}
               {activeStep === 'validation' && renderValidation()}
               {activeStep === 'review' && renderDataReview()}
-              {activeStep === 'preview' && renderCommitPreview()}
+              {activeStep === 'commit' && renderCommitPreview()}
               {activeStep === 'complete' && renderComplete()}
             </CardContent>
           </Card>
@@ -1104,19 +1482,22 @@ export default function DataImportStudio() {
 
   if (isFullscreen) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-background dark:bg-slate-900 flex flex-col animate-fade-in">
+      <div style={studioStyle} className="fixed inset-0 z-[9999] bg-background dark:bg-slate-900 flex flex-col animate-fade-in">
         {/* Fullscreen Header */}
         <div className="flex items-center justify-between px-6 py-3 bg-slate-50 border-b border-slate-200">
           <div>
             <h2 className="text-lg font-bold text-slate-900">Data Import Studio</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Fullscreen view • Press ESC to exit</p>
+            <p className="text-xs text-slate-500 mt-0.5">Fullscreen view Ã¢â‚¬Â¢ Press ESC to exit</p>
           </div>
           <div className="flex items-center gap-2">
+            {renderDisplayControls()}
             <Button size="sm" variant="outline" onClick={dismissMinimize} className="gap-1">
               <Minimize2 className="w-4 h-4" /> Exit Fullscreen
             </Button>
           </div>
         </div>
+        {/* Data Import hub tabs */}
+        <div className="px-6 pt-3">{renderModeTabs()}</div>
         {/* Fullscreen Content */}
         <div className="flex-1 overflow-auto p-6">
           {renderStepIndicator()}
@@ -1126,10 +1507,11 @@ export default function DataImportStudio() {
           )}>
             <CardContent className="p-6">
               {activeStep === 'select' && renderFileSelect()}
+              {activeStep === 'preview' && renderDataPreview()}
               {activeStep === 'mapping' && renderColumnMapping()}
               {activeStep === 'validation' && renderValidation()}
               {activeStep === 'review' && renderDataReview()}
-              {activeStep === 'preview' && renderCommitPreview()}
+              {activeStep === 'commit' && renderCommitPreview()}
               {activeStep === 'complete' && renderComplete()}
             </CardContent>
           </Card>
@@ -1139,16 +1521,17 @@ export default function DataImportStudio() {
   }
 
   return (
-    <div className="space-y-4 animate-fade-in">
+    <div style={studioStyle} className="space-y-4 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-slate-900">Data Import Studio</h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Professional import workspace — nothing is committed until you confirm
+            Professional import workspace Ã¢â‚¬â€ nothing is committed until you confirm
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {renderDisplayControls()}
           {session && session.status !== 'committed' && (
             <>
               {session.draftSavedAt && (
@@ -1170,6 +1553,9 @@ export default function DataImportStudio() {
         </div>
       </div>
 
+      {/* Data Import hub tabs — Import Files / Scan Invoice / Import History */}
+      {renderModeTabs()}
+
       {/* Step Indicator */}
       {renderStepIndicator()}
 
@@ -1180,10 +1566,11 @@ export default function DataImportStudio() {
       )}>
         <CardContent className="p-6">
           {activeStep === 'select' && renderFileSelect()}
+          {activeStep === 'preview' && renderDataPreview()}
           {activeStep === 'mapping' && renderColumnMapping()}
           {activeStep === 'validation' && renderValidation()}
           {activeStep === 'review' && renderDataReview()}
-          {activeStep === 'preview' && renderCommitPreview()}
+          {activeStep === 'commit' && renderCommitPreview()}
           {activeStep === 'complete' && renderComplete()}
         </CardContent>
       </Card>

@@ -1,17 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!--
+    AnPharmacy OS app icon (window / taskbar / tray source).
+    Deep-navy rounded tile + the bold 'an' letterforms in the bright on-dark
+    gradient. (OS app icons carry a background by convention — the logo itself
+    ships box-free in logo-icon.svg / favicon-icon.svg.)
+  -->
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0B1120"/>
-      <stop offset="55%" stop-color="#111827"/>
-      <stop offset="100%" stop-color="#1E293B"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A0F1E"/>
+      <stop offset="55%" stop-color="#0E1728"/>
+      <stop offset="100%" stop-color="#101E38"/>
+    </linearGradient>
+    <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="4" y1="53" x2="96" y2="53">
+      <stop offset="0%" stop-color="#C026D3"/>
+      <stop offset="40%" stop-color="#E879F9"/>
+      <stop offset="75%" stop-color="#F9A8D4"/>
+      <stop offset="100%" stop-color="#FDA4AF"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
   <rect x="30" y="30" width="452" height="452" rx="86" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
-  <!-- Bowl — filled ring open on the right -->
-  <path d="M280.11 154.67 A138.67 138.67 0 1 0 280.11 293.33 L224.64 261.33 A74.67 74.67 0 1 1 224.64 186.67 Z" fill="white"/>
-  <!-- Stem — vertical bar filling the opening + tail -->
-  <rect x="245.33" y="85.33" width="74.67" height="320" rx="37.33" fill="white"/>
-  <!-- Yellow accent dot -->
-  <circle cx="384" cy="384" r="37.33" fill="#EAB308"/>
+  <g transform="translate(81 75.8) scale(3.5)">
+    <circle cx="25" cy="53" r="14" fill="none" stroke="url(#g)" stroke-width="14"/>
+    <path d="M42 30 L42 74" fill="none" stroke="url(#g)" stroke-width="14" stroke-linecap="round"/>
+    <path d="M60 74 L60 37 C60 30 66 29 74.5 29 C83 29 89 31 89 37 L89 74"
+          fill="none" stroke="url(#g)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>

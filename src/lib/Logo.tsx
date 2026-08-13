@@ -4,143 +4,296 @@ import { cn } from './utils';
 interface LogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  variant?: 'default' | 'white' | 'compact';
+  variant?: 'default' | 'white' | 'compact' | 'mono';
 }
 
 const sizeMap = {
-  sm: { box: 36, icon: 20, fontSize: 'text-sm' },
-  md: { box: 44, icon: 24, fontSize: 'text-base' },
-  lg: { box: 60, icon: 34, fontSize: 'text-xl' },
-  xl: { box: 88, icon: 50, fontSize: 'text-3xl' },
+  sm: { box: 36, icon: 28, fontSize: 'text-[22px]', tagline: 'text-[10px]' },
+  md: { box: 44, icon: 34, fontSize: 'text-[26px]', tagline: 'text-[11px]' },
+  lg: { box: 60, icon: 46, fontSize: 'text-[34px]', tagline: 'text-[11px]' },
+  xl: { box: 88, icon: 66, fontSize: 'text-[46px]', tagline: 'text-xs' },
 };
 
 /**
- * Logo #21 — stylized lowercase "a" with a yellow dot.
+ * LOGO — "Distribution Hub"
  *
- * Built from SOLID filled geometry (a ring bowl + stem bar) so it renders
- * crisply at every size — no thin strokes that can break or vanish.
- * The bowl is a circular ring open on the right; the stem fills that opening
- * and extends down as the letter's tail; the yellow dot anchors the bottom-right.
- *
- * Mark uses currentColor for the glyph so it works on any background;
- * the yellow dot is always accent-yellow.
+ * Professional, business-grade mark: two supply sources feeding a single
+ * controlled pharmacy node (the ring = the point of control). Reads as a
+ * managed distribution network — exactly what AnPharmacy does. Ownable,
+ * distinctive, scales cleanly 16px → 96px and holds up in mono.
  */
-export function LogoMark({
+export function AnPharmacyIcon({
   className,
   style,
+  mono = false,
 }: {
   className?: string;
   style?: React.CSSProperties;
+  mono?: boolean;
 }) {
+  const uid = React.useId().replace(/:/g, '');
+  const gradId = `anGrad${uid}`;
+  const hub = (
+    <>
+      <path d="M30,30 L50,72" />
+      <path d="M70,30 L50,72" />
+      <circle cx="30" cy="30" r="9" />
+      <circle cx="70" cy="30" r="9" />
+      <circle cx="50" cy="72" r="13" fill="none" strokeWidth="8" />
+      <circle cx="50" cy="72" r="5" />
+    </>
+  );
+
+  if (mono) {
+    return (
+      <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
+        <g fill="currentColor" stroke="currentColor" strokeWidth="8" strokeLinecap="round">
+          {hub}
+        </g>
+      </svg>
+    );
+  }
+
   return (
-    <svg
-      viewBox="0 0 48 48"
-      className={cn('block', className)}
-      style={style}
-      aria-hidden="true"
-    >
-      {/* Bowl — filled ring open on the right */}
-      <path
-        d="M26.26 14.5 A13 13 0 1 0 26.26 27.5 L21.06 24.5 A7 7 0 1 1 21.06 17.5 Z"
-        fill="currentColor"
-      />
-      {/* Stem — vertical bar filling the opening + tail */}
-      <rect x="23" y="8" width="7" height="30" rx="3.5" fill="currentColor" />
-      {/* Yellow accent dot */}
-      <circle cx="36" cy="36" r="3.5" fill="#EAB308" />
+    <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
+      <defs>
+        <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="24" y1="28" x2="76" y2="74">
+          <stop offset="0%" stopColor="#990066" />
+          <stop offset="50%" stopColor="#D4148C" />
+          <stop offset="100%" stopColor="#FF5A8D" />
+        </linearGradient>
+      </defs>
+      <g fill={`url(#${gradId})`} stroke={`url(#${gradId})`} strokeWidth="8" strokeLinecap="round">
+        {hub}
+      </g>
     </svg>
   );
 }
 
-/** Dark slate tile — deep, premium, shows the white glyph + yellow dot. */
-export const brandTile = 'bg-gradient-to-br from-[#0B1120] via-[#111827] to-[#1E293B] shadow-lg shadow-slate-900/40';
+/** Alias kept for existing call sites. */
+export const LogoMark = AnPharmacyIcon;
 
 /**
- * The application-icon tile: rounded gradient box with a subtle top glass
- * shine and a yellow accent line. Reused by the full lockup and by
- * sidebar / header / invoice placements so the mark always sits in the
- * same brand tile. The glyph renders WHITE against the dark tile.
+ * EMBLEM — the icon as a contained, badge-style glyph (Instagram/Flipkart move):
+ * a gradient squircle holding a white Distribution Hub. This is the standalone
+ * app icon / favicon and the left half of the combination mark. Reads instantly
+ * at 32px because the shape (tile) carries the brand, not just the strokes.
+ */
+export function Emblem({
+  className,
+  style,
+  mono = false,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+  mono?: boolean;
+}) {
+  const uid = React.useId().replace(/:/g, '');
+  const gradId = `emGrad${uid}`;
+  const hub = (
+    <>
+      <path d="M30,30 L50,72" />
+      <path d="M70,30 L50,72" />
+      <circle cx="30" cy="30" r="9" />
+      <circle cx="70" cy="30" r="9" />
+      <circle cx="50" cy="72" r="13" fill="none" strokeWidth="8" />
+      <circle cx="50" cy="72" r="5" />
+    </>
+  );
+
+  if (mono) {
+    return (
+      <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
+        <rect x="8" y="8" width="84" height="84" rx="22" fill="currentColor" />
+        <g fill="#ffffff" stroke="#ffffff" strokeWidth="8" strokeLinecap="round">{hub}</g>
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
+      <defs>
+        <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="20" y1="14" x2="82" y2="88">
+          <stop offset="0%" stopColor="#990066" />
+          <stop offset="52%" stopColor="#D4148C" />
+          <stop offset="100%" stopColor="#FF5A8D" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="84" height="84" rx="22" fill={`url(#${gradId})`} />
+      <g fill="#ffffff" stroke="#ffffff" strokeWidth="8" strokeLinecap="round">{hub}</g>
+    </svg>
+  );
+}
+
+/**
+ * LETTERMARK (monogram) — the initial "A" (An) drawn in capsule strokes, with
+ * the crossbar itself a medicine pill. A typographic mark for compact/avatars
+ * where the full wordmark or emblem would be too small to read.
+ */
+export function Lettermark({
+  className,
+  style,
+  mono = false,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+  mono?: boolean;
+}) {
+  const uid = React.useId().replace(/:/g, '');
+  const gradId = `lmGrad${uid}`;
+  const A = (
+    <>
+      <path d="M50,16 L26,84" />
+      <path d="M50,16 L74,84" />
+      <path d="M36,56 L64,56" />
+    </>
+  );
+
+  if (mono) {
+    return (
+      <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
+        <g fill="none" stroke="currentColor" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round">{A}</g>
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
+      <defs>
+        <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="26" y1="16" x2="74" y2="84">
+          <stop offset="0%" stopColor="#990066" />
+          <stop offset="52%" stopColor="#D4148C" />
+          <stop offset="100%" stopColor="#FF5A8D" />
+        </linearGradient>
+      </defs>
+      <g fill="none" stroke={`url(#${gradId})`} strokeWidth="13" strokeLinecap="round" strokeLinejoin="round">{A}</g>
+    </svg>
+  );
+}
+
+/**
+ * Transparent icon wrapper — renders the "an" mark with no box behind it.
+ * Size is fully controlled by the caller via className / markClassName.
  */
 export function BrandTile({
   className,
   markClassName,
   markStyle,
-  tone = 'brand',
   style,
+  mono = false,
 }: {
-  className?: string;
-  markClassName?: string;
+  className?: string; // wrapper sizing (e.g. w-10 h-10)
+  markClassName?: string; // icon sizing (e.g. w-6 h-6)
   markStyle?: React.CSSProperties;
-  tone?: 'brand' | 'glass';
   style?: React.CSSProperties;
+  mono?: boolean;
 }) {
+  return (
+    <span className={cn('relative inline-flex flex-shrink-0 items-center justify-center', className)} style={style}>
+      <AnPharmacyIcon className={cn('block', markClassName)} style={markStyle} mono={mono} />
+    </span>
+  );
+}
+
+/**
+ * BRAND WORDMARK — "AnPharmacy", pure typography (no icon/emblem/monogram).
+ * Split two-tone: "An" in the brand gradient (bold), "Pharmacy" in ink (medium).
+ * Weights kept at 600–700 so the word stays legible at app-header sizes.
+ */
+const BRAND_GRAD = 'linear-gradient(95deg,#990066 0%,#D4148C 52%,#FF5A8D 100%)';
+const WORDMARK_FONT = "'Plus Jakarta Sans','Space Grotesk', system-ui, sans-serif";
+
+export function Wordmark({
+  white = false,
+  mono = false,
+  fontSize = 'text-xl',
+  className,
+}: {
+  white?: boolean;
+  mono?: boolean;
+  fontSize?: string;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        'leading-tight tracking-[-0.015em] whitespace-nowrap',
+        fontSize,
+        className
+      )}
+      style={{ fontFamily: WORDMARK_FONT }}
+    >
+      <span
+        style={{
+          fontWeight: 700,
+          ...(mono
+            ? { color: 'currentColor' }
+            : white
+              ? { color: '#FFFFFF' }
+              : { backgroundImage: BRAND_GRAD, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }),
+        }}
+      >
+        An
+      </span>
+      <span style={{ fontWeight: 600, color: white ? '#FFFFFF' : 'currentColor' }}>Pharmacy</span>
+    </span>
+  );
+}
+
+/**
+ * Full logo lockup — the AnPharmacy wordmark (+ optional tagline).
+ * Defaults to a PURE WORDMARK (no icon). `emblem` can re-add the combination
+ * mark for app-chrome contexts (title bar, splash) only.
+ */
+export function AnPharmacyLogo({
+  className,
+  size = 'md',
+  variant = 'default',
+  layout = 'horizontal',
+  emblem = false,
+}: LogoProps & { layout?: 'horizontal' | 'stacked'; emblem?: boolean }) {
+  const s = sizeMap[size];
+  const white = variant === 'white';
+  const mono = variant === 'mono';
+  const stacked = layout === 'stacked';
+
+  const iconEl = emblem && (
+    <Emblem style={{ width: s.box, height: s.box }} mono={mono} />
+  );
+
+  const textEl = variant !== 'compact' && (
+    <div className={cn('flex flex-col', stacked && 'items-center')}>
+      <Wordmark white={white} mono={mono} fontSize={s.fontSize} />
+      <span
+        className={cn(
+          s.tagline,
+          'leading-tight tracking-[0.18em] uppercase font-medium font-body',
+          white ? 'text-pink-200/70' : mono ? 'text-slate-500' : 'text-slate-400 dark:text-slate-500'
+        )}
+      >
+        Intelligent Pharmacy Management
+      </span>
+    </div>
+  );
+
   return (
     <div
       className={cn(
-        'relative flex-shrink-0 rounded-xl flex items-center justify-center overflow-hidden',
-        tone === 'brand'
-          ? brandTile
-          : 'bg-white/10 border border-white/20 shadow-none',
+        'flex items-center',
+        stacked ? 'flex-col gap-3' : 'gap-3',
+        white ? 'text-white' : mono ? 'text-slate-900' : 'text-slate-900 dark:text-white',
         className
       )}
-      style={style}
     >
-      {/* Top glass shine */}
-      <div
-        className="absolute inset-0 bg-gradient-to-b from-white/12 via-transparent to-transparent pointer-events-none"
-      />
-      {/* Inner glow ring */}
-      <div className="absolute inset-[3px] rounded-[9px] border border-white/10 pointer-events-none" />
-      {/* Yellow accent line */}
-      <div className="absolute bottom-[3px] left-3 right-3 h-[2px] bg-gradient-to-r from-transparent via-yellow-400/80 to-transparent rounded-full" />
-      <LogoMark className={cn('text-white relative z-10', markClassName)} style={markStyle} />
+      {iconEl}
+      {textEl}
     </div>
   );
 }
 
-export default function Logo({ className, size = 'md', variant = 'default' }: LogoProps) {
-  const s = sizeMap[size];
-  const white = variant === 'white';
-
-  return (
-    <div className={cn('flex items-center gap-3', className)}>
-      <BrandTile
-        tone={white ? 'glass' : 'brand'}
-        style={{ width: s.box, height: s.box }}
-        markClassName={cn('opacity-95', white && 'opacity-90')}
-        markStyle={{ width: s.icon, height: s.icon }}
-      />
-
-      {variant !== 'compact' && (
-        <div className="flex flex-col">
-          <span
-            className={cn(
-              'font-heading font-bold leading-tight tracking-[-0.03em]',
-              white ? 'text-white' : 'text-slate-900 dark:text-white',
-              s.fontSize
-            )}
-          >
-            AnPharmacy
-            <span
-              className={cn(
-                'inline-block ml-1 rounded-[2px] align-[0.14em]',
-                white ? 'bg-yellow-400' : 'bg-yellow-500 dark:bg-yellow-400'
-              )}
-              style={{ width: '0.3em', height: '0.3em' }}
-            />
-          </span>
-          <span
-            className={cn(
-              'text-[9px] leading-tight tracking-[0.2em] uppercase font-medium font-body',
-              white ? 'text-yellow-200/60' : 'text-slate-400 dark:text-slate-500'
-            )}
-          >
-            Distribution in motion
-          </span>
-        </div>
-      )}
-    </div>
-  );
+/** Alias kept for existing call sites. */
+export default function Logo(props: LogoProps) {
+  return <AnPharmacyLogo {...props} />;
 }
 
 /* Animated variant for splash/loading screens */
@@ -150,17 +303,20 @@ export function AnimatedLogo({ className }: { className?: string }) {
       {/* Orbital rings */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="absolute w-[110%] h-[110%] rounded-full border border-slate-400/15 animate-spin-slow" />
-        <div className="absolute w-[90%] h-[90%] rounded-full border border-yellow-300/10 animate-spin-slow"
-          style={{ animationDirection: 'reverse', animationDuration: '4s' }}
+        <div
+          className="absolute w-[90%] h-[90%] rounded-full animate-spin-slow"
+          style={{
+            animationDirection: 'reverse',
+            animationDuration: '4s',
+            border: '1px solid rgba(217,70,239,0.18)',
+          }}
         />
-        <div className="absolute w-[70%] h-[70%] rounded-full border border-slate-300/8 animate-spin-slow"
-          style={{ animationDuration: '6s' }}
-        />
-        <div className="absolute w-[60%] h-[60%] rounded-full bg-yellow-500/5 animate-pulse-ring" />
+        <div className="absolute w-[70%] h-[70%] rounded-full border border-slate-300/8 animate-spin-slow" style={{ animationDuration: '6s' }} />
+        <div className="absolute w-[60%] h-[60%] rounded-full bg-fuchsia-500/5 animate-pulse-ring" />
       </div>
 
       {/* Main mark */}
-      <div className="relative w-36 h-36 rounded-3xl bg-gradient-to-br from-[#0B1120] via-[#111827] to-[#1E293B] flex items-center justify-center shadow-2xl shadow-slate-900/40 border border-white/15 overflow-hidden">
+      <div className="relative w-36 h-36 rounded-3xl bg-gradient-to-br from-[#0A0F1E] via-[#0E1728] to-[#101E38] flex items-center justify-center shadow-2xl shadow-slate-900/40 border border-white/15 overflow-hidden">
         <div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-glass-shine opacity-80 pointer-events-none"
           style={{ backgroundSize: '200% 100%' }}
@@ -177,7 +333,10 @@ export function AnimatedLogo({ className }: { className?: string }) {
         </div>
         <div className="absolute inset-[4px] rounded-[20px] border border-white/10 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/10 pointer-events-none" />
-        <LogoMark className="w-[68%] h-[68%] text-white relative z-10" style={{ opacity: 0.95 }} />
+        <AnPharmacyIcon
+          className="w-[68%] h-[68%] relative z-10"
+          style={{ opacity: 0.95 }}
+        />
         <div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent animate-glass-shine opacity-60 pointer-events-none"
           style={{ backgroundSize: '200% 100%', animationDuration: '2.5s' }}

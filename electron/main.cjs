@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, Tray, Menu, nativeImage, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -6,7 +6,131 @@ const os = require('os');
 const { initDatabase, getDb } = require('./database.cjs');
 
 let mainWindow = null;
+let tray = null;
+let isQuitting = false;
 let db = null;
+
+// Boot marker so we can prove which main.cjs build is loaded
+console.log('[main.cjs] booted v2 (dbTransaction fix)');
+
+// node:sqlite DatabaseSync has no .transaction(); emulate with BEGIN/COMMIT/ROLLBACK
+const dbTransaction = (database, fn) => {
+  database.exec('BEGIN');
+  try {
+    fn();
+    database.exec('COMMIT');
+  } catch (e) {
+    database.exec('ROLLBACK');
+    throw e;
+  }
+};
+
+const WINDOW_STATE_PATH = path.join(app.getPath('userData'), 'window-state.json');
+
+function loadWindowState() {
+  try {
+    if (fs.existsSync(WINDOW_STATE_PATH)) {
+      const state = JSON.parse(fs.readFileSync(WINDOW_STATE_PATH, 'utf-8'));
+      if (state.width && state.height) return state;
+    }
+  } catch (err) {
+    console.error('Failed to load window state:', err);
+  }
+  return { width: 1280, height: 800, maximized: false };
+}
+
+function saveWindowState(win) {
+  try {
+    if (!win || win.isDestroyed()) return;
+    const state = win.isMaximized()
+      ? { maximized: true }
+      : { ...win.getBounds(), maximized: false };
+    fs.writeFileSync(WINDOW_STATE_PATH, JSON.stringify(state));
+  } catch (err) {
+    console.error('Failed to save window state:', err);
+  }
+}
+
+function createTray() {
+  try {
+    const iconPath = path.join(__dirname, '..', 'public', 'icon.png');
+    const icon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
+    tray = new Tray(icon);
+    tray.setToolTip('AnPharmacy — Intelligent Pharmacy Management');
+    tray.setContextMenu(Menu.buildFromTemplate([
+      {
+        label: 'Open AnPharmacy',
+        click: () => {
+          if (!mainWindow || mainWindow.isDestroyed()) { createWindow(); return; }
+          mainWindow.show();
+          mainWindow.focus();
+        },
+      },
+      { type: 'separator' },
+      {
+        label: 'Backup Now',
+        click: async () => {
+          const result = await performBackup();
+          if (Notification.isSupported()) {
+            new Notification({
+              title: 'AnPharmacy Backup',
+              body: result.success ? `Backup saved: ${result.path}` : `Backup failed: ${result.error}`,
+            }).show();
+          }
+        },
+      },
+      { type: 'separator' },
+      {
+        label: 'Quit',
+        click: () => { isQuitting = true; app.quit(); },
+      },
+    ]));
+    tray.on('double-click', () => {
+      if (!mainWindow || mainWindow.isDestroyed()) { createWindow(); return; }
+      mainWindow.show();
+      mainWindow.focus();
+    });
+  } catch (err) {
+    console.error('Failed to create tray:', err);
+  }
+}
+
+// ponytail: local app menu so the window behaves like a real desktop app
+function createAppMenu() {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        { label: 'Create Backup', click: () => mainWindow && mainWindow.webContents.send('menu:action', 'backup') },
+        { type: 'separator' },
+        { label: 'Settings', click: () => mainWindow && mainWindow.webContents.send('menu:action', 'settings') },
+        { type: 'separator' },
+        { role: 'quit' },
+      ],
+    },
+    { role: 'editMenu' },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' },
+      ],
+    },
+    {
+      label: 'Help',
+      submenu: [
+        { label: 'About AnPharmacy', click: () => mainWindow && mainWindow.webContents.send('menu:action', 'about') },
+      ],
+    },
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
 
 let autoBackupInterval = null;
 const AUTO_BACKUP_SETTINGS_PATH = path.join(app.getPath('userData'), 'auto-backup-settings.json');
@@ -38,7 +162,7 @@ function performAutoBackup() {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
     const backupPath = path.join(backupDir, `auto-backup-${timestamp}.anpbackup`);
 
-    const tables = ['medicines', 'sales', 'users', 'suppliers', 'audit_log', 'license_info', 'notifications', 'reminders', 'documents', 'ai_insights'];
+    const tables = ['medicines', 'sales', 'users', 'suppliers', 'audit_log', 'license_info', 'notifications', 'reminders', 'documents', 'ai_insights', 'company_profile'];
     const backupData = {};
     for (const table of tables) {
       try {
@@ -102,36 +226,69 @@ function initializeAutoBackup() {
 }
 
 function createWindow() {
+  const winState = loadWindowState();
+
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 800,
+    width: winState.width || 1280,
+    height: winState.height || 800,
+    x: winState.x,
+    y: winState.y,
     minWidth: 1024,
     minHeight: 700,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
+      spellcheck: false,
     },
-    frame: true,
+    frame: false,
+    title: 'AnPharmacy — Intelligent Pharmacy Management',
     icon: path.join(__dirname, '..', 'public', 'icon.png'),
     show: false,
+    backgroundColor: '#0B1120',
   });
 
   const isDev = process.argv.includes('--dev') || !app.isPackaged;
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
   }
 
   mainWindow.once('ready-to-show', () => {
+    if (winState.maximized) mainWindow.maximize();
     mainWindow.show();
+  });
+
+  // ponytail: persist size/position across restarts
+  mainWindow.on('close', (event) => {
+    if (!isQuitting && tray) {
+      // minimize to tray instead of quitting
+      event.preventDefault();
+      mainWindow.hide();
+      return;
+    }
+    saveWindowState(mainWindow);
   });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  // forward window-state changes to the renderer (for custom titlebar max/restore icon)
+  const sendMaxState = () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('window:maximized', mainWindow.isMaximized());
+    }
+  };
+  mainWindow.on('maximize', sendMaxState);
+  mainWindow.on('unmaximize', sendMaxState);
+
+  // open external links in the OS browser, never in-app
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
   });
 }
 
@@ -142,6 +299,73 @@ ipcMain.handle('db:init', async () => {
   try {
     db = initDatabase();
     return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// ===== Desktop Window Controls =====
+ipcMain.handle('window:minimize', () => {
+  mainWindow?.minimize();
+  return { success: true };
+});
+ipcMain.handle('window:toggleMaximize', () => {
+  if (!mainWindow) return { success: false };
+  if (mainWindow.isMaximized()) mainWindow.unmaximize();
+  else mainWindow.maximize();
+  return { success: true, maximized: mainWindow.isMaximized() };
+});
+ipcMain.handle('window:close', () => {
+  // ponytail: close hides to tray (like WhatsApp/Slack); quit only via tray menu or File > Quit
+  if (mainWindow && tray) {
+    mainWindow.hide();
+    if (Notification.isSupported()) {
+      new Notification({
+        title: 'AnPharmacy is still running',
+        body: 'Closed to tray. Use the tray icon to reopen or quit.',
+        silent: true,
+      }).show();
+    }
+  } else {
+    isQuitting = true;
+    if (mainWindow) mainWindow.close();
+  }
+  return { success: true };
+});
+ipcMain.handle('window:isMaximized', () => ({
+  success: true,
+  maximized: mainWindow?.isMaximized() ?? false,
+}));
+ipcMain.handle('window:hide', () => {
+  mainWindow?.hide();
+  return { success: true };
+});
+ipcMain.handle('window:show', () => {
+  mainWindow?.show();
+  mainWindow?.focus();
+  return { success: true };
+});
+
+// ===== App Info (for the status bar + About dialog) =====
+ipcMain.handle('app:getInfo', () => {
+  return {
+    success: true,
+    version: app.getVersion(),
+    electron: process.versions.electron,
+    platform: process.platform,
+    dbPath: path.join(app.getPath('appData'), 'AnPharmacy', 'anpharmcy.db'),
+    isDesktop: true,
+  };
+});
+
+// ===== Native OS Notifications =====
+ipcMain.handle('notify:show', (event, { title, body }) => {
+  try {
+    if (Notification.isSupported()) {
+      new Notification({ title: title || 'AnPharmacy', body: body || '' }).show();
+      return { success: true };
+    }
+    return { success: false, error: 'Notifications not supported' };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -405,14 +629,13 @@ ipcMain.handle('stock:saveAll', async (event, { medicines }) => {
     if (!Array.isArray(medicines)) return { success: false, error: 'Invalid data' };
     const cols = MEDICINE_COLS.filter(c => c !== 'id');
     const insert = db.prepare(`INSERT INTO medicines (${cols.join(', ')}) VALUES (${cols.map(() => '?').join(', ')})`);
-    const tx = db.transaction((rows) => {
+    dbTransaction(db, () => {
       db.prepare('DELETE FROM medicines').run();
-      for (const m of rows) {
+      for (const m of medicines) {
         const row = toRow(m);
         insert.run(...cols.map(c => row[c] !== undefined && row[c] !== null ? row[c] : null));
       }
     });
-    tx(medicines);
     return { success: true, count: medicines.length };
   } catch (error) {
     return { success: false, error: error.message };
@@ -453,11 +676,10 @@ ipcMain.handle('stock:deleteToBin', async (event, { id, userId }) => {
     const db = getDb();
     const row = db.prepare(`SELECT ${MEDICINE_COLS.join(', ')} FROM medicines WHERE id = ?`).get(id);
     if (!row) return { success: false, error: 'Medicine not found' };
-    const tx = db.transaction(() => {
+    dbTransaction(db, () => {
       db.prepare(`INSERT INTO deleted_medicines (${MEDICINE_COLS.join(', ')}, deleted_at, deleted_by) VALUES (${MEDICINE_COLS.map(() => '?').join(', ')}, datetime('now'), ?)`).run(...MEDICINE_COLS.map(c => row[c]), userId || null);
       db.prepare('DELETE FROM medicines WHERE id = ?').run(id);
     });
-    tx();
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
@@ -481,11 +703,10 @@ ipcMain.handle('stock:restoreFromBin', async (event, { id }) => {
     const db = getDb();
     const row = db.prepare('SELECT * FROM deleted_medicines WHERE id = ?').get(id);
     if (!row) return { success: false, error: 'Deleted item not found' };
-    const tx = db.transaction(() => {
+    dbTransaction(db, () => {
       db.prepare(`INSERT INTO medicines (${MEDICINE_COLS.join(', ')}) VALUES (${MEDICINE_COLS.map(() => '?').join(', ')})`).run(...MEDICINE_COLS.map(c => row[c]));
       db.prepare('DELETE FROM deleted_medicines WHERE id = ?').run(id);
     });
-    tx();
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
@@ -636,7 +857,7 @@ ipcMain.handle('sales:process', async (event, { customerName, customerId, custom
     const bumpBalance = db.prepare('UPDATE customers SET current_balance = current_balance + ? WHERE id = ?');
     const insertAudit = db.prepare('INSERT INTO audit_log (user_id, action, details, timestamp) VALUES (?, ?, ?, datetime(\'now\'))');
 
-    const transaction = db.transaction(() => {
+    dbTransaction(db, () => {
       const totalQty = items.reduce((s, i) => s + i.quantity, 0);
       // Create sale record
       insertSale.run(saleId, billNumber, customerName, customerId || null, customerPhone || null, customerAddress || null, customerGstin || null, doctorName || null, doctorRegNo || null, prescriptionType || null, medicineName, totalQty, totalAmount, discountAmount || 0, taxableAmount || 0, cgstAmount || 0, sgstAmount || 0, igstAmount || 0, netPayable || totalAmount, paymentMode || 'cash', counterId || null, pharmacistId || null, pharmacistName || null, userId);
@@ -659,8 +880,6 @@ ipcMain.handle('sales:process', async (event, { customerName, customerId, custom
 
       insertAudit.run(userId, 'sale', `Sale #${billNumber} to ${customerName}: ${medicineName} ${netPayable || totalAmount} INR (${paymentMode || 'cash'})`);
     });
-
-    transaction();
     return { success: true, saleId, billNumber };
   } catch (error) {
     return { success: false, error: error.message };
@@ -887,7 +1106,7 @@ ipcMain.handle('dashboard:stats', async () => {
 });
 
 // Backup
-ipcMain.handle('backup:create', async () => {
+function performBackup() {
   try {
     const db = getDb();
     const backupDir = app.getPath('documents');
@@ -908,6 +1127,7 @@ ipcMain.handle('backup:create', async () => {
         license_info: db.prepare('SELECT * FROM license_info').all(),
         audit_log: db.prepare('SELECT * FROM audit_log').all(),
         users: db.prepare('SELECT id, username, display_name, role, last_login, is_active FROM users').all(),
+        company_profile: db.prepare('SELECT * FROM company_profile').all(),
       }
     };
 
@@ -937,6 +1157,10 @@ ipcMain.handle('backup:create', async () => {
   } catch (error) {
     return { success: false, error: error.message };
   }
+}
+
+ipcMain.handle('backup:create', async () => {
+  return performBackup();
 });
 
 ipcMain.handle('backup:restore', async (event, { filePath }) => {
@@ -965,6 +1189,7 @@ ipcMain.handle('backup:restore', async (event, { filePath }) => {
         license_info: db.prepare('SELECT * FROM license_info').all(),
         audit_log: db.prepare('SELECT * FROM audit_log').all(),
         users: db.prepare('SELECT id, username, display_name, role, last_login, is_active FROM users').all(),
+        company_profile: db.prepare('SELECT * FROM company_profile').all(),
       }
     };
 
@@ -983,7 +1208,7 @@ ipcMain.handle('backup:restore', async (event, { filePath }) => {
     fs.writeFileSync(safetyPath, JSON.stringify({ content: safetyBackupContent, hmac: safetyHmac }), 'utf8');
 
     // Now restore the backup data
-    const transaction = db.transaction(() => {
+    dbTransaction(db, () => {
       // Clear existing data
       db.prepare('DELETE FROM medicines').run();
       db.prepare('DELETE FROM sales').run();
@@ -1015,11 +1240,15 @@ ipcMain.handle('backup:restore', async (event, { filePath }) => {
         insertLicense.run(l.license_key, l.hwid, l.expiry_date, l.status, l.last_heartbeat, l.activated_on);
       }
 
+      // Restore pharmacy / company profile
+      const insertProfile = db.prepare('INSERT OR REPLACE INTO company_profile (id, store_name, tagline, phone, email, address, gstin, drug_license_no, owner_name, footer_note, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+      for (const p of backupData.tables.company_profile || []) {
+        insertProfile.run(p.id || 1, p.store_name || 'AnPharmacy', p.tagline || null, p.phone || null, p.email || null, p.address || null, p.gstin || null, p.drug_license_no || null, p.owner_name || null, p.footer_note || null, p.updated_at || null);
+      }
+
       // Log restore in audit trail
       db.prepare("INSERT INTO audit_log (user_id, action, details, timestamp) VALUES (1, 'restore', ?, datetime('now'))").run(`Data restored from: ${filePath}. Safety backup: ${safetyPath}`);
     });
-
-    transaction();
 
     return {
       success: true,
@@ -1076,6 +1305,50 @@ ipcMain.handle('backup:autoCreate', async () => {
       saveAutoBackupSettings(settings);
     }
     return result;
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// ===== Pharmacy / Company Profile =====
+ipcMain.handle('company:getProfile', async () => {
+  try {
+    const db = getDb();
+    const profile = db.prepare('SELECT * FROM company_profile WHERE id = 1').get();
+    return { success: true, profile: profile || null };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('company:saveProfile', async (event, profile) => {
+  try {
+    const db = getDb();
+    db.prepare(`INSERT INTO company_profile (id, store_name, tagline, phone, email, address, gstin, drug_license_no, owner_name, footer_note, updated_at)
+      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+      ON CONFLICT(id) DO UPDATE SET
+        store_name = excluded.store_name,
+        tagline = excluded.tagline,
+        phone = excluded.phone,
+        email = excluded.email,
+        address = excluded.address,
+        gstin = excluded.gstin,
+        drug_license_no = excluded.drug_license_no,
+        owner_name = excluded.owner_name,
+        footer_note = excluded.footer_note,
+        updated_at = datetime('now')`).run(
+      profile.store_name || 'AnPharmacy',
+      profile.tagline || null,
+      profile.phone || null,
+      profile.email || null,
+      profile.address || null,
+      profile.gstin || null,
+      profile.drug_license_no || null,
+      profile.owner_name || null,
+      profile.footer_note || null
+    );
+    const saved = db.prepare('SELECT * FROM company_profile WHERE id = 1').get();
+    return { success: true, profile: saved };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -2118,13 +2391,34 @@ function decodeLicenseKey(key, hwid) {
 
 // ===== App Lifecycle =====
 
-app.whenReady().then(() => {
-  createWindow();
-  initializeAutoBackup();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+// ponytail: single-instance lock — double-launch focuses the existing window
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+if (!gotSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    }
   });
+
+  app.whenReady().then(() => {
+    createWindow();
+    createTray();
+    createAppMenu();
+    initializeAutoBackup();
+
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+  });
+}
+
+app.on('before-quit', () => {
+  isQuitting = true;
+  if (mainWindow && !mainWindow.isDestroyed()) saveWindowState(mainWindow);
 });
 
 app.on('window-all-closed', () => {

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 104" width="384" height="104">
+  <!--
+    LOGO — "The An-Wordmark" full horizontal lockup (transparent background)
+    Icon: bold lowercase 'a' + 'n' letterforms with the violet-magenta → coral
+    gradient. Wordmark: "An" in the brand gradient (Sansation Bold),
+    "Pharmacy" in deep navy (Sansation Light 300).
+  -->
+  <defs>
+    <linearGradient id="apMarkGrad" gradientUnits="userSpaceOnUse" x1="4" y1="53" x2="96" y2="53">
+      <stop offset="0%" stop-color="#A21CAF"/>
+      <stop offset="40%" stop-color="#D946EF"/>
+      <stop offset="75%" stop-color="#F472B6"/>
+      <stop offset="100%" stop-color="#FB7185"/>
+    </linearGradient>
+    <linearGradient id="apWordGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#A21CAF"/>
+      <stop offset="45%" stop-color="#D946EF"/>
+      <stop offset="75%" stop-color="#F472B6"/>
+      <stop offset="100%" stop-color="#FB7185"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon -->
+  <g transform="translate(12,7) scale(0.88)">
+    <circle cx="25" cy="53" r="14" fill="none" stroke="url(#apMarkGrad)" stroke-width="14"/>
+    <path d="M42 30 L42 74" fill="none" stroke="url(#apMarkGrad)" stroke-width="14" stroke-linecap="round"/>
+    <path d="M60 74 L60 37 C60 30 66 29 74.5 29 C83 29 89 31 89 37 L89 74"
+          fill="none" stroke="url(#apMarkGrad)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Wordmark: An = Sansation Bold (brand gradient) · Pharmacy = Sansation Light 300 (navy) -->
+  <text
+    x="104" y="70"
+    font-family="'Sansation', 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif"
+    font-size="46"
+    letter-spacing="-0.5"
+  >
+    <tspan fill="url(#apWordGrad)" font-weight="700">An</tspan>
+    <tspan fill="#0F172A" font-weight="300">Pharmacy</tspan>
+  </text>
+</svg>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AnPharmacy — Logo Systems</title>
+<style>
+  :root { --bg:#0e0a12; --card:#17121d; --line:#2a2030; --ink:#f4ecf5; --mut:#9a8ea3; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:radial-gradient(120% 120% at 50% 0%,#1a1220 0%,var(--bg) 60%); color:var(--ink);
+    font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; padding:48px 24px 80px; }
+  h1 { font-weight:800; letter-spacing:-.02em; margin:0 0 4px; font-size:26px; }
+  .sub { color:var(--mut); margin:0 0 36px; max-width:720px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; max-width:1080px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:24px;
+    display:flex; flex-direction:column; gap:14px; }
+  .stage { border-radius:14px; aspect-ratio:16/9; display:grid; place-items:center; padding:24px; }
+  .s-dark { background:linear-gradient(160deg,#1d1623,#120d17); }
+  .s-light { background:linear-gradient(160deg,#fbf7fc,#f3e9f4); }
+  .name { font-weight:700; font-size:16px; }
+  .label { font-size:12px; color:var(--mut); letter-spacing:.04em; text-transform:uppercase; }
+  .ref { font-size:12px; color:#e7b8e6; }
+  .footer { color:var(--mut); font-size:12px; margin-top:40px; max-width:720px; }
+  .stage img { max-width:82%; max-height:82%; }
+  code { color:#e7b8e6; }
+</style>
+</head>
+<body>
+  <h1>AnPharmacy — Three Logo Systems</h1>
+  <p class="sub">One brand, three lockups — the standard taxonomy. Each is a separate, production-ready asset
+  in <code>public/</code>. Pick per surface: wordmark for headers, lettermark for avatars, combination for the login/landing.</p>
+
+  <div class="grid">
+
+    <!-- WORDMARK -->
+    <div class="card">
+      <div class="stage s-light">
+        <img src="/anpharmacy-wordmark.svg" alt="AnPharmacy wordmark" />
+      </div>
+      <div class="name">Wordmark (Logotype)</div>
+      <div class="ref">cf. Google · Coca‑Cola</div>
+      <div class="label">Font‑based · the full name, set as one brand word</div>
+    </div>
+
+    <!-- LETTERMARK -->
+    <div class="card">
+      <div class="stage s-light">
+        <img src="/anpharmacy-lettermark.svg" alt="AnPharmacy lettermark" style="max-width:54%" />
+      </div>
+      <div class="name">Lettermark (Monogram)</div>
+      <div class="ref">cf. IBM · NASA</div>
+      <div class="label">Initial “A” (An), crossbar = medicine pill</div>
+    </div>
+
+    <!-- COMBINATION -->
+    <div class="card">
+      <div class="stage s-light">
+        <img src="/anpharmacy-logo.svg" alt="AnPharmacy combination mark" />
+      </div>
+      <div class="name">Combination Mark</div>
+      <div class="ref">cf. Burger King</div>
+      <div class="label">Symbol + wordmark, side‑by‑side</div>
+    </div>
+
+  </div>
+
+  <p class="footer">Assets: <code>anpharmacy-wordmark.svg</code>, <code>anpharmacy-lettermark.svg</code>,
+  <code>anpharmacy-logo.svg</code> (+ <code>-white</code> variants). React equivalents live in
+  <code>src/lib/Logo.tsx</code>: <code>Wordmark</code>, <code>Lettermark</code>, <code>Emblem</code>, <code>AnPharmacyLogo</code>.
+  View live at <code>/logo-type.html</code> or open this file directly.</p>
+</body>
+</html>

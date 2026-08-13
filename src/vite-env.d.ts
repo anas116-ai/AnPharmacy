@@ -3,6 +3,17 @@
 import { User, Medicine, Notification, SaleItem, AddMedicineInput, DashboardStats, Supplier } from './lib/types';
 
 interface ElectronAPI {
+  isDesktop?: boolean;
+  getAppInfo: () => Promise<{ success: boolean; version?: string; electron?: string; platform?: string; dbPath?: string; isDesktop?: boolean; error?: string }>;
+  minimizeWindow: () => Promise<{ success: boolean }>;
+  toggleMaximize: () => Promise<{ success: boolean; maximized?: boolean }>;
+  closeWindow: () => Promise<{ success: boolean }>;
+  hideWindow: () => Promise<{ success: boolean }>;
+  showWindow: () => Promise<{ success: boolean }>;
+  isWindowMaximized: () => Promise<{ success: boolean; maximized?: boolean }>;
+  onWindowMaximized: (callback: (maximized: boolean) => void) => void;
+  showNativeNotification: (data: { title?: string; body?: string }) => Promise<{ success: boolean; error?: string }>;
+  onMenuAction: (callback: (action: string) => void) => void;
   dbInit: () => Promise<{ success: boolean; error?: string }>;
   login: (data: { username: string; password: string }) => Promise<{ success: boolean; user?: User; error?: string }>;
   listUsers: () => Promise<{ success: boolean; users?: any[]; error?: string }>;
@@ -149,6 +160,24 @@ interface ElectronAPI {
   getAIInsights: () => Promise<{ success: boolean; insights?: any[]; error?: string }>;
   markInsightActioned: (id: number) => Promise<{ success: boolean; error?: string }>;
   generateAIReport: (reportType: string) => Promise<{ success: boolean; report?: any; error?: string }>;
+
+  // Pharmacy / Company Profile
+  getCompanyProfile: () => Promise<{ success: boolean; profile?: CompanyProfile | null; error?: string }>;
+  saveCompanyProfile: (data: Partial<CompanyProfile>) => Promise<{ success: boolean; profile?: CompanyProfile; error?: string }>;
+}
+
+export interface CompanyProfile {
+  id: number;
+  store_name: string;
+  tagline: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  gstin: string | null;
+  drug_license_no: string | null;
+  owner_name: string | null;
+  footer_note: string | null;
+  updated_at: string | null;
 }
 
 declare global {

@@ -4,7 +4,9 @@ const crypto = require('crypto');
 let db = null;
 
 function initDatabase() {
-  const Database = require('better-sqlite3');
+  // ponytail: node:sqlite (built into Electron 43's Node) replaces better-sqlite3 —
+  // the native binding has no prebuilt Electron binary and can't compile without VS.
+  const { DatabaseSync } = require('node:sqlite');
   const { app } = require('electron');
   
   const dbPath = path.join(app.getPath('appData'), 'AnPharmacy', 'anpharmcy.db');
@@ -15,9 +17,9 @@ function initDatabase() {
     fs.mkdirSync(dbDir, { recursive: true });
   }
 
-  db = new Database(dbPath);
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
+  db = new DatabaseSync(dbPath);
+  db.exec('PRAGMA journal_mode = WAL');
+  db.exec('PRAGMA foreign_keys = ON');
 
   createSchema();
   migrateSchema();
@@ -488,6 +490,23 @@ function createSchema() {
     created_at TEXT DEFAULT (datetime('now'))
   );
 
+  -- Pharmacy / Company profile (appears on invoices, reports, receipts)
+  CREATE TABLE IF NOT EXISTS company_profile (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    store_name TEXT DEFAULT 'AnPharmacy',
+    tagline TEXT DEFAULT 'Intelligent Pharmacy Management',
+    phone TEXT,
+    email TEXT,
+    address TEXT,
+    gstin TEXT,
+    drug_license_no TEXT,
+    owner_name TEXT,
+    footer_note TEXT,
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+
+  INSERT OR IGNORE INTO company_profile (id, store_name, tagline) VALUES (1, 'AnPharmacy', 'Intelligent Pharmacy Management');
+
   CREATE INDEX IF NOT EXISTS idx_manufacturers_name ON manufacturers(name);
   CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name);
   CREATE INDEX IF NOT EXISTS idx_customer_ledger_customer ON customer_ledger(customer_id);
@@ -498,6 +517,7 @@ function createSchema() {
   CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
   CREATE INDEX IF NOT EXISTS idx_reminders_date ON reminders(reminder_date);
   CREATE INDEX IF NOT EXISTS idx_documents_category ON documents(category);
+  CREATE INDEX IF NOT EXISTS idx_import_history_created ON import_history(created_at);
   
   `);
 }

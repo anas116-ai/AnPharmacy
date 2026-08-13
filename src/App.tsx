@@ -8,6 +8,9 @@ import LoginScreen from './components/LoginScreen';
 import LandingPage from './components/LandingPage';
 import MainShell from './components/MainShell';
 import { initializeBrowserAPI } from './lib/browserApi';
+// Importing the appearance store applies the persisted accent color + density
+// (data-accent / data-density) to <html> before the first paint.
+import './stores/appearanceStore';
 
 type AppStage = 'splash' | 'landing' | 'license' | 'login' | 'main';
 

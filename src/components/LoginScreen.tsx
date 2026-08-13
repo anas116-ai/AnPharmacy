@@ -11,18 +11,18 @@ import {
 } from 'lucide-react';
 
 const FLOATING_MEDICINES = [
-  { icon: Pill, top: '12%', left: '8%', size: 'w-14 h-14', dur: '9s', delay: '0s', tint: 'from-emerald-500/25 to-teal-500/10 border-emerald-400/30' },
-  { icon: Syringe, top: '30%', left: '68%', size: 'w-12 h-12', dur: '11s', delay: '1.2s', tint: 'from-sky-500/25 to-blue-500/10 border-sky-400/30' },
-  { icon: Stethoscope, top: '62%', left: '12%', size: 'w-14 h-14', dur: '10s', delay: '0.6s', tint: 'from-violet-500/25 to-purple-500/10 border-violet-400/30' },
-  { icon: Package, top: '72%', left: '80%', size: 'w-14 h-14', dur: '12s', delay: '2s', tint: 'from-amber-500/25 to-orange-500/10 border-amber-400/30' },
-  { icon: Pill, top: '45%', left: '38%', size: 'w-11 h-11', dur: '8s', delay: '1.8s', tint: 'from-rose-500/25 to-pink-500/10 border-rose-400/30' },
-  { icon: Syringe, top: '16%', left: '82%', size: 'w-12 h-12', dur: '13s', delay: '0.3s', tint: 'from-teal-500/25 to-emerald-500/10 border-teal-400/30' },
-  { icon: Stethoscope, top: '78%', left: '26%', size: 'w-14 h-14', dur: '9.5s', delay: '2.4s', tint: 'from-indigo-500/25 to-blue-500/10 border-indigo-400/30' },
-  { icon: Package, top: '8%', left: '48%', size: 'w-12 h-12', dur: '10.5s', delay: '1s', tint: 'from-fuchsia-500/25 to-purple-500/10 border-fuchsia-400/30' },
-  { icon: Pill, top: '52%', left: '92%', size: 'w-14 h-14', dur: '12.5s', delay: '0.9s', tint: 'from-cyan-500/25 to-sky-500/10 border-cyan-400/30' },
-  { icon: Syringe, top: '8%', left: '24%', size: 'w-11 h-11', dur: '8.5s', delay: '1.5s', tint: 'from-lime-500/25 to-green-500/10 border-lime-400/30' },
-  { icon: Stethoscope, top: '58%', left: '56%', size: 'w-12 h-12', dur: '11.5s', delay: '2.8s', tint: 'from-emerald-500/20 to-teal-500/10 border-emerald-400/25' },
-  { icon: Package, top: '26%', left: '30%', size: 'w-14 h-14', dur: '13.5s', delay: '0.2s', tint: 'from-rose-500/20 to-red-500/10 border-rose-400/25' },
+  { icon: Pill, top: '12%', left: '8%', size: 'w-14 h-14', dur: '9s', delay: '0s', tint: 'from-[#D4148C]/25 to-[#FF5A8D]/10 border-[#FF5A8D]/30' },
+  { icon: Syringe, top: '30%', left: '68%', size: 'w-12 h-12', dur: '11s', delay: '1.2s', tint: 'from-fuchsia-500/25 to-pink-500/10 border-fuchsia-400/30' },
+  { icon: Stethoscope, top: '62%', left: '12%', size: 'w-14 h-14', dur: '10s', delay: '0.6s', tint: 'from-rose-500/25 to-fuchsia-500/10 border-rose-400/30' },
+  { icon: Package, top: '72%', left: '80%', size: 'w-14 h-14', dur: '12s', delay: '2s', tint: 'from-[#990066]/25 to-[#D4148C]/10 border-[#D4148C]/30' },
+  { icon: Pill, top: '45%', left: '38%', size: 'w-11 h-11', dur: '8s', delay: '1.8s', tint: 'from-pink-500/25 to-rose-500/10 border-pink-400/30' },
+  { icon: Syringe, top: '16%', left: '82%', size: 'w-12 h-12', dur: '13s', delay: '0.3s', tint: 'from-[#FF5A8D]/25 to-[#D4148C]/10 border-[#FF5A8D]/30' },
+  { icon: Stethoscope, top: '78%', left: '26%', size: 'w-14 h-14', dur: '9.5s', delay: '2.4s', tint: 'from-fuchsia-600/25 to-pink-500/10 border-fuchsia-400/30' },
+  { icon: Package, top: '8%', left: '48%', size: 'w-12 h-12', dur: '10.5s', delay: '1s', tint: 'from-rose-500/20 to-fuchsia-500/10 border-rose-400/30' },
+  { icon: Pill, top: '52%', left: '92%', size: 'w-14 h-14', dur: '12.5s', delay: '0.9s', tint: 'from-[#D4148C]/25 to-[#990066]/10 border-[#D4148C]/30' },
+  { icon: Syringe, top: '8%', left: '24%', size: 'w-11 h-11', dur: '8.5s', delay: '1.5s', tint: 'from-pink-500/25 to-[#FF5A8D]/10 border-pink-400/30' },
+  { icon: Stethoscope, top: '58%', left: '56%', size: 'w-12 h-12', dur: '11.5s', delay: '2.8s', tint: 'from-[#990066]/20 to-[#D4148C]/10 border-[#D4148C]/25' },
+  { icon: Package, top: '26%', left: '30%', size: 'w-14 h-14', dur: '13.5s', delay: '0.2s', tint: 'from-rose-500/20 to-pink-500/10 border-rose-400/25' },
 ];
 
 const DEMO_CREDENTIALS = [
@@ -54,6 +54,16 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState<'username' | 'password' | null>(null);
+
+  const fieldCls = (field: 'username' | 'password') => cn(
+    'w-full h-11 pl-10 rounded-xl bg-slate-950/70 border text-white text-sm placeholder:text-slate-500 focus:outline-none transition-all duration-200',
+    error
+      ? 'border-red-400/60'
+      : focusedField === field
+        ? 'border-emerald-400/60 ring-4 ring-emerald-500/15 bg-slate-900/80'
+        : 'border-white/15 hover:border-white/30'
+  );
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,14 +109,19 @@ export default function LoginScreen() {
 
   return (
     <div className="min-h-screen flex relative overflow-hidden bg-slate-950">
-      {/* Ambient background */}
+      {/* Ambient background — aurora mesh + drifting color field */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 opacity-[0.04]"
+        {/* Flowing aurora gradient field — always dark, regardless of system theme */}
+        <div className="absolute inset-0 aurora-mesh-dark aurora-animated" />
+        {/* Grid overlay */}
+        <div className="absolute inset-0 opacity-[0.05]"
           style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`, backgroundSize: '56px 56px' }}
         />
-        <div className="absolute -top-40 -right-40 w-[640px] h-[640px] bg-emerald-500/10 rounded-full blur-[140px]" />
-        <div className="absolute bottom-0 -left-40 w-[560px] h-[560px] bg-navy-500/20 rounded-full blur-[140px]" />
-        <div className="absolute top-1/2 left-1/4 w-[420px] h-[420px] bg-teal-400/5 rounded-full blur-[120px]" />
+        {/* Breathing color orbs */}
+        <div className="absolute -top-40 -right-40 w-[640px] h-[640px] bg-[#D4148C]/15 rounded-full blur-[140px] animate-aurora-breathe" />
+        <div className="absolute bottom-0 -left-40 w-[560px] h-[560px] bg-[#FF5A8D]/16 rounded-full blur-[140px] animate-aurora-breathe" style={{ ['--breathe-dur' as any]: '11s' }} />
+        <div className="absolute top-1/2 left-1/4 w-[420px] h-[420px] bg-[#990066]/12 rounded-full blur-[120px] animate-aurora-breathe" style={{ ['--breathe-dur' as any]: '13s' }} />
+        <div className="absolute top-10 left-[45%] w-[300px] h-[300px] bg-fuchsia-500/10 rounded-full blur-[110px] animate-aurora-breathe" style={{ ['--breathe-dur' as any]: '15s' }} />
 
         {/* Animated floating medicines — drifting up like a gentle distribution flow */}
         <div className="absolute inset-0 overflow-hidden">
@@ -140,7 +155,7 @@ export default function LoginScreen() {
               </span>
               <h2 className="text-4xl font-semibold text-white leading-[1.1] tracking-tight font-display">
                 Run your pharmacy<br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-300 via-teal-300 to-emerald-400">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FF5A8D] via-[#D4148C] to-[#990066]">
                   like a well-oiled machine.
                 </span>
               </h2>
@@ -154,7 +169,7 @@ export default function LoginScreen() {
             <div className="grid grid-cols-2 gap-3">
               {HERO_FEATURES.map(({ icon: Icon, label, desc }) => (
                 <div key={label} className="flex items-start gap-3 p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-emerald-400/20 transition-all duration-200">
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-400/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#D4148C]/20 to-[#FF5A8D]/10 border border-[#FF5A8D]/20 flex items-center justify-center flex-shrink-0">
                     <Icon className="w-4 h-4 text-emerald-300" />
                   </div>
                   <div className="min-w-0">
@@ -185,15 +200,15 @@ export default function LoginScreen() {
               <Logo size="md" />
             </div>
 
-            <div className="bg-white/[0.04] backdrop-blur-2xl rounded-3xl p-8 lg:p-10 border border-white/[0.08] shadow-2xl shadow-black/40 animate-fade-in-up">
+            <div className="aurora-border-card bg-slate-900/80 backdrop-blur-2xl rounded-3xl p-8 lg:p-10 border border-white/15 shadow-2xl shadow-black/50 animate-fade-in-up">
               {/* Header */}
               <div className="mb-8">
                 <div className="flex items-center gap-2 text-emerald-300 mb-2">
                   <div className="h-px w-8 bg-emerald-400/40" />
                   <span className="text-[11px] uppercase tracking-widest font-semibold text-emerald-300/80">Sign in</span>
                 </div>
-                <h2 className="text-2xl font-semibold text-white tracking-tight font-display">Welcome Back</h2>
-                <p className="text-slate-500 text-sm mt-1.5">Sign in to manage your pharmacy</p>
+                <h2 className="text-2xl font-semibold text-white tracking-tight font-display">Welcome to AnPharmacy</h2>
+                <p className="text-slate-500 text-sm mt-1.5">Every Medicine. Under Control.</p>
               </div>
 
               {/* Quick Access */}
@@ -228,7 +243,7 @@ export default function LoginScreen() {
                   <div className="w-full border-t border-white/[0.08]" />
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="bg-slate-900 px-3 text-slate-500 font-medium">
+                  <span className="bg-slate-900/80 px-3 text-slate-500 font-medium backdrop-blur-sm">
                     or sign in with credentials
                   </span>
                 </div>
@@ -237,7 +252,7 @@ export default function LoginScreen() {
               {/* Login Form */}
               <form onSubmit={handleLogin} className="space-y-5">
                 <div>
-                  <label htmlFor="login-username" className="block text-[13px] font-semibold text-slate-300 mb-1.5">
+                  <label htmlFor="login-username" className="block text-[13px] font-semibold text-slate-200 mb-1.5">
                     Username
                   </label>
                   <div className="relative">
@@ -246,16 +261,19 @@ export default function LoginScreen() {
                       id="login-username"
                       type="text"
                       value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      onChange={(e) => { setUsername(e.target.value); if (error) setError(''); }}
+                      onFocus={() => setFocusedField('username')}
+                      onBlur={() => setFocusedField(null)}
                       placeholder="Enter your username"
                       autoComplete="username"
-                      className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/[0.1] text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-emerald-400/50 focus:bg-white/[0.06] focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                      aria-invalid={!!error}
+                      className={cn(fieldCls('username'), 'pr-4')}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="login-password" className="block text-[13px] font-semibold text-slate-300 mb-1.5">
+                  <label htmlFor="login-password" className="block text-[13px] font-semibold text-slate-200 mb-1.5">
                     Password
                   </label>
                   <div className="relative">
@@ -264,15 +282,18 @@ export default function LoginScreen() {
                       id="login-password"
                       type={showPassword ? 'text' : 'password'}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }}
+                      onFocus={() => setFocusedField('password')}
+                      onBlur={() => setFocusedField(null)}
                       placeholder="Enter your password"
                       autoComplete="current-password"
-                      className="w-full h-11 pl-10 pr-11 rounded-xl bg-white/[0.04] border border-white/[0.1] text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-emerald-400/50 focus:bg-white/[0.06] focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                      aria-invalid={!!error}
+                      className={cn(fieldCls('password'), 'pr-11')}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 transition-colors"
                       tabIndex={-1}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
@@ -281,10 +302,20 @@ export default function LoginScreen() {
                   </div>
                 </div>
 
+                <div className="flex items-center justify-between text-[13px]">
+                  <label className="flex items-center gap-2 text-slate-400 cursor-pointer select-none">
+                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-emerald-500 bg-slate-900 border-white/20" />
+                    Remember me
+                  </label>
+                  <button type="button" className="text-emerald-300 hover:text-emerald-200 font-medium transition-colors cursor-pointer">
+                    Forgot password?
+                  </button>
+                </div>
+
                 {error && (
-                  <div className="bg-red-500/10 border border-red-400/25 rounded-xl px-4 py-3 flex items-center gap-2 animate-fade-in">
+                  <div className="bg-red-500/15 border border-red-400/40 rounded-xl px-4 py-3 flex items-center gap-2 animate-fade-in" role="alert">
                     <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                    <span className="text-red-300 text-sm">{error}</span>
+                    <span className="text-red-200 text-sm">{error}</span>
                   </div>
                 )}
 
@@ -293,10 +324,10 @@ export default function LoginScreen() {
                   disabled={isLoading}
                   loading={isLoading}
                   size="xl"
-                  className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white shadow-lg shadow-emerald-500/25"
+                  className="w-full bg-gradient-to-r from-[#990066] via-[#D4148C] to-[#FF5A8D] hover:from-[#B3007A] hover:to-[#FF7AA8] text-white shadow-lg shadow-[#D4148C]/30 hover:shadow-[#D4148C]/40 transition-all disabled:opacity-60"
                 >
                   <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
+                  {isLoading ? 'Signing in…' : 'Sign In'}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </form>
