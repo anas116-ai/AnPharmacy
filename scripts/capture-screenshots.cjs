@@ -19,11 +19,19 @@ app.whenReady().then(async () => {
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   async function capture(name) {
-    await sleep(1200);
+    await sleep(1500);
     const image = await win.capturePage();
     const filePath = path.join(outDir, `${name}.png`);
     fs.writeFileSync(filePath, image.toPNG());
     console.log(`Captured: ${name}.png (${fs.statSync(filePath).size} bytes)`);
+  }
+
+  async function navHash(hash, name) {
+    console.log(`Navigating to #${hash}...`);
+    await win.webContents.executeJavaScript(`
+      window.location.hash = '#${hash}';
+    `);
+    await capture(name);
   }
 
   try {
@@ -55,40 +63,32 @@ app.whenReady().then(async () => {
     await sleep(2500);
     await capture('03_executive_dashboard');
 
-    // Helper to click sidebar nav by label
-    async function navigateTo(label, screenName) {
-      console.log(`Navigating to ${label}...`);
-      await win.webContents.executeJavaScript(`
-        (() => {
-          const btn = Array.from(document.querySelectorAll('button')).find(el => el.textContent.trim().includes('${label}'));
-          if (btn) {
-            btn.click();
-            return true;
-          }
-          return false;
-        })()
-      `);
-      await sleep(1500);
-      await capture(screenName);
-    }
+    // 4. Stock & Inventory Table
+    await navHash('stock', '04_inventory_fefo');
 
-    // 4. Stock / Inventory
-    await navigateTo('Stock', '04_inventory_fefo');
+    // 5. Add Stock / Medicine Form
+    await navHash('add-stock', '05_add_stock_form');
 
-    // 5. Purchases
-    await navigateTo('Purchases', '05_purchases_management');
+    // 6. Purchases / Inward Bill Form
+    await navHash('purchases', '06_purchases_management');
 
-    // 6. Sales
-    await navigateTo('Sales', '06_point_of_sale');
+    // 7. Point of Sale (POS) Billing Form
+    await navHash('sales', '07_point_of_sale_billing');
 
-    // 7. Reports & Analytics
-    await navigateTo('Reports', '07_reports_analytics');
+    // 8. Scan Invoice OCR
+    await navHash('scan-invoice', '08_scan_invoice_ocr');
 
-    // 8. Data Import Studio
-    await navigateTo('Data Import', '08_data_import_studio');
+    // 9. Data Import Studio (Smart Mapping Form)
+    await navHash('data-import', '09_data_import_studio');
 
-    // 9. Suppliers
-    await navigateTo('Suppliers', '09_suppliers_directory');
+    // 10. Reports & Analytics
+    await navHash('reports', '10_reports_analytics');
+
+    // 11. Suppliers Directory
+    await navHash('suppliers', '11_suppliers_directory');
+
+    // 12. Customers Directory
+    await navHash('customers', '12_customers_directory');
 
     console.log('ALL SCREENSHOTS CAPTURED SUCCESSFULLY!');
   } catch (err) {

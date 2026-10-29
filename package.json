@@ -86,7 +86,7 @@
     "management"
   ],
   "author": "AnPharmacy Solutions",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "better-sqlite3": "^12.11.1",
     "crypto-js": "^4.2.0",
