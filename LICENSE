@@ -1,21 +1,30 @@
-MIT License
+# AnPharmacy Enterprise Software License
 
-Copyright (c) 2024-2026 AnPharmacy Solutions
+**Copyright (c) 2024–2026 AnPharmacy Solutions. All Rights Reserved.**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+---
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### 1. Proprietary Grant & Commercial Terms
+AnPharmacy is proprietary commercial software developed and owned by AnPharmacy Solutions. This software is licensed, not sold. Possession of the source code or application binary does not convey any right to deploy the software in a commercial production environment without a valid, authorized License Key issued by AnPharmacy Solutions.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+### 2. Hardware-Bound Activation (HWID)
+Production installations of AnPharmacy require hardware-bound machine identification (HWID) activation. Each commercial license key is cryptographically verified and bound to the host workstation's hardware identifiers to protect pharmaceutical distribution integrity.
+
+### 3. Permitted Uses
+- **Evaluation & Demonstration:** You may install, run, and review this software for non-commercial evaluation, testing, auditing, and demonstration purposes.
+- **Enterprise Commercial Deployment:** Requires an active Enterprise License Agreement and valid hardware-bound activation key issued by AnPharmacy Solutions.
+
+### 4. Prohibited Uses
+Unless expressly authorized in writing by AnPharmacy Solutions, you may NOT:
+- Sub-license, lease, resell, or distribute commercial activation keys.
+- Bypass, disable, or tamper with the cryptographic hardware licensing (HWID) or tamper-detection mechanisms.
+- Remove or alter any proprietary notices, brand wordmarks, or copyright statements from the application.
+
+### 5. Disclaimer of Warranties
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND PHARMACEUTICAL AUDIT ACCURACY. IN NO EVENT SHALL ANPHARMACY SOLUTIONS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OR MISUSE OF THE SOFTWARE.
+
+---
+
+For enterprise licensing inquiries, custom hospital deployments, or key activations, contact:
+**AnPharmacy Enterprise Solutions**  
+Email: `licensing@anpharmacy.com` | Web: [https://github.com/anas116-ai/AnPharmacy](https://github.com/anas116-ai/AnPharmacy)

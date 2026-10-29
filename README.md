@@ -4,17 +4,18 @@
 
 <br/><br/>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg?style=for-the-badge)](LICENSE)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary%20%7C%20Commercial-123F3D.svg?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-0284c7?style=for-the-badge)](https://github.com/anas116-ai/AnPharmacy)
 [![Stack](https://img.shields.io/badge/Stack-Electron%2043%20%7C%20React%2019%20%7C%20SQLite-0f172a?style=for-the-badge)](https://github.com/anas116-ai/AnPharmacy)
-[![Offline](https://img.shields.io/badge/Architecture-100%25%20Offline%20First-10b981?style=for-the-badge)](https://github.com/anas116-ai/AnPharmacy)
+[![Offline First](https://img.shields.io/badge/Architecture-100%25%20Offline%20First-10b981?style=for-the-badge)](https://github.com/anas116-ai/AnPharmacy)
+[![Security](https://img.shields.io/badge/Security-Hardware--Bound%20HWID-d97706?style=for-the-badge)](LICENSE)
 
 <p align="center">
   <strong>An enterprise-grade, offline-first pharmacy distribution and management system.</strong><br>
   Built with Electron 43, React 19, TypeScript, Tailwind CSS, and embedded SQLite with zero external cloud dependencies.
 </p>
 
-[Key Features](#-key-features) • [Screenshots & Forms Gallery](#-screenshots--forms-showcase) • [Technology Stack](#-technology-stack) • [Getting Started](#-getting-started) • [Default Credentials](#-default-credentials) • [Keyboard Shortcuts](#-keyboard-shortcuts)
+[Key Features](#-key-features) • [Application Visual Tour](#-application-visual-tour) • [Technology Stack](#-technology-stack) • [Getting Started](#-getting-started) • [Default Credentials](#-default-credentials) • [License & Commercial Deployment](#-license--commercial-deployment)
 
 </div>
 
@@ -22,163 +23,186 @@
 
 ## ⚡ Key Features
 
-| Capability | Technical Details |
+| Core Capability | Enterprise Impact & Technical Specification |
 | :--- | :--- |
-| **Local-First & Air-Gapped** | Runs 100% offline with zero cloud latency. Embedded SQLite database (`better-sqlite3`). |
-| **FEFO Allocation Engine** | Automatically allocates the nearest expiring batch during billing to prevent dead-stock write-offs. |
-| **OCR Purchase Invoice Scanner** | Built-in Otsu image binarization & Tesseract OCR for automated supplier bill data extraction. |
-| **Data Import Studio** | Smart column mapper with profile persistence for Excel (`.xlsx`, `.xls`) and CSV distributor files. |
-| **Enterprise Security** | Hardware-bound license activation, SHA-256 passwords, and AES-256 encrypted local backups. |
-| **Executive Keyboard Shortcuts** | Full desktop keyboard navigation (`Ctrl+D`, `Ctrl+S`, `Ctrl+N`, `Ctrl+P`, `Ctrl+M`, `Ctrl+R`). |
-| **GST & Regulatory Ready** | HSN code validation, Schedule H/H1/X compliance tracking, CGST/SGST/IGST tax breakdowns. |
+| **100% Offline SQLite Engine** | Operates air-gapped with zero cloud dependencies or network downtime. Sub-millisecond database queries via `better-sqlite3`. |
+| **FEFO Batch Allocation** | Strict *First-Expired, First-Out* algorithm prioritizes nearest-expiring medicine batches during billing to prevent costly expired write-offs. |
+| **Optical OCR Inward Invoicing** | Integrated Otsu binarization and Tesseract OCR engine scans printed supplier invoices and auto-populates batch numbers, MRP, PTR, and taxes. |
+| **Data Import Studio** | Intelligent auto-mapping for wholesale distributor spreadsheets (`.xlsx`, `.xls`, `.csv`) with schema verification and profile caching. |
+| **Multi-Tier GST Billing & POS** | Instant calculation of CGST, SGST, IGST, HSN tax categorization, and split batch billing with thermal/A4 tax invoice generation. |
+| **Hardware-Locked Security** | Cryptographic machine identification (HWID) license binding, SHA-256 password hashing, and local AES-256 encrypted database backups. |
+| **Regulatory & Schedule Compliance** | Integrated tracking for Schedule H, H1, X narcotics, and critical antibiotics requiring valid doctor prescriptions and license audits. |
 
 ---
 
-## 📸 Screenshots & Forms Showcase
+## 📸 Application Visual Tour
 
-### 1. Executive Command Center & Dashboard
-Real-time KPI telemetry, daily revenue velocity, cash vs. credit breakdowns, smart reorder triggers, and FEFO expiry radar.
-![Executive Dashboard](docs/screenshots/03_executive_dashboard.png)
+The application is engineered with an executive medical design language — clean, light, high-contrast, and distraction-free for pharmacy counters and distribution warehouses.
 
-### 2. Inventory & FEFO Batch Engine
-Strict First-Expiry-First-Out (FEFO) batch tracking, batch-level MRP/PTR/PTS margins, and barcode search.
-![Inventory Management](docs/screenshots/04_inventory_fefo.png)
+---
 
-### 3. Add Stock / New Medicine Batch Form
-Comprehensive medicine inward form with batch numbers, packaging units, MRP, PTR, purchase/selling tax breakdown, and expiry dates.
-![Add Stock Form](docs/screenshots/05_add_stock_form.png)
-
-### 4. Procurement & Purchases Form
-Supplier bill entry with line-item verification, GST tax breakup computation, and automatic stock updates.
-![Purchases Management](docs/screenshots/06_purchases_management.png)
-
-### 5. High-Speed Point of Sale (POS) Billing
-Counter checkout optimized for speed with automated batch allocation, GST invoices, and thermal receipt printing.
-![Point of Sale Billing](docs/screenshots/07_point_of_sale_billing.png)
-
-### 6. AI Vision & OCR Invoice Scanner
-Automated purchase bill intake using optical character recognition, Otsu binarization, and vendor pattern learning.
-![Scan Invoice OCR](docs/screenshots/08_scan_invoice_ocr.png)
-
-### 7. Data Import Studio (Distributor Excel / CSV Mapper)
-Drop in any distributor spreadsheet — intelligent auto-detection maps columns to schema with instant live preview.
-![Data Import Studio](docs/screenshots/09_data_import_studio.png)
-
-### 8. Analytics, Reports & GST Intelligence
-Granular sales velocity, profit margins, supplier purchase summaries, and export-ready GST compliance data.
-![Reports & Analytics](docs/screenshots/10_reports_analytics.png)
-
-### 9. Suppliers & Manufacturer Directory
-Centralized repository of pharmaceutical manufacturers, distributors, credit terms, and contact profiles.
-![Suppliers Directory](docs/screenshots/11_suppliers_directory.png)
-
-### 10. Customers & Patient Profiles
-Customer records, purchase histories, outstanding balances, and credit ledger management.
-![Customers Directory](docs/screenshots/12_customers_directory.png)
-
-### 11. Clinical Landing Page
-Clean obsidian & clinical emerald design system without AI template slop or distracting marketing noise.
+### 1. Landing Page
+Clean, clinical overview explaining system capabilities, 100% offline architecture, and feature modules.
 ![Landing Page](docs/screenshots/01_landing_page.png)
 
-### 12. Secure Role-Based Authentication
-Air-gapped authentication with hardware-bound license verification and role-specific workspace configurations.
+---
+
+### 2. Login Page
+Secure role-based authentication portal supporting Administrator, Sales Executive, and Purchase Manager sessions with hardware-bound authorization.
 ![Login Screen](docs/screenshots/02_login_screen.png)
+
+---
+
+### 3. Executive Dashboard
+Real-time KPI telemetry, daily sales velocity, cash vs. credit breakdowns, stock valuation, and proactive FEFO expiration radar.
+![Executive Dashboard](docs/screenshots/03_dashboard.png)
+
+---
+
+### 4. Stock & Inventory Management
+Centralized inventory ledger with real-time stock balances, batch-level tracking, rack locations, and reorder point triggers.
+![Stock Inventory](docs/screenshots/04_stock_inventory.png)
+
+---
+
+### 5. Add Stock / Inward Medicine Form
+Comprehensive batch entry interface capturing brand names, generic compositions, manufacturer details, batch numbers, MRP, PTR, PTS, tax rates, and expiry dates.
+![Add Stock Form](docs/screenshots/05_add_stock_form.png)
+
+---
+
+### 6. Purchases & Supplier Procurement
+Inward shipment ledger for logging wholesale bills, verifying line-item costs, validating drug license details, and auto-updating warehouse inventory.
+![Purchases Management](docs/screenshots/06_purchases.png)
+
+---
+
+### 7. Data Import Studio
+Smart distributor spreadsheet ingestion — upload Excel or CSV wholesale lists with intelligent column detection, live preview, and batch-wise import.
+![Data Import Studio](docs/screenshots/07_data_import.png)
+
+---
+
+### 8. Sales (Billing / POS)
+High-speed counter billing terminal with automated FEFO batch allocation, barcode scanning, doctor prescription attachment, and instant GST invoice generation.
+![Sales POS Billing](docs/screenshots/08_sales_billing.png)
+
+---
+
+### 9. Reports & Distribution Analytics
+In-depth financial intelligence covering gross margins, profit velocity, sales trends, supplier balances, and GST filing summaries.
+![Reports & Analytics](docs/screenshots/09_reports.png)
+
+---
+
+### 10. Discounts & Pricing Schemes
+Configure volume schemes, festival discounts, cash payment rebates, and manufacturer promotional margins with automatic checkout deduction.
+![Discounts & Schemes](docs/screenshots/10_discounts.png)
+
+---
+
+### 11. Sales History & Ledger
+Complete audit trail of all completed sales, customer invoices, payment modes (Cash, UPI, Credit Card), and print re-issuance.
+![Sales History](docs/screenshots/11_sales_history.png)
+
+---
+
+### 12. Scan Invoice OCR Intake *(Supplementary)*
+Optical character recognition interface that scans printed paper invoices and extracts medicine names, batch codes, quantities, and GST rates.
+![Scan Invoice OCR](docs/screenshots/12_scan_invoice_ocr.png)
+
+---
+
+### 13. Suppliers & Manufacturer Directory *(Supplementary)*
+Directory of verified pharmaceutical distributors, drug license certificates, GSTIN records, payment terms, and contact representatives.
+![Suppliers Directory](docs/screenshots/13_suppliers_directory.png)
 
 ---
 
 ## 🛠️ Technology Stack
 
-* **Desktop Runtime:** [Electron 43.1](https://www.electronjs.org/)
-* **Frontend Framework:** [React 19.2](https://react.dev/) + [TypeScript 7.0](https://www.typescriptlang.org/)
-* **Build System:** [Vite 8.1](https://vitejs.dev/)
-* **Styling & Design System:** [Tailwind CSS 3.4](https://tailwindcss.com/) + Custom Design Tokens (Medical Emerald & Slate)
-* **Local Database:** [better-sqlite3 12.1](https://github.com/WiseLibs/better-sqlite3)
+* **Desktop Runtime:** [Electron 43.1](https://www.electronjs.org/) (Chromium + Node.js)
+* **Frontend Framework:** [React 19.2](https://react.dev/) with [TypeScript 7.0](https://www.typescriptlang.org/)
+* **Build System:** [Vite 8.1](https://vitejs.dev/) with fast HMR
+* **Styling & Design System:** [Tailwind CSS 3.4](https://tailwindcss.com/) + Custom Design Tokens (Medical Teal, Mint & Clean Light Slate)
+* **Embedded Database:** [better-sqlite3 12.1](https://github.com/WiseLibs/better-sqlite3) (Zero-cloud latency)
 * **State Management:** [Zustand 5.0](https://github.com/pmndrs/zustand)
 * **Data Visualization:** [Recharts 2.15](https://recharts.org/) & Chart.js
-* **OCR & Document Engine:** [Tesseract.js](https://tesseract.projectnaptha.com/) + [PDF.js](https://mozilla.github.io/pdf.js/)
-* **Spreadsheet Engine:** [SheetJS (xlsx)](https://sheetjs.com/)
+* **OCR & Vision Engine:** [Tesseract.js](https://tesseract.projectnaptha.com/) + Custom Otsu Image Binarization
+* **Spreadsheet Processing:** [SheetJS (xlsx)](https://sheetjs.com/)
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-* [Node.js](https://nodejs.org/) v18.0.0 or higher
-* npm v9.0.0 or higher
+* **Node.js:** v18.0.0 or higher
+* **npm:** v9.0.0 or higher
+* **Operating System:** Windows 10/11, macOS 12+, or Ubuntu 20.04+
 
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/anas116-ai/AnPharmacy.git
-   cd AnPharmacy
-   ```
-
-2. **Install project dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Start development mode:**
-   ```bash
-   npm run dev
-   ```
-   * Vite dev server launches at `http://localhost:5174/`
-   * Electron desktop application boots automatically with local SQLite database.
-
----
-
-## 🔑 Default Credentials
-
-| Role | Username | Default Password | Access Scope |
-| :--- | :--- | :--- | :--- |
-| **Administrator** | `admin` | `admin@123` | Full system control, user management, backup/restore, license config |
-| **Sales Representative** | `sales` | `sales@123` | Dashboard, Stock viewing, Point of Sale, Sales history |
-| **Purchase Manager** | `purchase` | `purchase@123` | Dashboard, Stock entry, Purchase invoices, Data import studio |
-
----
-
-## ⌨️ Keyboard Shortcuts
-
-| Shortcut | Action |
-| :--- | :--- |
-| <kbd>Ctrl</kbd> + <kbd>D</kbd> | Navigate to Executive Dashboard |
-| <kbd>Ctrl</kbd> + <kbd>S</kbd> | Open Stock & Inventory Management |
-| <kbd>Ctrl</kbd> + <kbd>N</kbd> | Quick Add New Medicine Batch |
-| <kbd>Ctrl</kbd> + <kbd>P</kbd> | Navigate to Purchases |
-| <kbd>Ctrl</kbd> + <kbd>M</kbd> | Open Point of Sale (POS) Billing |
-| <kbd>Ctrl</kbd> + <kbd>R</kbd> | Open Analytics & Reports |
-| <kbd>Ctrl</kbd> + <kbd>F</kbd> | Global Search focus |
-| <kbd>Esc</kbd> | Close active Modal or Drawer |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> | Open Keyboard Shortcuts Cheat Sheet |
-
----
-
-## 📦 Production Packaging
-
-To compile standalone desktop executables for distribution:
+### Installation & Launch
 
 ```bash
-# Windows x64 (.exe installer + portable)
-npm run dist:win
+# Clone repository
+git clone https://github.com/anas116-ai/AnPharmacy.git
+cd AnPharmacy
 
-# macOS (.dmg)
-npm run dist:mac
+# Install dependencies
+npm install
 
-# Linux (.AppImage / .deb)
-npm run dist:linux
+# Start development server and Electron runtime
+npm run dev
 ```
 
-Output installers are generated inside the `release/` directory.
+### Production Build
+
+```bash
+# Compile React application and verify types
+npm run build
+
+# Package desktop installer for your target OS
+npm run electron:build
+```
 
 ---
 
-## 📄 License
+## 🔐 Default Credentials
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+The initial database seed includes default role profiles for system evaluation:
+
+| Role | Username | Default Password | Granted Permissions |
+| :--- | :--- | :--- | :--- |
+| **Administrator** | `admin` | `admin@123` | Full administrative control, system settings, database backup/restore, license management |
+| **Sales Executive** | `sales` | `sales@123` | High-speed POS counter billing, customer ledger, stock query, sales history |
+| **Purchase Manager** | `purchase` | `purchase@123` | Procurement, distributor invoice scanning, bulk Excel data import, supplier directory |
+
+> [!TIP]
+> In production installations, change all default passwords immediately via **User Management** (`#users`).
 
 ---
 
-<div align="center">
-  <sub>Developed with ❤️ for modern pharmaceutical distributors & retail pharmacies.</sub>
-</div>
+## ⌨️ Desktop Keyboard Shortcuts
+
+| Shortcut | Destination / Action |
+| :--- | :--- |
+| `Ctrl + D` | Jump to **Dashboard** |
+| `Ctrl + S` | Jump to **Stock / Inventory** |
+| `Ctrl + N` | Jump to **Add Stock Form** |
+| `Ctrl + P` | Jump to **Purchases Management** |
+| `Ctrl + B` | Jump to **Sales (POS Billing)** |
+| `Ctrl + R` | Jump to **Reports & Analytics** |
+| `Ctrl + M` | Toggle Sidebar Collapse / Expand |
+| `Ctrl + Shift + S` | Quick Save Inward Bill / Form |
+| `F1` | Open Keyboard Shortcuts Cheatsheet |
+
+---
+
+## 📄 License & Commercial Deployment
+
+**Copyright (c) 2024–2026 AnPharmacy Solutions. All Rights Reserved.**
+
+This software is licensed under the **AnPharmacy Enterprise Commercial License**.
+- **Evaluation & Non-Production Testing:** Permitted for audit, educational, and evaluation purposes.
+- **Commercial Production Deployment:** Requires an authorized enterprise hardware-bound license key (HWID).
+
+See the [LICENSE](LICENSE) file for complete legal terms, or contact `licensing@anpharmacy.com` for multi-store and wholesale distribution deployments.
