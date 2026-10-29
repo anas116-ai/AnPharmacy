@@ -313,9 +313,9 @@ export default function LandingPage({ onStart }: LandingPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDF5F6] text-slate-900 antialiased selection:bg-[#2E9C90]/40 selection:text-[#14292E]">
+    <div className="min-h-screen bg-white text-slate-900 antialiased selection:bg-[#17827A]/20 selection:text-[#123F3D]">
       {/* Top Header - Seamless & Transparent on #EDF5F6 */}
-      <header className="sticky top-0 z-40 w-full bg-[#EDF5F6]/90 backdrop-blur-md border-b border-[#14292E]/10 px-6 lg:px-12 py-4 transition-all">
+      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-6 lg:px-12 py-4 transition-all">
         <div className="mx-auto max-w-[1400px] w-full flex items-center justify-between">
           <Logo size="sm" />
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-700">
@@ -355,26 +355,26 @@ export default function LandingPage({ onStart }: LandingPageProps) {
       </header>
 
       {/* Hero Section with Clean Editorial Typography & Command Center Preview */}
-      <section className="relative pt-14 pb-20 px-6 lg:px-12 lg:pt-20 lg:pb-28 overflow-hidden bg-gradient-to-b from-white via-[#EDF5F6]/60 to-[#EDF5F6]">
+      <section className="relative pt-14 pb-20 px-6 lg:px-12 lg:pt-20 lg:pb-28 overflow-hidden bg-white">
         {/* Subtle Ambient Radial Lighting */}
-        <div className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[380px] bg-[#2E9C90]/[0.2] blur-[140px] rounded-full -z-10" />
+        
 
         <div className="relative mx-auto max-w-[1400px] w-full z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Copy */}
             <div className="text-center lg:text-left">
               <Reveal>
-                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#D7EDE7] border border-[#2E9C90] text-[#0E3331] text-xs font-bold mb-6 shadow-xs">
-                  <LogoMark className="w-4 h-4 text-[#14292E]" />
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-[#123F3D] text-xs font-bold mb-6 shadow-xs">
+                  <LogoMark className="w-4 h-4 text-[#17827A]" />
                   <span>Enterprise Medicine Distribution &amp; Operations</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#0E3331] animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#17827A] animate-pulse" />
                 </div>
               </Reveal>
 
               <Reveal delay={100}>
-                <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight text-slate-950 leading-[1.14]">
-                  The Operating System for{' '}
-                  <span className="text-[#14292E] block sm:inline">
+                <h1 className="text-4xl sm:text-5xl lg:text-[3.35rem] font-extrabold tracking-tight text-slate-900 leading-[1.14]">
+                  Intelligent Distribution &amp; Management for{' '}
+                  <span className="bg-gradient-to-r from-[#123F3D] via-[#17827A] to-[#2E9C90] bg-clip-text text-transparent block sm:inline">
                     Modern Pharmacy.
                   </span>
                 </h1>
@@ -578,7 +578,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
             {STEPS.map(({ n, icon: Icon, title, desc, badge }, i) => (
               <Reveal key={n} delay={i * 70}>
-                <div className="h-full rounded-2xl p-7 bg-[#EDF5F6]/40 border border-slate-200/90 hover:border-[#14292E]/40 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden flex flex-col justify-between group cursor-pointer">
+                <div className="h-full rounded-2xl p-7 bg-slate-50/70 border border-slate-200/90 hover:border-[#14292E]/40 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden flex flex-col justify-between group cursor-pointer">
                   <span className="absolute -top-3 right-4 text-[4.5rem] font-bold font-mono text-slate-200/60 select-none pointer-events-none group-hover:text-[#D7EDE7]/40 transition-colors duration-300">{n}</span>
                   <div>
                     <div className="flex items-center justify-between mb-4 relative z-10">
@@ -671,7 +671,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 lg:px-12 pt-16 pb-12 bg-[#EDF5F6] border-t border-slate-200/80">
+      <footer className="px-6 lg:px-12 pt-16 pb-12 bg-white border-t border-slate-200/80">
         <div className="mx-auto max-w-[1400px] w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10">
             <div>

@@ -55,19 +55,41 @@ app.whenReady().then(async () => {
   }
 
   try {
-    // 1. Landing Page
+    // 1. Landing Page - force stage to 'landing' and ensure H1 is rendered
     console.log('1. Loading Landing Page...');
     await win.loadURL('http://localhost:5174/');
-    await sleep(2500);
+    await sleep(1000);
+    await win.webContents.executeJavaScript(`
+      sessionStorage.setItem('anpharmacy.stage', 'landing');
+    `);
+    await win.loadURL('http://localhost:5174/');
+    
+    // Wait until H1 with "Intelligent Distribution" is present
+    for (let i = 0; i < 20; i++) {
+      const hasH1 = await win.webContents.executeJavaScript(`
+        Boolean(document.querySelector('h1'))
+      `);
+      if (hasH1) break;
+      await sleep(300);
+    }
+    await sleep(1500);
     await capture('01_landing_page');
 
     // 2. Login Screen
     console.log('2. Navigating to Login Screen...');
     await win.webContents.executeJavaScript(`
-      const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('Sign In') || b.textContent.includes('Enter the Dashboard'));
+      const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('Sign In') || b.textContent.includes('Launch System Console'));
       if (btn) btn.click();
     `);
-    await sleep(1800);
+    // Wait for login form
+    for (let i = 0; i < 20; i++) {
+      const hasLogin = await win.webContents.executeJavaScript(`
+        Boolean(document.querySelector('input[type="password"]'))
+      `);
+      if (hasLogin) break;
+      await sleep(300);
+    }
+    await sleep(1500);
     await capture('02_login_screen');
 
     // 3. Login as Admin & Capture Dashboard
@@ -80,6 +102,14 @@ app.whenReady().then(async () => {
         if (submitBtn) submitBtn.click();
       }, 300);
     `);
+    // Wait for Dashboard
+    for (let i = 0; i < 25; i++) {
+      const hasDash = await win.webContents.executeJavaScript(`
+        Boolean(document.querySelector('.heading-display') || document.querySelector('h2'))
+      `);
+      if (hasDash) break;
+      await sleep(300);
+    }
     await sleep(2500);
     await capture('03_dashboard');
 

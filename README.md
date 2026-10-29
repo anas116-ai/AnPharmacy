@@ -1,14 +1,17 @@
 <div align="center">
 
-<img src="docs/images/banner.svg" alt="AnPharmacy - Enterprise Medicine Distribution & Pharmacy ERP" width="100%" />
+# AnPharmacy
+### Enterprise Medicine Distribution & Intelligent Pharmacy Management System
 
-<br/><br/>
+<br/>
 
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary%20%7C%20Commercial-123F3D.svg?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-0284c7?style=for-the-badge)](https://github.com/anas116-ai/AnPharmacy)
 [![Stack](https://img.shields.io/badge/Stack-Electron%2043%20%7C%20React%2019%20%7C%20SQLite-0f172a?style=for-the-badge)](https://github.com/anas116-ai/AnPharmacy)
 [![Offline First](https://img.shields.io/badge/Architecture-100%25%20Offline%20First-10b981?style=for-the-badge)](https://github.com/anas116-ai/AnPharmacy)
 [![Security](https://img.shields.io/badge/Security-Hardware--Bound%20HWID-d97706?style=for-the-badge)](LICENSE)
+
+<br/>
 
 <p align="center">
   <strong>An enterprise-grade, offline-first pharmacy distribution and management system.</strong><br>
