@@ -326,6 +326,35 @@ export function initializeBrowserAPI(): void {
       const medicines = getStore<any[]>('medicines', []).filter(m => m.supplier_id === supplierId);
       return { success: true, medicines: medicines.map(enrichMedicine) };
     },
+    getSupplierLedger: async ({ supplierId }: { supplierId: number }) => {
+      const ledger = getStore<any[]>('supplierLedger', []).filter(l => l.supplier_id === supplierId);
+      const suppliers = getStore<any[]>('suppliers', []);
+      const supplier = suppliers.find(s => s.id === supplierId);
+      return { success: true, ledger: ledger.reverse(), currentBalance: supplier?.current_balance || 0 };
+    },
+    addSupplierPayment: async (data: { supplierId: number; amount: number; paymentMethod: string; referenceId?: string; notes?: string }) => {
+      const numAmount = parseFloat(String(data.amount)) || 0;
+      if (numAmount <= 0) return { success: false, error: 'Payment amount must be greater than zero' };
+      const suppliers = getStore<any[]>('suppliers', []);
+      const sIdx = suppliers.findIndex(s => s.id === data.supplierId);
+      if (sIdx !== -1) {
+        suppliers[sIdx].current_balance = (suppliers[sIdx].current_balance || 0) - numAmount;
+        setStore('suppliers', suppliers);
+      }
+      const ledger = getStore<any[]>('supplierLedger', []);
+      ledger.push({
+        id: nextId(ledger),
+        supplier_id: data.supplierId,
+        transaction_type: 'payment',
+        amount: numAmount,
+        payment_method: data.paymentMethod || 'bank_transfer',
+        reference_id: data.referenceId || null,
+        notes: data.notes || null,
+        created_at: now()
+      });
+      setStore('supplierLedger', ledger);
+      return { success: true };
+    },
 
     // License
     getLicenseStatus: async () => ({ status: 'active', deviceId: 'BROWSER-DEVICE-001', license: null }),
@@ -392,10 +421,17 @@ export function initializeBrowserAPI(): void {
     },
 
     // Sales
-    processSale: async ({ customerName, medicineName, totalAmount, items, userId }: any) => {
+    processSale: async ({ customerName, customerId, customerPhone, customerAddress, customerGstin, medicineName, totalAmount, discountAmount, taxableAmount, cgstAmount, sgstAmount, igstAmount, netPayable, paymentMode, items, userId }: any) => {
       const medicines = getStore<any[]>('medicines', []);
       const sales = getStore<any[]>('sales', []);
       const saleId = uuid();
+
+      // Sequential fiscal bill number
+      const nowD = new Date();
+      const fyStart = (nowD.getMonth() + 1) >= 4 ? nowD.getFullYear() : nowD.getFullYear() - 1;
+      const fyCode = `${String(fyStart).slice(2)}${String(fyStart + 1).slice(2)}`;
+      const seq = sales.filter((s: any) => s.bill_number?.startsWith(`INV-${fyCode}`)).length + 1;
+      const billNumber = `INV-${fyCode}-${String(seq).padStart(4, '0')}`;
 
       for (const item of items) {
         const idx = medicines.findIndex(m => m.id === item.batchId);
@@ -405,19 +441,62 @@ export function initializeBrowserAPI(): void {
       }
       setStore('medicines', medicines);
 
+      const net = netPayable || totalAmount;
       sales.push({
         id: saleId,
+        bill_number: billNumber,
         customer_name: customerName,
+        customer_id: customerId || null,
+        customer_phone: customerPhone || null,
+        customer_address: customerAddress || null,
+        customer_gstin: customerGstin || null,
         medicine_name: medicineName,
         quantity: items.reduce((s: number, i: any) => s + i.quantity, 0),
         total_amount: totalAmount,
+        discount_amount: discountAmount || 0,
+        taxable_amount: taxableAmount || 0,
+        cgst_amount: cgstAmount || 0,
+        sgst_amount: sgstAmount || 0,
+        igst_amount: igstAmount || 0,
+        net_payable: net,
+        payment_mode: paymentMode || 'cash',
         sale_date: today(),
         processed_by: userId,
-        items: items.map((i: any) => ({ purchasePrice: i.purchasePrice || 0, sellingPrice: i.sellingPrice || 0, quantity: i.quantity, netAmount: i.netAmount || i.totalAmount || 0, medicineName: i.medicineName })),
+        items: items.map((i: any) => ({
+          purchasePrice: i.purchasePrice || 0,
+          sellingPrice: i.sellingPrice || 0,
+          quantity: i.quantity,
+          netAmount: i.netAmount || i.totalAmount || 0,
+          medicineName: i.medicineName,
+          batchNumber: i.batchNumber
+        })),
       });
       setStore('sales', sales);
 
-      return { success: true, saleId };
+      // Record to customer ledger if credit
+      if ((paymentMode === 'credit' || paymentMode === 'credit_ledger') && customerId) {
+        const ledger = getStore<any[]>('customerLedger', []);
+        ledger.push({
+          id: nextId(ledger),
+          customer_id: customerId,
+          transaction_type: 'sale',
+          amount: net,
+          payment_method: paymentMode,
+          reference_id: saleId,
+          notes: `Sale #${billNumber}`,
+          created_at: now()
+        });
+        setStore('customerLedger', ledger);
+
+        const customers = getStore<any[]>('customers', []);
+        const cIdx = customers.findIndex(c => c.id === customerId);
+        if (cIdx !== -1) {
+          customers[cIdx].current_balance = (customers[cIdx].current_balance || 0) + net;
+          setStore('customers', customers);
+        }
+      }
+
+      return { success: true, saleId, billNumber };
     },
     listSales: async () => {
       const users = getStore<any[]>('users', []);
@@ -1237,11 +1316,24 @@ export function initializeBrowserAPI(): void {
         { id: 3, title: 'Reorder Alert', message: 'Ibuprofen 400mg is out of stock. Place order with MediCorp.', type: 'critical', is_actioned: 0, created_at: now() },
       ]
     }),
-    markInsightActioned: async ({ id }: { id: number }) => ({ success: true }),
-    generateAIReport: async ({ reportType }: { reportType: string }) => ({
-      success: true,
-      report: `AI Report (${reportType}) generated at ${now()}`
-    }),
+    getCompanyProfile: async () => {
+      const profile = getStore<any>('companyProfile', {
+        store_name: 'AnPharmacy',
+        tagline: 'Medical Wholesale & Distribution',
+        address: 'Plot 45, Pharma City, Hyderabad - 500001',
+        phone: '+91 98765 43210',
+        email: 'billing@anpharmacy.com',
+        gstin: '36ABCDE1234F1Z5',
+        drug_license_no: 'Form 20B: TS/HYD/2024/001 | Form 21B: TS/HYD/2024/002',
+        owner_name: 'Proprietor',
+        footer_note: 'Subject to Hyderabad Jurisdiction. E.&O.E.',
+      });
+      return { success: true, profile };
+    },
+    saveCompanyProfile: async (profile: any) => {
+      setStore('companyProfile', profile);
+      return { success: true, profile };
+    },
   };
 
   (window as any).electronAPI = api;

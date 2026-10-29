@@ -1,6 +1,6 @@
 {
   "app.name": "AnPharmacy",
-  "app.tagline": "Intelligent Pharmacy • Smarter Distribution",
+  "app.tagline": "Intelligent Pharmacy Distribution Management",
   
   "splash.loading": "Initializing Database...",
   "splash.preparing": "Preparing Application...",

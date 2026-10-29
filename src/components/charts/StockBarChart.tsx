@@ -26,10 +26,10 @@ export interface StockBarChartProps {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  expired: '#94a3b8',
+  expired: '#8FADB4',
   critical: '#ef4444',
-  warning: '#f97316',
-  safe: '#10b981',
+  warning: '#F59E0B',
+  safe: '#17827A',
 };
 
 export default function StockBarChart({
@@ -69,29 +69,29 @@ export default function StockBarChart({
                 data={displayData}
                 margin={{ top: 10, right: 12, left: -8, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#EDF5F6" vertical={false} />
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 10, fill: '#94a3b8' }}
+                  tick={{ fontSize: 10, fill: '#8FADB4' }}
                   tickLine={false}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                  axisLine={{ stroke: '#DCEAEC' }}
                   interval={0}
                   angle={-25}
                   textAnchor="end"
                   height={50}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  tick={{ fontSize: 11, fill: '#8FADB4' }}
                   tickLine={false}
                   axisLine={false}
                   width={36}
                 />
                 <Tooltip
-                  cursor={{ fill: 'rgba(16,185,129,0.06)' }}
+                  cursor={{ fill: 'rgba(23,130,122,0.06)' }}
                   contentStyle={{
                     borderRadius: '12px',
-                    border: '1px solid hsl(210, 20%, 88%)',
-                    boxShadow: '0 8px 24px rgba(10, 61, 92, 0.08)',
+                    border: '1px solid hsl(192, 24%, 90%)',
+                    boxShadow: '0 8px 24px rgba(20, 41, 46, 0.08)',
                     fontSize: '12px',
                     background: 'rgba(255,255,255,0.95)',
                     backdropFilter: 'blur(10px)',
@@ -102,7 +102,7 @@ export default function StockBarChart({
                   {displayData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={entry.status ? STATUS_COLOR[entry.status] : '#10b981'}
+                      fill={entry.status ? STATUS_COLOR[entry.status] : '#17827A'}
                     />
                   ))}
                 </Bar>

@@ -34,7 +34,7 @@ export default function GstHsn() {
     : (<div className="space-y-2">{filtered.map(hsn => (<Card key={hsn.id} variant="bordered"><CardContent className="p-4 flex items-center justify-between">
       <div><div className="flex items-center gap-2"><span className="font-mono font-bold text-sm">{hsn.hsn_code}</span><Badge variant={hsn.gst_rate >= 18 ? 'warning' : 'safe'} size="sm">{hsn.gst_rate}% GST</Badge>{hsn.cess_rate > 0 && <Badge variant="outline" size="sm">Cess: {hsn.cess_rate}%</Badge>}</div>
         {hsn.description && <p className="text-xs text-muted-foreground mt-0.5">{hsn.description}</p>}</div>
-      <div className="flex gap-1"><button onClick={() => { setEditing(hsn); setForm({ hsn_code: hsn.hsn_code, description: hsn.description || '', gst_rate: String(hsn.gst_rate), cess_rate: String(hsn.cess_rate) }); setShowDialog(true); }} className="p-1.5 rounded hover:bg-gray-100"><Edit className="w-3.5 h-3.5 text-muted-foreground/60" /></button>
+      <div className="flex gap-1"><button onClick={() => { setEditing(hsn); setForm({ hsn_code: hsn.hsn_code, description: hsn.description || '', gst_rate: String(hsn.gst_rate), cess_rate: String(hsn.cess_rate) }); setShowDialog(true); }} className="p-1.5 rounded hover:bg-slate-100"><Edit className="w-3.5 h-3.5 text-muted-foreground/60" /></button>
         <button onClick={() => handleDelete(hsn.id)} className="p-1.5 rounded hover:bg-destructive/10"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button></div>
     </CardContent></Card>))}</div>)}
     <Dialog open={showDialog} onOpenChange={o => { if (!o) { setShowDialog(false); setEditing(null); } }}>

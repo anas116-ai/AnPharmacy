@@ -861,7 +861,7 @@ export default function ImportEditorDialog({
                 <th className="w-10 px-1 py-2 border-r border-b border-border bg-muted"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-slate-50">
               {displayRows.length === 0 ? (
                 <tr>
                   <td colSpan={visibleColumns.length + 2} className="px-4 py-12 text-center text-muted-foreground/60">
@@ -914,7 +914,7 @@ export default function ImportEditorDialog({
                                 ) : col.key === '_confidence' ? (
                                   <span className={cn(
                                     'text-[10px] font-medium',
-                                    Number(getCellValue(row, col.key)) >= 85 ? 'text-green-600' :
+                                    Number(getCellValue(row, col.key)) >= 85 ? 'text-emerald-600' :
                                     Number(getCellValue(row, col.key)) >= 65 ? 'text-warning' : 'text-destructive'
                                   )}>
                                     {getCellValue(row, col.key)}%

@@ -229,7 +229,7 @@ export default function SalesHistory() {
                     <th className="px-4 py-3 text-center font-semibold text-muted-foreground text-xs uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-slate-50">
                   {paginatedSales.map((sale, idx) => (
                     <tr key={sale.id} className="hover:bg-muted/50/50 transition-colors">
                       <td className="px-4 py-3 text-muted-foreground/60 font-mono text-xs">{(page - 1) * perPage + idx + 1}</td>

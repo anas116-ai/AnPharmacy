@@ -45,7 +45,7 @@ export function Dialog({ open, onOpenChange, children, className }: DialogProps)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="fixed inset-0 bg-slate-900/30 dark:bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 bg-[#0E2429]/35 dark:bg-[#050F12]/65 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
         aria-hidden="true"
       />

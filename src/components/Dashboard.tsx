@@ -1,35 +1,29 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useStockStore } from '../stores/stockStore';
 import { useAuthStore } from '../stores/authStore';
 import {
-  Pill, Package, IndianRupee, AlertTriangle, AlertCircle,
+  Pill, Package, AlertTriangle, AlertCircle,
   Clock, Filter, TrendingUp, Activity, Search, ArrowUpRight,
-  BarChart3, RefreshCw, ShoppingCart, ArrowUp, Zap,
+  BarChart3, RefreshCw, ShoppingCart, ArrowUp,
   TrendingDown, CalendarDays, ChevronLeft, ChevronRight,
-  Receipt, DollarSign, PlusCircle, ScanLine, FileSpreadsheet, HardDrive, Wallet,
+  Receipt, PlusCircle, ScanLine, FileSpreadsheet, HardDrive, Wallet,
+  ShieldCheck,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
-import { formatCurrency, cn } from '../lib/utils';
+import { cn } from '../lib/utils';
 import { Medicine } from '../lib/types';
 import { useNotificationStore } from '../stores/notificationStore';
 import { checkAndCreateExpiryAlerts } from '../lib/notifications';
-import { computeProfitSummary } from '../lib/reporting';
 import SalesTrendChart from './charts/SalesTrendChart';
+import PharmacyVisualOverview from './PharmacyVisualOverview';
 
 // ── Module-level constants ──
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function getMonthLabel(d: Date): string { return MONTHS[d.getMonth()]; }
 function daysFromNow(d: Date): number { return Math.round((d.getTime() - Date.now()) / 86400000); }
-
-  const KPI_STYLES = {
-    primary: { accent: 'from-accent to-[#FF5A8D]', iconBg: 'bg-accent-light text-accent dark:bg-accent/20 dark:text-accent', border: 'border-accent/20' },
-    warning: { accent: 'from-amber-500 to-amber-400', iconBg: 'bg-warning-light text-warning dark:bg-warning/20 dark:text-amber-300', border: 'border-warning/20' },
-    danger: { accent: 'from-red-500 to-red-400', iconBg: 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-red-300', border: 'border-destructive/20' },
-    muted: { accent: 'from-slate-400 to-slate-300', iconBg: 'bg-muted text-muted-foreground', border: 'border-border' },
-  } as const;
 
 interface DashboardProps {
   onNavigate?: (index: number) => void;
@@ -47,27 +41,21 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   const [salesTrendData, setSalesTrendData] = useState<{ date: string; sales: number; revenue: number }[]>([]);
   const EXPIRY_PAGE_SIZE = 50;
 
-  useEffect(() => {
-    loadDashboardData();
-    const timer = setTimeout(() => setAnimateCards(true), 200);
+  const lastFetchRef = useRef<number>(0);
 
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible') loadDashboardData();
-    };
-    document.addEventListener('visibilitychange', onVisibilityChange);
+  const loadDashboardData = useCallback(async (force = false) => {
+    const now = Date.now();
+    // Throttle background refreshes: at most once every 60 seconds unless explicitly forced
+    if (!force && lastFetchRef.current > 0 && now - lastFetchRef.current < 60000) {
+      return;
+    }
+    lastFetchRef.current = now;
 
-    const onFocus = () => loadDashboardData();
-    window.addEventListener('focus', onFocus);
+    // Only show full loading spinner on initial mount or manual force refresh
+    if (force || lastFetchRef.current === now) {
+      setIsLoading(true);
+    }
 
-    return () => {
-      clearTimeout(timer);
-      document.removeEventListener('visibilitychange', onVisibilityChange);
-      window.removeEventListener('focus', onFocus);
-    };
-  }, []);
-
-  const loadDashboardData = async () => {
-    setIsLoading(true);
     try {
       if (window.electronAPI) {
         const result = await window.electronAPI.getDashboardStats();
@@ -80,14 +68,14 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             checkAndCreateExpiryAlerts(result.medicines || [], u.id,
               (notification) => useNotificationStore.getState().addNotification(notification));
           }
-          // ponytail: real 12-month sales trend instead of mock data
+          // ponytail: real 12-month sales trend with safe aggregation
           try {
             const salesRes = await window.electronAPI.listSales();
             const sales = salesRes.success ? (salesRes.sales || []) : [];
             const months: { [key: string]: { date: string; sales: number; revenue: number } } = {};
-            const now = new Date();
+            const currentDate = new Date();
             for (let i = 11; i >= 0; i--) {
-              const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+              const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
               const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
               months[key] = { date: d.toLocaleString('default', { month: 'short' }), sales: 0, revenue: 0 };
             }
@@ -107,7 +95,24 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [setDashboardStats, setMedicines]);
+
+  useEffect(() => {
+    loadDashboardData(true);
+    const timer = setTimeout(() => setAnimateCards(true), 200);
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadDashboardData(false);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [loadDashboardData]);
 
   const filterChips = [30, 60, 90, 120, 180, 240, 365];
   const filteredMedicines = filterDays
@@ -130,7 +135,6 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   }), [medicines]);
 
   const totalWithExpiry = expiryDistribution.expired + expiryDistribution.critical + expiryDistribution.warning + expiryDistribution.safe;
-  const profitSummary = useMemo(() => computeProfitSummary(medicines), [medicines]);
 
   const stockMetrics = useMemo(() => ({
     totalMedicines: new Set(medicines.filter(m => m.name && m.name.trim()).map(m => m.name.trim().toLowerCase())).size,
@@ -166,21 +170,13 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     });
   }, [medicines]);
 
-  const KPI_CARDS = useMemo(() => [
-    { label: 'Total Medicines', value: stockMetrics.totalMedicines.toLocaleString(), icon: Pill, style: 'primary' as keyof typeof KPI_STYLES, footer: 'unique medicines' },
-    { label: 'Stock Units', value: stockMetrics.totalStock.toLocaleString(), icon: Package, style: 'primary' as keyof typeof KPI_STYLES, footer: 'across all batches' },
-    { label: 'Stock Value', value: formatCurrency(stockMetrics.totalValue), icon: IndianRupee, style: 'warning' as keyof typeof KPI_STYLES, footer: 'at purchase cost' },
-    { label: "Today's Revenue", value: formatCurrency(stats.todayRevenue), icon: Zap, style: 'primary' as keyof typeof KPI_STYLES, delta: `${revenueChange}%`, deltaUp: parseFloat(revenueChange) >= 0, footer: 'vs yesterday' },
-    { label: 'Real Profit', value: formatCurrency(profitSummary.totalRealProfit), icon: DollarSign, style: 'primary' as keyof typeof KPI_STYLES, footer: `margin ${profitSummary.marginPercent.toFixed(1)}%` },
-  ], [stockMetrics, stats.todayRevenue, revenueChange, profitSummary]);
-
   const QUICK_ACTIONS = [
-    { index: 2, label: 'Add Stock', desc: 'New batch entry', icon: PlusCircle, tint: 'from-emerald-500 to-teal-600', roles: ['admin', 'purchase_mgr'] },
-    { index: 4, label: 'New Sale', desc: 'Billing & checkout', icon: ShoppingCart, tint: 'from-sky-500 to-blue-600', roles: ['admin', 'sales', 'pharmacist'] },
-    { index: 6, label: 'Scan Invoice', desc: 'AI purchase entry', icon: ScanLine, tint: 'from-violet-500 to-purple-600', roles: ['admin', 'purchase_mgr'] },
-    { index: 5, label: 'Reports', desc: 'Sales, GST & profit', icon: BarChart3, tint: 'from-amber-500 to-orange-500', roles: ['admin', 'sales', 'purchase_mgr'] },
-    { index: 27, label: 'Import Data', desc: 'Excel / CSV / PDF', icon: FileSpreadsheet, tint: 'from-teal-500 to-cyan-600', roles: ['admin', 'purchase_mgr'] },
-    { index: 8, label: 'Backup', desc: 'Protect your data', icon: HardDrive, tint: 'from-slate-600 to-slate-700', roles: ['admin'] },
+    { index: 2, label: 'Add Stock', desc: 'New batch entry', shortcut: 'Ctrl+N', icon: PlusCircle, roles: ['admin', 'purchase_mgr'] },
+    { index: 4, label: 'New Sale', desc: 'Billing & POS', shortcut: 'Ctrl+S', icon: Receipt, roles: ['admin', 'sales', 'pharmacist'], primary: true },
+    { index: 6, label: 'Scan Invoice', desc: 'OCR purchase entry', shortcut: 'Ctrl+I', icon: ScanLine, roles: ['admin', 'purchase_mgr'] },
+    { index: 5, label: 'Reports', desc: 'Sales, GST & profit', shortcut: 'Ctrl+R', icon: BarChart3, roles: ['admin', 'sales', 'purchase_mgr'] },
+    { index: 27, label: 'Import Data', desc: 'Excel / CSV / PDF', shortcut: 'Ctrl+M', icon: FileSpreadsheet, roles: ['admin', 'purchase_mgr'] },
+    { index: 8, label: 'Backup', desc: 'Encrypted export', shortcut: 'Ctrl+B', icon: ShieldCheck, roles: ['admin'] },
   ].filter(a => !a.roles || (user && a.roles.includes(user.role)));
 
   const greeting = (() => {
@@ -243,242 +239,125 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           <p className="text-sm text-muted-foreground mt-1">{todayLabel} · Here's what's happening in your pharmacy today</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="default" size="sm" onClick={loadDashboardData} className="gap-2">
-            <RefreshCw className="w-4 h-4" />
+          <Button variant="default" size="sm" onClick={() => loadDashboardData(true)} className="gap-2" disabled={isLoading}>
+            <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
             Refresh
           </Button>
         </div>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════
-         KPI ROW — the five numbers that matter
+         PHARMACY SALES RESULTS & VISUAL OVERVIEW (from user reference)
          ══════════════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {KPI_CARDS.map((card, index) => {
-          const Icon = card.icon;
-          const styles = KPI_STYLES[card.style];
-          return (
-            <div
-              key={index}
-              className={cn(
-                'group relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg',
-                animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              )}
-              style={{ transitionDelay: `${index * 60}ms` }}
-            >
-              <div className={cn('pointer-events-none absolute -top-14 -right-10 h-36 w-36 rounded-full bg-gradient-to-br opacity-[0.12] blur-2xl transition-opacity duration-300 group-hover:opacity-25', styles.accent)} />
-              <div className="relative">
-                <div className="flex items-start justify-between mb-4">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pt-1">{card.label}</span>
-                  <div className={cn('flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm transition-transform duration-200 group-hover:scale-110', styles.accent)}>
-                    <Icon className="h-5 w-5" />
-                  </div>
-                </div>
-                <p className="text-3xl font-bold text-foreground font-data tabular-nums leading-none">{card.value}</p>
-                <div className="mt-3 flex items-center gap-1.5">
-                  {'delta' in card ? (
-                    <>
-                      <span className={cn(
-                        'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[11px] font-semibold',
-                        card.deltaUp ? 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:bg-red-400/10 dark:text-red-400'
-                      )}>
-                        <ArrowUpRight className={cn('h-3 w-3', !card.deltaUp && 'rotate-90')} />
-                        {card.delta}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground">{card.footer}</span>
-                    </>
-                  ) : (
-                    <span className="text-[11px] text-muted-foreground">{card.footer}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <PharmacyVisualOverview
+        stats={stats}
+        stockMetrics={stockMetrics}
+        revenueChange={revenueChange}
+      />
 
       {/* ══════════════════════════════════════════════════════════════
-         QUICK ACTIONS — one-tap shortcuts
+         QUICK ACTIONS — Executive action command deck
          ══════════════════════════════════════════════════════════════ */}
       <div>
-        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">Quick Actions</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {QUICK_ACTIONS.map(({ index, label, desc, icon: Icon, tint }) => (
+        <div className="flex items-center justify-between mb-2.5">
+          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Fast Operations</p>
+          <span className="text-[11px] text-muted-foreground/70">Keyboard ready</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          {QUICK_ACTIONS.map(({ index, label, desc, shortcut, icon: Icon, primary }) => (
             <button
               key={index}
               onClick={() => onNavigate?.(index)}
               disabled={!onNavigate}
-              className="group card-base p-4 text-left hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-default"
+              className={cn(
+                "group relative p-3.5 text-left rounded-xl border transition-all duration-140 active:scale-[0.98] cursor-pointer disabled:opacity-60",
+                primary
+                  ? "bg-primary/5 hover:bg-primary/10 border-primary/30 shadow-xs"
+                  : "bg-card hover:bg-muted/50 border-border/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs"
+              )}
             >
-              <div className={cn('w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-200', tint)}>
-                <Icon className="w-5 h-5 text-white" />
+              <div className="flex items-center justify-between mb-2">
+                <div className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-140",
+                  primary ? "bg-primary text-white shadow-xs" : "bg-muted text-foreground group-hover:bg-primary/10 group-hover:text-primary"
+                )}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                {shortcut && (
+                  <kbd className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-muted/70 text-muted-foreground border border-border/50">
+                    {shortcut}
+                  </kbd>
+                )}
               </div>
-              <p className="mt-3 text-sm font-semibold text-foreground">{label}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{desc}</p>
+              <p className="text-xs font-semibold text-foreground tracking-tight">{label}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{desc}</p>
             </button>
           ))}
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════════════════════
-         PERFORMANCE + TODAY'S PULSE
-         ══════════════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sales trend — spans 2 cols */}
-        <Card variant="bordered" className="overflow-hidden lg:col-span-2">
-          <div className="px-6 py-4 border-b border-border/70">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-navy-50 dark:bg-navy-800/50 flex items-center justify-center">
-                <BarChart3 className="w-4 h-4 text-navy-700 dark:text-navy-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Performance</h3>
-                <p className="text-xs text-muted-foreground">12-month sales & revenue trend</p>
-              </div>
-            </div>
-          </div>
-          <CardContent className="p-6">
-            <SalesTrendChart data={salesTrendData} className="w-full" height={300} />
-          </CardContent>
-        </Card>
 
-        {/* Right rail — today's pulse + expiry mix */}
-        <div className="space-y-6">
-          <Card variant="bordered" className="overflow-hidden">
-            <div className="px-5 py-4 border-b border-border/70 flex items-center gap-2">
-              <Wallet className="w-4 h-4 text-accent" />
-              <h3 className="font-semibold text-foreground text-sm">Today's Pulse</h3>
-            </div>
-            <div className="p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-accent-light/60 dark:bg-accent/10 p-3">
-                  <p className="text-[10px] font-semibold text-accent uppercase tracking-wider">Revenue</p>
-                  <p className="text-lg font-bold font-data text-foreground mt-1">{formatCurrency(stats.todayRevenue)}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {parseFloat(revenueChange) >= 0 ? '+' : ''}{revenueChange}% vs yesterday
-                  </p>
-                </div>
-                <div className="rounded-xl bg-warning-light/60 dark:bg-warning/10 p-3">
-                  <p className="text-[10px] font-semibold text-warning uppercase tracking-wider">Items sold</p>
-                  <p className="text-lg font-bold font-data text-foreground mt-1">{stats.todayItems}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {parseFloat(itemsChange) >= 0 ? '+' : ''}{itemsChange}% vs yesterday
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between px-1">
-                <div>
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Transactions</p>
-                  <p className="text-xl font-bold font-data text-foreground mt-0.5">{stats.todayTransactions}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Yesterday</p>
-                  <p className="text-xl font-bold font-data text-foreground mt-0.5">{formatCurrency(stats.yesterdayRevenue)}</p>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          <Card variant="bordered" className="overflow-hidden">
-            <div className="px-5 py-4 border-b border-border/70 flex items-center gap-2">
-              <Receipt className="w-4 h-4 text-accent" />
-              <h3 className="font-semibold text-foreground text-sm">Recent Sales</h3>
-              {stats.recentSales && stats.recentSales.length > 0 && (
-                <span className="ml-auto flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Today
-                </span>
-              )}
-            </div>
-            <div className="p-2">
-              {stats.recentSales && stats.recentSales.length > 0 ? (
-                stats.recentSales.map((sale: any, idx: number) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-muted transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-lg bg-accent-light dark:bg-accent/15 flex items-center justify-center flex-shrink-0">
-                        <Receipt className="w-3.5 h-3.5 text-accent" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[13px] font-medium text-foreground truncate">{sale.customer}</p>
-                        <p className="text-[11px] text-muted-foreground">{sale.qty} items</p>
-                      </div>
-                    </div>
-                    <span className="text-sm font-bold text-foreground font-data tabular-nums">{formatCurrency(sale.amount)}</span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-xs text-muted-foreground py-8">No sales recorded today</p>
-              )}
-            </div>
-          </Card>
-        </div>
-      </div>
 
       {/* ══════════════════════════════════════════════════════════════
          SMART REORDER WIDGET
          ══════════════════════════════════════════════════════════════ */}
       {lowStockItems.length > 0 && (
-        <Card variant="bordered" className="border-amber-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-amber-100 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/30 dark:border-amber-900/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                  <ShoppingCart className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-warning">Smart Reorder Suggestions</h3>
-                  <p className="text-xs text-amber-600 dark:text-amber-400">{lowStockItems.length} items below reorder threshold</p>
-                </div>
+        <Card variant="bordered" className="border-amber-500/25 bg-card overflow-hidden">
+          <div className="px-6 py-4 border-b border-border/70 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 flex items-center justify-center">
+                <ShoppingCart className="w-4 h-4" />
               </div>
-              <span className="text-[10px] text-warning font-medium bg-background/60 px-3 py-1 rounded-full">
-                Auto-calculated
-              </span>
+              <div>
+                <h3 className="font-semibold text-foreground text-sm">Smart Reorder Suggestions</h3>
+                <p className="text-xs text-muted-foreground">{lowStockItems.length} items below safety reorder threshold</p>
+              </div>
             </div>
+            <span className="text-[11px] text-amber-700 dark:text-amber-400 font-medium bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
+              FEFO Priority
+            </span>
           </div>
           <CardContent className="p-0">
-            <div className="divide-y divide-amber-50 dark:divide-amber-900/20">
+            <div className="divide-y divide-border/50">
               {lowStockItems.slice(0, 8).map((item) => {
                 const alertLevel = item.low_stock_alert || 20;
                 const stockRatio = alertLevel > 0 ? item.quantity / alertLevel : 1;
                 const suggestedReorder = alertLevel * 2 - item.quantity;
                 const urgency = stockRatio <= 0.25 ? 'critical' : stockRatio <= 0.5 ? 'warning' : 'moderate';
                 return (
-                  <div key={item.id} className="px-6 py-3.5 flex items-center justify-between hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-colors group">
+                  <div key={item.id} className="px-6 py-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors group">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2.5">
-                        <div className={cn('w-2 h-2 rounded-full', urgency === 'critical' && 'bg-red-500 animate-pulse', urgency === 'warning' && 'bg-orange-500', urgency === 'moderate' && 'bg-amber-400')} />
+                        <div className={cn('w-2 h-2 rounded-full', urgency === 'critical' && 'bg-red-500 animate-pulse', urgency === 'warning' && 'bg-amber-500', urgency === 'moderate' && 'bg-amber-400')} />
                         <span className="font-medium text-sm text-foreground truncate">{item.name}</span>
-                        <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-medium', urgency === 'critical' && 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400', urgency === 'warning' && 'bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400', urgency === 'moderate' && 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400')}>
+                        <span className={cn('text-[10px] px-2 py-0.5 rounded-md font-medium border', urgency === 'critical' && 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/40', urgency === 'warning' && 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/40', urgency === 'moderate' && 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900/40 dark:text-slate-400 dark:border-slate-800')}>
                           {urgency === 'critical' ? 'Urgent' : urgency === 'warning' ? 'Low' : 'Moderate'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 mt-1 ml-4">
-                        <span className="text-xs text-muted-foreground">Batch: <span className="font-mono text-muted-foreground">{item.batch_number}</span></span>
+                      <div className="flex items-center gap-3 mt-1.5 ml-4">
+                        <span className="text-xs text-muted-foreground">Batch: <span className="font-mono text-foreground/80">{item.batch_number}</span></span>
                         <div className="h-1.5 w-24 bg-muted rounded-full overflow-hidden">
-                          <div className={cn('h-full rounded-full transition-all', urgency === 'critical' ? 'bg-red-400' : urgency === 'warning' ? 'bg-orange-400' : 'bg-amber-400')} style={{ width: `${Math.min(100, stockRatio * 100)}%` }} />
+                          <div className={cn('h-full rounded-full transition-all', urgency === 'critical' ? 'bg-red-500' : urgency === 'warning' ? 'bg-amber-500' : 'bg-amber-400')} style={{ width: `${Math.min(100, stockRatio * 100)}%` }} />
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 flex-shrink-0 ml-4">
+                    <div className="flex items-center gap-5 flex-shrink-0 ml-4">
                       <div className="text-right">
-                        <p className="text-sm font-bold text-foreground">{item.quantity}</p>
-                        <p className="text-[10px] text-muted-foreground">Current</p>
+                        <p className="text-sm font-bold text-foreground font-data tabular-nums">{item.quantity}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Current</p>
                       </div>
-                      <div className="text-muted-foreground/40"><ArrowUp className="w-4 h-4" /></div>
+                      <div className="text-muted-foreground/30"><ArrowUp className="w-4 h-4" /></div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-emerald-600">{suggestedReorder > 0 ? suggestedReorder : alertLevel}</p>
-                        <p className="text-[10px] text-emerald-500">Reorder</p>
+                        <p className="text-sm font-bold text-[#0E5B55] dark:text-[#7AD1C5] font-data tabular-nums">{suggestedReorder > 0 ? suggestedReorder : alertLevel}</p>
+                        <p className="text-[10px] text-[#0E5B55] dark:text-[#7AD1C5] uppercase">Suggested</p>
                       </div>
                     </div>
                   </div>
                 );
               })}
               {lowStockItems.length > 8 && (
-                <div className="px-6 py-3 text-center">
-                  <span className="text-xs text-amber-600 font-medium">+{lowStockItems.length - 8} more items below threshold</span>
+                <div className="px-6 py-2.5 text-center bg-muted/20">
+                  <span className="text-xs text-muted-foreground font-medium">+{lowStockItems.length - 8} more items requiring restock</span>
                 </div>
               )}
             </div>
@@ -490,79 +369,84 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
          EXPIRY OVERVIEW
          ══════════════════════════════════════════════════════════════ */}
       <Card variant="bordered" className="overflow-hidden">
-        <div className="px-6 py-4 border-b border-border/70">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-navy-50 dark:bg-navy-800/50 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-navy-600 dark:text-navy-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Expiry Overview</h3>
-                <p className="text-xs text-muted-foreground">Real-time expiry tracking</p>
-              </div>
+        <div className="px-6 py-4 border-b border-border/70 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#17827A]/10 text-[#123F3D] dark:bg-[#17827A]/20 dark:text-[#2E9C90] flex items-center justify-center">
+              <Clock className="w-4 h-4" />
             </div>
-            {totalWithExpiry > 0 && (
-              <span className="text-xs text-muted-foreground">{medicines.length} total batches</span>
-            )}
+            <div>
+              <h3 className="font-semibold text-foreground text-sm">Expiry Overview & FEFO Radar</h3>
+              <p className="text-xs text-muted-foreground">Prioritized by First-Expired, First-Out sequence</p>
+            </div>
           </div>
+          {totalWithExpiry > 0 && (
+            <span className="text-xs font-medium text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-md border border-border/50">
+              {medicines.length} batches tracked
+            </span>
+          )}
         </div>
         <CardContent className="p-6">
           {/* Distribution Bar */}
           <div className="mb-6">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-              <span>Expiry Distribution</span>
-              {totalWithExpiry > 0 && <span className="font-normal text-muted-foreground">({totalWithExpiry} total)</span>}
-            </p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Batch Expiry Distribution
+              </p>
+              {totalWithExpiry > 0 && (
+                <span className="text-xs text-muted-foreground font-data tabular-nums">{totalWithExpiry} active batches</span>
+              )}
+            </div>
             {totalWithExpiry > 0 ? (
               <>
-                <div className="h-3 bg-muted rounded-full overflow-hidden">
+                <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                   <div className="flex h-full rounded-full overflow-hidden">
-                    {expiryDistribution.safe > 0 && <div className="bg-emerald-400 transition-all duration-1000" style={{ width: `${(expiryDistribution.safe / totalWithExpiry) * 100}%` }} />}
-                    {expiryDistribution.warning > 0 && <div className="bg-amber-400 transition-all duration-1000" style={{ width: `${(expiryDistribution.warning / totalWithExpiry) * 100}%` }} />}
-                    {expiryDistribution.critical > 0 && <div className="bg-red-400 transition-all duration-1000" style={{ width: `${(expiryDistribution.critical / totalWithExpiry) * 100}%` }} />}
-                    {expiryDistribution.expired > 0 && <div className="bg-slate-400 transition-all duration-1000" style={{ width: `${(expiryDistribution.expired / totalWithExpiry) * 100}%` }} />}
+                    {expiryDistribution.safe > 0 && <div className="bg-[#17827A] transition-all duration-500" style={{ width: `${(expiryDistribution.safe / totalWithExpiry) * 100}%` }} />}
+                    {expiryDistribution.warning > 0 && <div className="bg-amber-500 transition-all duration-500" style={{ width: `${(expiryDistribution.warning / totalWithExpiry) * 100}%` }} />}
+                    {expiryDistribution.critical > 0 && <div className="bg-red-500 transition-all duration-500" style={{ width: `${(expiryDistribution.critical / totalWithExpiry) * 100}%` }} />}
+                    {expiryDistribution.expired > 0 && <div className="bg-slate-400 transition-all duration-500" style={{ width: `${(expiryDistribution.expired / totalWithExpiry) * 100}%` }} />}
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-3 mt-3">
+                <div className="flex flex-wrap gap-2.5 mt-3">
                   {[
-                    { label: 'Safe', count: expiryDistribution.safe, color: 'bg-emerald-400' },
-                    { label: 'Warning', count: expiryDistribution.warning, color: 'bg-amber-400' },
-                    { label: 'Critical', count: expiryDistribution.critical, color: 'bg-red-400' },
+                    { label: 'Safe (>180d)', count: expiryDistribution.safe, color: 'bg-[#17827A]' },
+                    { label: 'Warning (90-180d)', count: expiryDistribution.warning, color: 'bg-amber-500' },
+                    { label: 'Critical (<90d)', count: expiryDistribution.critical, color: 'bg-red-500' },
                     { label: 'Expired', count: expiryDistribution.expired, color: 'bg-slate-400' },
                   ].filter(item => item.count > 0).map(item => (
-                    <div key={item.label} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted">
+                    <div key={item.label} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/60 border border-border/50 text-[11px]">
                       <div className={cn('w-2 h-2 rounded-full', item.color)} />
-                      <span className="text-xs font-medium text-muted-foreground">{item.label} <span className="text-muted-foreground">({item.count})</span></span>
+                      <span className="text-muted-foreground font-medium">{item.label}:</span>
+                      <span className="font-bold text-foreground font-data tabular-nums">{item.count}</span>
                     </div>
                   ))}
                 </div>
               </>
             ) : (
-              <div className="flex items-center justify-center h-12 rounded-lg bg-muted"><p className="text-sm text-muted-foreground">No expiry data available</p></div>
+              <div className="flex items-center justify-center h-12 rounded-lg bg-muted/40 border border-border/50"><p className="text-sm text-muted-foreground">No expiry data available</p></div>
             )}
           </div>
 
           {/* Filter */}
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className="text-xs text-muted-foreground flex items-center gap-1 font-medium uppercase tracking-wider">
-              <Filter className="w-3 h-3" /> Filter:
+          <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b border-border/50">
+            <span className="text-[11px] text-muted-foreground flex items-center gap-1 font-semibold uppercase tracking-wider mr-1">
+              <Filter className="w-3 h-3" /> Filter Window:
             </span>
             {filterChips.map(days => (
               <button key={days} onClick={() => setFilterDays(filterDays === days ? null : days)}
-                className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer',
-                  filterDays === days ? 'bg-primary text-primary-foreground shadow-md' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                className={cn('px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-140 cursor-pointer active:scale-95',
+                  filterDays === days ? 'bg-primary text-primary-foreground shadow-xs' : 'bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/40'
                 )}>
-                {days} days
+                {days}d
               </button>
             ))}
-            <div className="flex items-center gap-1 ml-1">
-              <Input type="number" placeholder="Custom" value={customDays}
+            <div className="flex items-center gap-1.5 ml-auto">
+              <Input type="number" placeholder="Custom days" value={customDays}
                 onChange={(e) => setCustomDays(e.target.value)}
-                className="w-20 h-8 text-xs rounded-lg"
+                className="w-28 h-8 text-xs rounded-md"
                 onKeyDown={(e) => { if ((e as any).key === 'Enter' && customDays) setFilterDays(parseInt(customDays)); }} />
-              <Button variant="ghost" size="icon-sm" className="h-8"
+              <Button variant="outline" size="sm" className="h-8 px-2.5 text-xs"
                 onClick={() => { if (customDays) setFilterDays(parseInt(customDays)); }}>
-                <Search className="w-3 h-3" />
+                <Search className="w-3 h-3 mr-1" /> Apply
               </Button>
             </div>
           </div>
@@ -571,49 +455,49 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           <div className="space-y-2 max-h-[500px] overflow-y-auto">
             {displayedExpiryMeds.length === 0 ? (
               <div className="text-center py-12">
-                <Package className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-                <p className="text-muted-foreground text-sm font-medium">No data available</p>
-                <p className="text-slate-300 text-xs mt-1">No medicines match the current filter</p>
+                <Package className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-foreground text-sm font-medium">All Clear</p>
+                <p className="text-muted-foreground text-xs mt-0.5">No batches match the selected expiry window</p>
               </div>
             ) : (
               <>
                 {displayedExpiryMeds.map((medicine: Medicine, idx) => (
-                  <div key={medicine.id} className="flex items-center justify-between p-4 rounded-xl border border-border/70 transition-all duration-200 hover:shadow-md hover:border-border cursor-pointer bg-card"
-                    style={{ animationDelay: `${idx * 30}ms` }}>
+                  <div key={medicine.id} className="flex items-center justify-between p-3.5 rounded-lg border border-border/70 transition-all duration-140 hover:bg-muted/30 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer bg-card"
+                    style={{ animationDelay: `${idx * 20}ms` }}>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2.5">
-                        <div className={cn('w-2.5 h-2.5 rounded-full',
+                      <div className="flex items-center gap-2">
+                        <div className={cn('w-2 h-2 rounded-full',
                           medicine.status === 'expired' && 'bg-slate-400',
                           medicine.status === 'critical' && 'bg-red-500',
                           medicine.status === 'warning' && 'bg-amber-500',
-                          medicine.status === 'safe' && 'bg-emerald-500',
+                          medicine.status === 'safe' && 'bg-[#17827A]',
                         )} />
-                        <span className="font-medium text-sm text-foreground truncate">{medicine.name}</span>
+                        <span className="font-semibold text-sm text-foreground truncate">{medicine.name}</span>
                         <span className={cn(
-                          'text-[10px] px-2 py-0.5 rounded-full font-medium',
-                          medicine.status === 'expired' && 'bg-muted text-muted-foreground',
-                          medicine.status === 'critical' && 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400',
-                          medicine.status === 'warning' && 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
-                          medicine.status === 'safe' && 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400',
+                          'text-[10px] px-2 py-0.5 rounded-md font-medium border uppercase tracking-wider',
+                          medicine.status === 'expired' && 'bg-muted text-muted-foreground border-border',
+                          medicine.status === 'critical' && 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/40',
+                          medicine.status === 'warning' && 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/40',
+                          medicine.status === 'safe' && 'bg-[#EAF6F3] text-[#0E5B55] border-[#C7EBE6] dark:bg-[#12302F] dark:text-[#7AD1C5] dark:border-[#1D4A47]',
                         )}>
                           {medicine.status}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 ml-5">
-                        Batch: <span className="font-mono text-muted-foreground">{medicine.batch_number}</span>
-                        {medicine.company && <span className="ml-2 text-muted-foreground">| {medicine.company}</span>}
+                      <p className="text-xs text-muted-foreground mt-1 ml-4">
+                        Batch: <span className="font-mono text-foreground/80 font-medium">{medicine.batch_number}</span>
+                        {medicine.company && <span className="ml-2 text-muted-foreground">· {medicine.company}</span>}
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
-                      <p className="text-lg font-bold text-foreground font-data">{medicine.quantity}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">units</p>
+                      <p className="text-base font-bold text-foreground font-data tabular-nums">{medicine.quantity}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">Units</p>
                       {medicine.expiry_date && (
-                        <p className={cn('text-xs mt-0.5 font-medium',
-                          medicine.days_remaining !== null && medicine.days_remaining <= 0 && 'text-red-500',
-                          medicine.days_remaining !== null && medicine.days_remaining > 0 && medicine.days_remaining <= 90 && 'text-amber-600',
+                        <p className={cn('text-xs mt-0.5 font-medium font-data',
+                          medicine.days_remaining !== null && medicine.days_remaining <= 0 && 'text-red-600 dark:text-red-400 font-semibold',
+                          medicine.days_remaining !== null && medicine.days_remaining > 0 && medicine.days_remaining <= 90 && 'text-amber-600 dark:text-amber-400',
                           medicine.days_remaining !== null && medicine.days_remaining > 90 && 'text-muted-foreground',
                         )}>
-                          {medicine.days_remaining !== null ? `${Math.round(medicine.days_remaining)}d left` : 'No expiry'}
+                          {medicine.days_remaining !== null ? `${Math.round(medicine.days_remaining)}d remaining` : 'No date'}
                         </p>
                       )}
                     </div>
@@ -623,10 +507,10 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                   <div className="pt-2 text-center">
                     <button
                       onClick={() => setExpiryDisplayLimit(prev => prev + EXPIRY_PAGE_SIZE)}
-                      className="px-6 py-2.5 text-xs font-medium text-accent bg-accent-light hover:bg-accent/15 rounded-xl transition-all duration-200 cursor-pointer"
+                      className="px-5 py-2 text-xs font-medium text-primary bg-primary/10 hover:bg-primary/15 rounded-lg transition-all duration-140 cursor-pointer active:scale-95"
                     >
                       Show {Math.min(EXPIRY_PAGE_SIZE, filteredMedicines.length - expiryDisplayLimit)} More
-                      <span className="ml-1.5 text-accent/60">({filteredMedicines.length - expiryDisplayLimit} remaining)</span>
+                      <span className="ml-1.5 opacity-70">({filteredMedicines.length - expiryDisplayLimit} remaining)</span>
                     </button>
                   </div>
                 )}
@@ -664,25 +548,24 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           const d = med.daysRemaining;
           if (d < 0) return 'bg-slate-400';
           if (d <= 30) return 'bg-red-500';
-          if (d <= 90) return 'bg-orange-400';
-          if (d <= 180) return 'bg-amber-400';
-          return 'bg-emerald-400';
+          if (d <= 90) return 'bg-amber-500';
+          if (d <= 180) return 'bg-amber-300';
+          return 'bg-[#3FA79B]';
         };
         if (ganttMeds.length === 0) return null;
 
         return (
           <Card variant="bordered" className="overflow-hidden">
-            <div className="px-6 py-4 border-b border-border/70">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center shadow-lg shadow-accent/20">
-                    <CalendarDays className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">Expiry Calendar</h3>
-                    <p className="text-xs text-muted-foreground">Gantt timeline — {ganttMeds.length} medicines expiring</p>
-                  </div>
+            <div className="px-6 py-4 border-b border-border/70 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[#17827A]/10 text-[#123F3D] dark:bg-[#17827A]/20 dark:text-[#7AD1C5] flex items-center justify-center">
+                  <CalendarDays className="w-4 h-4" />
                 </div>
+                <div>
+                  <h3 className="font-semibold text-foreground text-sm">Expiry Calendar</h3>
+                  <p className="text-xs text-muted-foreground">FEFO Gantt timeline — {ganttMeds.length} active batches</p>
+                </div>
+              </div>
                 <div className="flex items-center gap-1">
                   <button onClick={() => setGanttMonthOffset(prev => Math.max(-12, prev - 3))} className="p-1.5 rounded-lg hover:bg-muted transition-colors cursor-pointer">
                     <ChevronLeft className="w-4 h-4 text-muted-foreground" />
@@ -695,7 +578,6 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                   </button>
                 </div>
               </div>
-            </div>
             <CardContent className="p-6">
               <div className="flex mb-2">
                 <div className="w-[180px] flex-shrink-0" />
@@ -714,7 +596,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                       <div className="w-[180px] flex-shrink-0 flex items-center gap-2 pr-3">
                         <div className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', severityColor(med))} />
                         <span className="text-xs font-medium text-card-foreground truncate">{med.name}</span>
-                        <span className={cn('text-[9px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0', med.daysRemaining < 0 && 'bg-muted text-muted-foreground', med.daysRemaining >= 0 && med.daysRemaining <= 30 && 'bg-red-50 text-red-600', med.daysRemaining > 30 && med.daysRemaining <= 90 && 'bg-orange-50 text-orange-600', med.daysRemaining > 90 && 'bg-emerald-50 text-emerald-600')}>{statusLabel}</span>
+                        <span className={cn('text-[9px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0', med.daysRemaining < 0 && 'bg-muted text-muted-foreground', med.daysRemaining >= 0 && med.daysRemaining <= 30 && 'bg-red-50 text-red-600', med.daysRemaining > 30 && med.daysRemaining <= 90 && 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400', med.daysRemaining > 90 && 'bg-[#EAF6F3] text-[#0E5B55] dark:bg-[#12302F] dark:text-[#7AD1C5]')}>{statusLabel}</span>
                       </div>
                       <div className="flex-1 h-6 relative bg-muted rounded-full overflow-hidden">
                         {monthOffsets.map((m, i) => (
@@ -728,9 +610,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               </div>
               <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/70">
                 <span className="text-[10px] font-medium text-muted-foreground uppercase">Legend:</span>
-                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-400" /><span className="text-[10px] text-muted-foreground">Safe (6-12mo)</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><span className="text-[10px] text-muted-foreground">Warning (3-6mo)</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-orange-400" /><span className="text-[10px] text-muted-foreground">Soon (1-3mo)</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#3FA79B]" /><span className="text-[10px] text-muted-foreground">Safe (6-12mo)</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-300" /><span className="text-[10px] text-muted-foreground">Warning (3-6mo)</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-500" /><span className="text-[10px] text-muted-foreground">Soon (1-3mo)</span></div>
                 <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span className="text-[10px] text-muted-foreground">Critical (&lt;30d)</span></div>
                 <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-slate-400" /><span className="text-[10px] text-muted-foreground">Expired</span></div>
               </div>

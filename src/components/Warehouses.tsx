@@ -41,7 +41,7 @@ export default function Warehouses() {
                 <p className="text-xs text-muted-foreground mt-1">{warehouse.location && <span className="mr-3">{warehouse.location}</span>}{warehouse.manager_name && <span>Mgr: {warehouse.manager_name}</span>}</p>
                 <p className="text-xs text-muted-foreground/60 mt-0.5">Stock: {warehouse.current_stock} {warehouse.capacity && `/ ${warehouse.capacity} capacity`}</p>
               </div>
-              <div className="flex gap-1"><button onClick={() => { setEditing(warehouse); setForm({ name: warehouse.name, location: warehouse.location || '', manager_name: warehouse.manager_name || '', phone: warehouse.phone || '', capacity: String(warehouse.capacity || '') }); setShowDialog(true); }} className="p-1.5 rounded hover:bg-gray-100"><Edit className="w-3.5 h-3.5 text-muted-foreground/60" /></button>
+              <div className="flex gap-1"><button onClick={() => { setEditing(warehouse); setForm({ name: warehouse.name, location: warehouse.location || '', manager_name: warehouse.manager_name || '', phone: warehouse.phone || '', capacity: String(warehouse.capacity || '') }); setShowDialog(true); }} className="p-1.5 rounded hover:bg-slate-100"><Edit className="w-3.5 h-3.5 text-muted-foreground/60" /></button>
                 <button onClick={() => handleDelete(warehouse.id)} className="p-1.5 rounded hover:bg-destructive/10"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button></div>
             </div></CardContent></Card>
         ))}

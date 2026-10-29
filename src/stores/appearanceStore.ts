@@ -1,17 +1,15 @@
 import { create } from 'zustand';
 
-export type AccentColor = 'magenta' | 'emerald' | 'ocean' | 'violet' | 'amber' | 'rose';
+export type AccentColor = 'teal' | 'ocean' | 'lavender' | 'amber';
 export type Density = 'compact' | 'default' | 'comfortable';
 export type FontFamily = 'inter' | 'manrope' | 'dm-sans' | 'plus-jakarta' | 'poppins' | 'roboto' | 'open-sans';
 export type FontSize = 'small' | 'default' | 'medium' | 'large';
 
 export const ACCENT_OPTIONS: { value: AccentColor; label: string; swatch: string; ring: string }[] = [
-  { value: 'magenta', label: 'Brand Magenta', swatch: 'bg-fuchsia-600', ring: 'ring-fuchsia-600' },
-  { value: 'emerald', label: 'Emerald', swatch: 'bg-emerald-500', ring: 'ring-emerald-500' },
-  { value: 'ocean', label: 'Ocean', swatch: 'bg-sky-500', ring: 'ring-sky-500' },
-  { value: 'violet', label: 'Violet', swatch: 'bg-violet-500', ring: 'ring-violet-500' },
+  { value: 'teal', label: 'Pharmacy Teal (Default)', swatch: 'bg-[#17827A]', ring: 'ring-[#17827A]' },
+  { value: 'ocean', label: 'Ocean', swatch: 'bg-[#3D93B3]', ring: 'ring-[#3D93B3]' },
+  { value: 'lavender', label: 'Lavender', swatch: 'bg-[#8D82E8]', ring: 'ring-[#8D82E8]' },
   { value: 'amber', label: 'Amber', swatch: 'bg-amber-500', ring: 'ring-amber-500' },
-  { value: 'rose', label: 'Rose', swatch: 'bg-rose-500', ring: 'ring-rose-500' },
 ];
 
 /** User-selectable typography (Settings → Appearance → Typography) */
@@ -66,7 +64,7 @@ export interface AppearanceState {
   setFontSize: (fontSize: FontSize) => void;
 }
 
-const INITIAL_ACCENT = readStored<AccentColor>(ACCENT_KEY, 'magenta', ACCENT_OPTIONS.map(o => o.value));
+const INITIAL_ACCENT = readStored<AccentColor>(ACCENT_KEY, 'teal', ACCENT_OPTIONS.map(o => o.value));
 const INITIAL_DENSITY = readStored<Density>(DENSITY_KEY, 'default', ['compact', 'default', 'comfortable']);
 const INITIAL_FONT = readStored<FontFamily>(FONT_KEY, 'inter', FONT_OPTIONS.map(o => o.value));
 const INITIAL_FONT_SIZE = readStored<FontSize>(FONT_SIZE_KEY, 'default', FONT_SIZE_OPTIONS.map(o => o.value));

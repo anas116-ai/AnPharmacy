@@ -126,10 +126,10 @@ export default function UserManagement() {
 
   const getRoleGradient = (role: string) => {
     switch (role) {
-      case 'admin': return 'from-accent to-accent/80';
-      case 'sales': return 'from-blue-500 to-blue-600';
-      case 'purchase_mgr': return 'from-amber-500 to-amber-600';
-      default: return 'from-gray-500 to-gray-600';
+      case 'admin': return 'from-[#123F3D] to-[#14292E]';
+      case 'sales': return 'from-[#123F3D] to-[#14292E]';
+      case 'purchase_mgr': return 'from-[#123F3D] to-[#14292E]';
+      default: return 'from-slate-500 to-slate-600';
     }
   };
 
@@ -235,9 +235,9 @@ export default function UserManagement() {
                           className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted/50 dark:hover:bg-muted flex items-center gap-2.5 transition-colors"
                         >
                           {user.is_active ? (
-                            <><XCircle className="w-4 h-4 text-orange-500" /> Deactivate</>
+                            <><XCircle className="w-4 h-4 text-amber-500" /> Deactivate</>
                           ) : (
-                            <><CheckCircle className="w-4 h-4 text-green-500" /> Activate</>
+                            <><CheckCircle className="w-4 h-4 text-emerald-500" /> Activate</>
                           )}
                         </button>
                         <button

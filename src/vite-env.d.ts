@@ -64,6 +64,8 @@ interface ElectronAPI {
   deleteSupplier: (data: { id: number }) => Promise<{ success: boolean; error?: string }>;
   listSuppliers: () => Promise<{ success: boolean; suppliers?: any[]; error?: string }>;
   getSupplierMedicines: (data: { supplierId: number }) => Promise<{ success: boolean; medicines?: any[]; error?: string }>;
+  getSupplierLedger: (data: { supplierId: number }) => Promise<{ success: boolean; ledger?: any[]; currentBalance?: number; error?: string }>;
+  addSupplierPayment: (data: { supplierId: number; amount: number; paymentMethod: string; referenceId?: string; notes?: string }) => Promise<{ success: boolean; error?: string }>;
 
   // Notifications
   listNotifications: (data: { user_id: number }) => Promise<{ success: boolean; notifications?: Notification[]; error?: string }>;

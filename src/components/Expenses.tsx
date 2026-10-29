@@ -75,7 +75,7 @@ export default function Expenses() {
                 <div className="text-right flex-shrink-0 ml-4">
                   <p className="text-lg font-bold text-destructive">{formatCurrency(expense.amount)}</p>
                   <div className="flex gap-1 mt-1 justify-end">
-                    <button onClick={() => { setEditing(expense); setForm({ category: expense.category, amount: String(expense.amount), description: expense.description || '', payment_method: expense.payment_method || '' }); setShowDialog(true); }} className="p-1 rounded hover:bg-gray-100"><Edit className="w-3 h-3 text-muted-foreground/60" /></button>
+                    <button onClick={() => { setEditing(expense); setForm({ category: expense.category, amount: String(expense.amount), description: expense.description || '', payment_method: expense.payment_method || '' }); setShowDialog(true); }} className="p-1 rounded hover:bg-slate-100"><Edit className="w-3 h-3 text-muted-foreground/60" /></button>
                     <button onClick={() => handleDelete(expense.id)} className="p-1 rounded hover:bg-destructive/10"><Trash2 className="w-3 h-3 text-red-400" /></button>
                   </div>
                 </div>

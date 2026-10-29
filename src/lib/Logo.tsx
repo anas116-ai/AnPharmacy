@@ -8,19 +8,21 @@ interface LogoProps {
 }
 
 const sizeMap = {
-  sm: { box: 36, icon: 28, fontSize: 'text-[22px]', tagline: 'text-[10px]' },
-  md: { box: 44, icon: 34, fontSize: 'text-[26px]', tagline: 'text-[11px]' },
-  lg: { box: 60, icon: 46, fontSize: 'text-[34px]', tagline: 'text-[11px]' },
-  xl: { box: 88, icon: 66, fontSize: 'text-[46px]', tagline: 'text-xs' },
+  sm: { box: 36, icon: 28, fontSize: 'text-[19px]', tagline: 'text-[7.5px]' },
+  md: { box: 44, icon: 34, fontSize: 'text-[23px]', tagline: 'text-[8.5px]' },
+  lg: { box: 60, icon: 46, fontSize: 'text-[30px]', tagline: 'text-[9.5px]' },
+  xl: { box: 88, icon: 66, fontSize: 'text-[42px]', tagline: 'text-[11px]' },
 };
 
 /**
- * LOGO — "Distribution Hub"
+ * AnPharmacy Brand Icon — The Official Concept #44
  *
- * Professional, business-grade mark: two supply sources feeding a single
- * controlled pharmacy node (the ring = the point of control). Reads as a
- * managed distribution network — exactly what AnPharmacy does. Ownable,
- * distinctive, scales cleanly 16px → 96px and holds up in mono.
+ * Vector Architecture:
+ * - Outer continuous circular arc sweeping from 40° counter-clockwise to 235°.
+ * - Seamlessly transitions into a sculpted botanical leaf underline with an inner vein.
+ * - Inside: Typographic AP monogram with modern chevron crossbar.
+ * - Colors: the mint-teal brand palette — deep teal #123F3D → teal #17827A
+ *   → mint #3FA79B, on a deep-teal tile (#123035 → #0F262B → #0C1D21).
  */
 export function AnPharmacyIcon({
   className,
@@ -32,52 +34,116 @@ export function AnPharmacyIcon({
   mono?: boolean;
 }) {
   const uid = React.useId().replace(/:/g, '');
-  const gradId = `anGrad${uid}`;
-  const hub = (
-    <>
-      <path d="M30,30 L50,72" />
-      <path d="M70,30 L50,72" />
-      <circle cx="30" cy="30" r="9" />
-      <circle cx="70" cy="30" r="9" />
-      <circle cx="50" cy="72" r="13" fill="none" strokeWidth="8" />
-      <circle cx="50" cy="72" r="5" />
-    </>
-  );
+  const brandGradId = `brandGrad${uid}`;
+  const leafGradId = `leafGrad${uid}`;
 
   if (mono) {
     return (
-      <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
-        <g fill="currentColor" stroke="currentColor" strokeWidth="8" strokeLinecap="round">
-          {hub}
+      <svg viewBox="0 0 320 320" className={cn('block shrink-0', className)} style={style} aria-hidden="true">
+        <g transform="translate(160, 145)">
+          <path
+            d="M 60 -60 A 88 88 0 1 0 -72 50 C -64 72 -35 96 25 96 C 68 96 100 78 110 66 C 75 74 38 65 -10 45 C -45 32 -68 36 -72 50"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M -70 50 C -45 82 15 96 110 66 C 68 70 25 60 -18 40 C -48 26 -66 36 -70 50 Z"
+            fill="currentColor"
+          />
+          <g transform="translate(-12, -8)">
+            <path d="M -36 28 L -10 -40 L 16 28" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M -22 6 L -10 -5 L 6 6" fill="none" stroke="currentColor" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 22 28 L 22 -40 L 48 -40 C 66 -40 78 -29 78 -14 C 78 2 66 12 48 12 L 22 12" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+          </g>
         </g>
       </svg>
     );
   }
 
   return (
-    <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
+    <svg viewBox="0 0 320 320" className={cn('block shrink-0', className)} style={style} aria-hidden="true">
       <defs>
-        <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="24" y1="28" x2="76" y2="74">
-          <stop offset="0%" stopColor="#990066" />
-          <stop offset="50%" stopColor="#D4148C" />
-          <stop offset="100%" stopColor="#FF5A8D" />
+        <linearGradient id={brandGradId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#123F3D" />
+          <stop offset="52%" stopColor="#17827A" />
+          <stop offset="100%" stopColor="#3FA79B" />
+        </linearGradient>
+        <linearGradient id={leafGradId} x1="0%" y1="0%" x2="100%" y2="40%">
+          <stop offset="0%" stopColor="#2E9C90" />
+          <stop offset="55%" stopColor="#17827A" />
+          <stop offset="100%" stopColor="#123F3D" />
         </linearGradient>
       </defs>
-      <g fill={`url(#${gradId})`} stroke={`url(#${gradId})`} strokeWidth="8" strokeLinecap="round">
-        {hub}
+
+      <g transform="translate(160, 145)">
+        {/* Continuous Outer Circle of #44 */}
+        <path
+          d="M 60 -60 A 88 88 0 1 0 -72 50 C -64 72 -35 96 25 96 C 68 96 100 78 110 66 C 75 74 38 65 -10 45 C -45 32 -68 36 -72 50"
+          fill="none"
+          stroke={`url(#${brandGradId})`}
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Sculpted Botanical Leaf Underline of #44 */}
+        <path
+          d="M -70 50 C -45 82 15 96 110 66 C 68 70 25 60 -18 40 C -48 26 -66 36 -70 50 Z"
+          fill={`url(#${leafGradId})`}
+        />
+
+        {/* Leaf Vein */}
+        <path
+          d="M -58 52 Q 18 74 98 68"
+          fill="none"
+          stroke="#0C1D21"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+
+        {/* Monogram AP inside the circle */}
+        <g transform="translate(-12, -8)">
+          {/* A */}
+          <path
+            d="M -36 28 L -10 -40 L 16 28"
+            fill="none"
+            stroke="#FFFFFF"
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Chevron Crossbar */}
+          <path
+            d="M -22 6 L -10 -5 L 6 6"
+            fill="none"
+            stroke="#2E9C90"
+            strokeWidth="6.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* P */}
+          <path
+            d="M 22 28 L 22 -40 L 48 -40 C 66 -40 78 -29 78 -14 C 78 2 66 12 48 12 L 22 12"
+            fill="none"
+            stroke={`url(#${brandGradId})`}
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
       </g>
     </svg>
   );
 }
 
-/** Alias kept for existing call sites. */
+/** Alias for existing call sites */
 export const LogoMark = AnPharmacyIcon;
 
 /**
- * EMBLEM — the icon as a contained, badge-style glyph (Instagram/Flipkart move):
- * a gradient squircle holding a white Distribution Hub. This is the standalone
- * app icon / favicon and the left half of the combination mark. Reads instantly
- * at 32px because the shape (tile) carries the brand, not just the strokes.
+ * EMBLEM — Luxury App Icon / Badge (Enclosed in a deep obsidian/sapphire tile)
  */
 export function Emblem({
   className,
@@ -88,92 +154,25 @@ export function Emblem({
   style?: React.CSSProperties;
   mono?: boolean;
 }) {
-  const uid = React.useId().replace(/:/g, '');
-  const gradId = `emGrad${uid}`;
-  const hub = (
-    <>
-      <path d="M30,30 L50,72" />
-      <path d="M70,30 L50,72" />
-      <circle cx="30" cy="30" r="9" />
-      <circle cx="70" cy="30" r="9" />
-      <circle cx="50" cy="72" r="13" fill="none" strokeWidth="8" />
-      <circle cx="50" cy="72" r="5" />
-    </>
-  );
-
-  if (mono) {
-    return (
-      <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
-        <rect x="8" y="8" width="84" height="84" rx="22" fill="currentColor" />
-        <g fill="#ffffff" stroke="#ffffff" strokeWidth="8" strokeLinecap="round">{hub}</g>
-      </svg>
-    );
-  }
-
   return (
-    <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
-      <defs>
-        <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="20" y1="14" x2="82" y2="88">
-          <stop offset="0%" stopColor="#990066" />
-          <stop offset="52%" stopColor="#D4148C" />
-          <stop offset="100%" stopColor="#FF5A8D" />
-        </linearGradient>
-      </defs>
-      <rect x="8" y="8" width="84" height="84" rx="22" fill={`url(#${gradId})`} />
-      <g fill="#ffffff" stroke="#ffffff" strokeWidth="8" strokeLinecap="round">{hub}</g>
-    </svg>
+    <div
+      className={cn(
+        'relative inline-flex items-center justify-center rounded-2xl bg-gradient-to-b from-[#123035] via-[#0F262B] to-[#0C1D21] border border-white/15 shadow-md p-1.5 shrink-0 overflow-hidden',
+        className
+      )}
+      style={style}
+    >
+      <div className="absolute inset-0 bg-[#17827A]/[0.10] pointer-events-none rounded-2xl" />
+      <AnPharmacyIcon className="w-full h-full" mono={mono} />
+    </div>
   );
 }
 
-/**
- * LETTERMARK (monogram) — the initial "A" (An) drawn in capsule strokes, with
- * the crossbar itself a medicine pill. A typographic mark for compact/avatars
- * where the full wordmark or emblem would be too small to read.
- */
-export function Lettermark({
-  className,
-  style,
-  mono = false,
-}: {
-  className?: string;
-  style?: React.CSSProperties;
-  mono?: boolean;
-}) {
-  const uid = React.useId().replace(/:/g, '');
-  const gradId = `lmGrad${uid}`;
-  const A = (
-    <>
-      <path d="M50,16 L26,84" />
-      <path d="M50,16 L74,84" />
-      <path d="M36,56 L64,56" />
-    </>
-  );
-
-  if (mono) {
-    return (
-      <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
-        <g fill="none" stroke="currentColor" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round">{A}</g>
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 100 100" className={cn('block', className)} style={style} aria-hidden="true">
-      <defs>
-        <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="26" y1="16" x2="74" y2="84">
-          <stop offset="0%" stopColor="#990066" />
-          <stop offset="52%" stopColor="#D4148C" />
-          <stop offset="100%" stopColor="#FF5A8D" />
-        </linearGradient>
-      </defs>
-      <g fill="none" stroke={`url(#${gradId})`} strokeWidth="13" strokeLinecap="round" strokeLinejoin="round">{A}</g>
-    </svg>
-  );
-}
+/** Alias */
+export const Lettermark = AnPharmacyIcon;
 
 /**
- * Transparent icon wrapper — renders the "an" mark with no box behind it.
- * Size is fully controlled by the caller via className / markClassName.
+ * Transparent Icon Tile Wrapper
  */
 export function BrandTile({
   className,
@@ -182,27 +181,22 @@ export function BrandTile({
   style,
   mono = false,
 }: {
-  className?: string; // wrapper sizing (e.g. w-10 h-10)
-  markClassName?: string; // icon sizing (e.g. w-6 h-6)
+  className?: string;
+  markClassName?: string;
   markStyle?: React.CSSProperties;
   style?: React.CSSProperties;
   mono?: boolean;
 }) {
   return (
-    <span className={cn('relative inline-flex flex-shrink-0 items-center justify-center', className)} style={style}>
-      <AnPharmacyIcon className={cn('block', markClassName)} style={markStyle} mono={mono} />
+    <span className={cn('relative inline-flex shrink-0 items-center justify-center', className)} style={style}>
+      <Emblem className={cn('w-full h-full block', markClassName)} style={markStyle} mono={mono} />
     </span>
   );
 }
 
 /**
- * BRAND WORDMARK — "AnPharmacy", pure typography (no icon/emblem/monogram).
- * Split two-tone: "An" in the brand gradient (bold), "Pharmacy" in ink (medium).
- * Weights kept at 600–700 so the word stays legible at app-header sizes.
+ * BRAND WORDMARK — "AnPharmacy"
  */
-const BRAND_GRAD = 'linear-gradient(95deg,#990066 0%,#D4148C 52%,#FF5A8D 100%)';
-const WORDMARK_FONT = "'Plus Jakarta Sans','Space Grotesk', system-ui, sans-serif";
-
 export function Wordmark({
   white = false,
   mono = false,
@@ -217,40 +211,46 @@ export function Wordmark({
   return (
     <span
       className={cn(
-        'leading-tight tracking-[-0.015em] whitespace-nowrap',
+        'leading-tight tracking-[-0.02em] whitespace-nowrap inline-flex items-baseline font-sans',
         fontSize,
         className
       )}
-      style={{ fontFamily: WORDMARK_FONT }}
+      style={{ fontFamily: "'Plus Jakarta Sans', Inter, system-ui, sans-serif" }}
     >
       <span
         style={{
-          fontWeight: 700,
-          ...(mono
-            ? { color: 'currentColor' }
+          fontWeight: 800,
+          color: mono
+            ? 'currentColor'
             : white
-              ? { color: '#FFFFFF' }
-              : { backgroundImage: BRAND_GRAD, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }),
+              ? '#5FC9BB'
+              : '#123F3D',
         }}
       >
         An
       </span>
-      <span style={{ fontWeight: 600, color: white ? '#FFFFFF' : 'currentColor' }}>Pharmacy</span>
+      <span
+        style={{
+          fontWeight: 700,
+          color: white ? '#FFFFFF' : mono ? 'currentColor' : '#14292E',
+        }}
+        className="dark:text-white"
+      >
+        Pharmacy
+      </span>
     </span>
   );
 }
 
 /**
- * Full logo lockup — the AnPharmacy wordmark (+ optional tagline).
- * Defaults to a PURE WORDMARK (no icon). `emblem` can re-add the combination
- * mark for app-chrome contexts (title bar, splash) only.
+ * Complete AnPharmacy Logo Lockup
  */
 export function AnPharmacyLogo({
   className,
   size = 'md',
   variant = 'default',
   layout = 'horizontal',
-  emblem = false,
+  emblem = true,
 }: LogoProps & { layout?: 'horizontal' | 'stacked'; emblem?: boolean }) {
   const s = sizeMap[size];
   const white = variant === 'white';
@@ -262,16 +262,16 @@ export function AnPharmacyLogo({
   );
 
   const textEl = variant !== 'compact' && (
-    <div className={cn('flex flex-col', stacked && 'items-center')}>
+    <div className={cn('flex flex-col justify-center', stacked && 'items-center text-center')}>
       <Wordmark white={white} mono={mono} fontSize={s.fontSize} />
       <span
         className={cn(
           s.tagline,
-          'leading-tight tracking-[0.18em] uppercase font-medium font-body',
-          white ? 'text-pink-200/70' : mono ? 'text-slate-500' : 'text-slate-400 dark:text-slate-500'
+          'font-semibold uppercase tracking-[0.14em] leading-tight mt-0.5',
+          white ? 'text-[#5FC9BB]/90' : 'text-slate-600'
         )}
       >
-        Intelligent Pharmacy Management
+        Intelligent Pharmacy Distribution Management
       </span>
     </div>
   );
@@ -279,9 +279,8 @@ export function AnPharmacyLogo({
   return (
     <div
       className={cn(
-        'flex items-center',
-        stacked ? 'flex-col gap-3' : 'gap-3',
-        white ? 'text-white' : mono ? 'text-slate-900' : 'text-slate-900 dark:text-white',
+        'inline-flex items-center gap-3 select-none',
+        stacked ? 'flex-col' : 'flex-row',
         className
       )}
     >
@@ -291,57 +290,22 @@ export function AnPharmacyLogo({
   );
 }
 
-/** Alias kept for existing call sites. */
-export default function Logo(props: LogoProps) {
-  return <AnPharmacyLogo {...props} />;
-}
-
-/* Animated variant for splash/loading screens */
-export function AnimatedLogo({ className }: { className?: string }) {
+/**
+ * ANIMATED LOGO — for Splash Screen & Hero Accents
+ */
+export function AnimatedLogo({
+  size = 'lg',
+  className,
+}: {
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  className?: string;
+}) {
   return (
-    <div className={cn('relative flex items-center justify-center', className)}>
-      {/* Orbital rings */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="absolute w-[110%] h-[110%] rounded-full border border-slate-400/15 animate-spin-slow" />
-        <div
-          className="absolute w-[90%] h-[90%] rounded-full animate-spin-slow"
-          style={{
-            animationDirection: 'reverse',
-            animationDuration: '4s',
-            border: '1px solid rgba(217,70,239,0.18)',
-          }}
-        />
-        <div className="absolute w-[70%] h-[70%] rounded-full border border-slate-300/8 animate-spin-slow" style={{ animationDuration: '6s' }} />
-        <div className="absolute w-[60%] h-[60%] rounded-full bg-fuchsia-500/5 animate-pulse-ring" />
-      </div>
-
-      {/* Main mark */}
-      <div className="relative w-36 h-36 rounded-3xl bg-gradient-to-br from-[#0A0F1E] via-[#0E1728] to-[#101E38] flex items-center justify-center shadow-2xl shadow-slate-900/40 border border-white/15 overflow-hidden">
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-glass-shine opacity-80 pointer-events-none"
-          style={{ backgroundSize: '200% 100%' }}
-        />
-        <div className="absolute inset-0 opacity-20">
-          <svg className="w-full h-full" viewBox="0 0 80 80">
-            <circle cx="12" cy="14" r="1" fill="currentColor" />
-            <circle cx="68" cy="18" r="1" fill="currentColor" />
-            <circle cx="18" cy="66" r="1" fill="currentColor" />
-            <circle cx="64" cy="62" r="1" fill="currentColor" />
-            <circle cx="40" cy="8" r="1" fill="currentColor" />
-            <circle cx="40" cy="72" r="1" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="absolute inset-[4px] rounded-[20px] border border-white/10 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/10 pointer-events-none" />
-        <AnPharmacyIcon
-          className="w-[68%] h-[68%] relative z-10"
-          style={{ opacity: 0.95 }}
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent animate-glass-shine opacity-60 pointer-events-none"
-          style={{ backgroundSize: '200% 100%', animationDuration: '2.5s' }}
-        />
-      </div>
+    <div className={cn('relative inline-flex items-center justify-center', className)}>
+      <div className="absolute inset-0 bg-[#17827A]/25 blur-2xl rounded-full animate-pulse" />
+      <AnPharmacyLogo size={size} variant="white" layout="stacked" />
     </div>
   );
 }
+
+export default AnPharmacyLogo;

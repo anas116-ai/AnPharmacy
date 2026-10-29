@@ -160,7 +160,7 @@ export default function ImportSummaryDialog({
         <DialogHeader className="px-6 py-4 border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3 text-lg">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#123F3D] to-[#14292E] rounded-xl flex items-center justify-center">
                 <Shield className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -206,7 +206,7 @@ export default function ImportSummaryDialog({
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card className="border-0 bg-gradient-to-br from-accent to-success">
+            <Card className="border-0 bg-gradient-to-br from-[#14292E] to-[#223A40]">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-medium text-white/80 uppercase">Total Items</p>
@@ -216,7 +216,7 @@ export default function ImportSummaryDialog({
                 <p className="text-[10px] text-white/60">{financialSummary.totalQty} total units</p>
               </CardContent>
             </Card>
-            <Card className="border-0 bg-gradient-to-br from-blue-500 to-indigo-600">
+            <Card className="border-0 bg-gradient-to-br from-[#223A40] to-[#123F3D]">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-medium text-white/80 uppercase">Total Cost</p>
@@ -228,7 +228,7 @@ export default function ImportSummaryDialog({
                 <p className="text-[10px] text-white/60">Purchase value</p>
               </CardContent>
             </Card>
-            <Card className="border-0 bg-gradient-to-br from-accent to-accent/80">
+            <Card className="border-0 bg-gradient-to-br from-[#123F3D] to-[#17827A]">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-medium text-white/80 uppercase">MRP Value</p>
@@ -240,7 +240,7 @@ export default function ImportSummaryDialog({
                 <p className="text-[10px] text-white/60">Retail value</p>
               </CardContent>
             </Card>
-            <Card className="border-0 bg-gradient-to-br from-amber-500 to-orange-600">
+            <Card className="border-0 bg-gradient-to-br from-[#17827A] to-[#3FA79B]">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-medium text-white/80 uppercase">Profit Margin</p>
@@ -276,7 +276,7 @@ export default function ImportSummaryDialog({
               <div>
                 <p className={cn(
                   'text-2xl font-bold',
-                  stockImpact.duplicates > 0 ? 'text-warning' : 'text-green-600'
+                  stockImpact.duplicates > 0 ? 'text-warning' : 'text-emerald-600'
                 )}>
                   {stockImpact.duplicates}
                 </p>

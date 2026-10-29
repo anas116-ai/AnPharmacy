@@ -20,6 +20,12 @@ export const useKeyboardShortcuts = (shortcuts: KeyboardShortcut[], enabled: boo
     if (!enabled) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Intercept browser Ctrl+N / Cmd+N immediately to prevent Chrome from opening a new window
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'n') {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
       // Don't trigger shortcuts when typing in input fields
       const target = event.target as HTMLElement;
       const isInputField = target.tagName === 'INPUT' || 
@@ -38,8 +44,11 @@ export const useKeyboardShortcuts = (shortcuts: KeyboardShortcut[], enabled: boo
       });
 
       if (matchingShortcut) {
-        // Allow shortcuts even in input fields for certain keys
-        const allowInInput = ['Escape', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'].includes(event.key);
+        // Standard text editing shortcuts inside inputs that must be preserved
+        const isTextEditing = isInputField && (event.ctrlKey || event.metaKey) && ['c', 'v', 'x', 'a', 'z', 'y'].includes(event.key.toLowerCase());
+        
+        // Function keys, Escape, and enterprise navigation shortcuts (Ctrl+N, Ctrl+S, Ctrl+I, Ctrl+R, Ctrl+M, Ctrl+B, etc.)
+        const allowInInput = !isTextEditing;
         
         if (!isInputField || allowInInput) {
           event.preventDefault();
@@ -49,27 +58,28 @@ export const useKeyboardShortcuts = (shortcuts: KeyboardShortcut[], enabled: boo
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
     
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown, { capture: true });
     };
   }, [shortcuts, enabled]);
 };
 
 export const useGlobalShortcuts = (onNavigate: (index: number) => void) => {
   const shortcuts: KeyboardShortcut[] = [
-    // Navigation
+    // Enterprise Core Navigation (High-speed single-hand Ctrl keys)
     { key: 'd', ctrlKey: true, action: () => onNavigate(0), description: 'Go to Dashboard', category: 'Navigation' },
-    { key: 's', ctrlKey: true, action: () => onNavigate(1), description: 'Go to Stock', category: 'Navigation' },
-    { key: 'n', ctrlKey: true, action: () => onNavigate(2), description: 'Add New Stock', category: 'Navigation' },
-    { key: 'p', ctrlKey: true, action: () => onNavigate(3), description: 'Go to Purchases', category: 'Navigation' },
-    { key: 'm', ctrlKey: true, action: () => onNavigate(4), description: 'Go to Sales', category: 'Navigation' },
-    { key: 'r', ctrlKey: true, action: () => onNavigate(5), description: 'Go to Reports', category: 'Navigation' },
-    { key: 'i', ctrlKey: true, shiftKey: true, action: () => onNavigate(6), description: 'Scan Invoice', category: 'Navigation' },
-    { key: 'u', ctrlKey: true, shiftKey: true, action: () => onNavigate(7), description: 'User Management', category: 'Navigation' },
-    { key: 'b', ctrlKey: true, shiftKey: true, action: () => onNavigate(8), description: 'Backup & Restore', category: 'Navigation' },
-    { key: ',', ctrlKey: true, shiftKey: true, action: () => onNavigate(9), description: 'Open Settings', category: 'Navigation' },
+    { key: 'n', ctrlKey: true, action: () => onNavigate(4), description: 'New Sale / Billing POS', category: 'Navigation' },
+    { key: 's', ctrlKey: true, action: () => onNavigate(4), description: 'New Sale / Billing POS', category: 'Navigation' },
+    { key: 'i', ctrlKey: true, action: () => onNavigate(6), description: 'Scan Invoice (OCR)', category: 'Navigation' },
+    { key: 'r', ctrlKey: true, action: () => onNavigate(5), description: 'Reports & Analytics', category: 'Navigation' },
+    { key: 'm', ctrlKey: true, action: () => onNavigate(27), description: 'Import Data (Excel/CSV/PDF)', category: 'Navigation' },
+    { key: 'b', ctrlKey: true, action: () => onNavigate(8), description: 'Backup & Restore', category: 'Navigation' },
+    { key: 'p', ctrlKey: true, action: () => onNavigate(3), description: 'Purchases', category: 'Navigation' },
+    { key: 'k', ctrlKey: true, action: () => onNavigate(1), description: 'Stock Inventory', category: 'Navigation' },
+    { key: 'u', ctrlKey: true, action: () => onNavigate(7), description: 'User Management', category: 'Navigation' },
+    { key: ',', ctrlKey: true, action: () => onNavigate(9), description: 'Open Settings', category: 'Navigation' },
     // Actions
     {
       key: 'Escape',

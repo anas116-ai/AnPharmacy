@@ -43,7 +43,7 @@ export default function KeyboardShortcutsHelp({ isOpen, onClose, shortcuts }: Ke
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border dark:border-border">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#123F3D] to-[#14292E] rounded-xl flex items-center justify-center">
                 <Keyboard className="w-5 h-5 text-white" />
               </div>
               Keyboard Shortcuts

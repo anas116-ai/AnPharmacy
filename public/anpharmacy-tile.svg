@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="tileBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14292E"/>
+      <stop offset="100%" stop-color="#071417"/>
+    </linearGradient>
+    <linearGradient id="markSapphire" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3FA79B"/>
+      <stop offset="50%" stop-color="#17827A"/>
+      <stop offset="100%" stop-color="#123F3D"/>
+    </linearGradient>
+  </defs>
+  <!-- 60% Dominant: Deep Midnight Obsidian Beveled Container -->
+  <rect x="4" y="4" width="92" height="92" rx="22" fill="url(#tileBg)" stroke="#223A40" stroke-width="1.5"/>
+  <!-- 30% Structural: Surgical Precision Bevel -->
+  <rect x="5" y="5" width="90" height="90" rx="21" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  
+  <!-- 10% Accent: Scaled Precision Nexus Mark inside Container -->
+  <g transform="translate(10, 10) scale(0.8)">
+    <path d="M50 12 L68 36 L55 36 L50 28 L45 36 L32 36 Z" fill="#FFFFFF"/>
+    <path d="M14 40 L38 40 L44 50 L38 60 L14 60 Z" fill="url(#markSapphire)"/>
+    <path d="M86 40 L62 40 L56 50 L62 60 L86 60 Z" fill="url(#markSapphire)"/>
+    <path d="M40 64 L50 56 L60 64 L60 88 L40 88 Z" fill="#FFFFFF"/>
+    <rect x="46" y="46" width="8" height="8" rx="2" fill="#3FA79B"/>
+  </g>
+</svg>

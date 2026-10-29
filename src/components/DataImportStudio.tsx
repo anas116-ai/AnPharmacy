@@ -34,7 +34,7 @@ import {
   Info, RefreshCw, Save, Download, Search, Columns, Filter,
   ChevronDown, ChevronUp, Settings, Eye, EyeOff, Trash2,
   Undo2, Redo2, Grid3X3, Map, ShieldCheck, FileCheck,
-  ListChecks, BarChart3, History, Bookmark, Sparkles,
+  ListChecks, BarChart3, History, Bookmark,
   Loader2, RotateCcw, Package, HelpCircle, Maximize2, Minimize2,
   ChevronLeft, ChevronRight, Type, ZoomIn, ZoomOut, ScanLine,
   Lightbulb, Target, Zap
@@ -67,13 +67,13 @@ interface StepConfig {
 }
 
 const STEPS: StepConfig[] = [
-  { id: 'select', label: 'Select File', icon: Upload, description: 'Choose your import file', activeBg: 'bg-blue-600 border-blue-600' },
-  { id: 'preview', label: 'Data Preview', icon: Eye, description: 'Review parsed data before mapping', activeBg: 'bg-cyan-600 border-cyan-600' },
-  { id: 'mapping', label: 'Map Columns', icon: Map, description: 'Map file columns to stock fields', activeBg: 'bg-violet-600 border-violet-600' },
-  { id: 'validation', label: 'Validate', icon: ShieldCheck, description: 'Review validation results', activeBg: 'bg-amber-500 border-amber-500' },
-  { id: 'review', label: 'Review', icon: ListChecks, description: 'Review and edit imported data', activeBg: 'bg-emerald-600 border-emerald-600' },
-  { id: 'commit', label: 'Commit', icon: FileCheck, description: 'Preview changes & commit to stock', activeBg: 'bg-orange-500 border-orange-500' },
-  { id: 'complete', label: 'Complete', icon: FileCheck, description: 'Import completed', activeBg: 'bg-green-600 border-green-600' },
+  { id: 'select', label: 'Select File', icon: Upload, description: 'Choose your import file', activeBg: 'bg-[#14292E] border-[#14292E]' },
+  { id: 'preview', label: 'Data Preview', icon: Eye, description: 'Review parsed data before mapping', activeBg: 'bg-[#14292E] border-[#14292E]' },
+  { id: 'mapping', label: 'Map Columns', icon: Map, description: 'Map file columns to stock fields', activeBg: 'bg-[#14292E] border-[#14292E]' },
+  { id: 'validation', label: 'Validate', icon: ShieldCheck, description: 'Review validation results', activeBg: 'bg-[#14292E] border-[#14292E]' },
+  { id: 'review', label: 'Review', icon: ListChecks, description: 'Review and edit imported data', activeBg: 'bg-[#14292E] border-[#14292E]' },
+  { id: 'commit', label: 'Commit', icon: FileCheck, description: 'Preview changes & commit to stock', activeBg: 'bg-[#14292E] border-[#14292E]' },
+  { id: 'complete', label: 'Complete', icon: FileCheck, description: 'Import completed', activeBg: 'bg-[#14292E] border-[#14292E]' },
 ];
 
 // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
@@ -352,7 +352,7 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
             <select
               value={pageSize}
               onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
-              className="px-1.5 py-1 rounded-md border border-slate-300 bg-background text-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-1.5 py-1 rounded-md border border-slate-300 bg-background text-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#14292E]/25"
             >
               {[10, 25, 50, 100, 500].map(n => <option key={n} value={n}>{n}</option>)}
             </select>
@@ -381,7 +381,7 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
       <select
         value={fontFamily}
         onChange={(e) => setFontFamily(e.target.value)}
-        className="px-2 py-1 rounded-md border border-slate-300 bg-background text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-2 py-1 rounded-md border border-slate-300 bg-background text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#14292E]/25"
       >
         {FONT_OPTIONS.map(f => <option key={f.label} value={f.value}>{f.label}</option>)}
       </select>
@@ -424,7 +424,7 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
               className={cn(
                 'flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer',
                 active
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20'
+                  ? 'bg-gradient-to-r from-[#14292E] to-[#123F3D] text-white shadow-md shadow-[#14292E]/20'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700/60'
               )}
               aria-pressed={active}
@@ -492,9 +492,9 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
       {/* Quick Format Guide */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { icon: FileSpreadsheet, label: 'Excel Files', desc: '.xlsx, .xls', color: 'text-success bg-success-light dark:bg-success-light' },
-          { icon: FileText, label: 'CSV / TSV', desc: '.csv, .tsv', color: 'text-info bg-info-light dark:bg-blue-950/30' },
-          { icon: FileImage, label: 'PDF / Images', desc: '.pdf, .jpg, .png (OCR)', color: 'text-violet-600 bg-violet-50 dark:bg-violet-950/30' },
+          { icon: FileSpreadsheet, label: 'Excel Files', desc: '.xlsx, .xls', color: 'text-[#14292E] bg-[#EDF5F6] border-[#14292E]/10' },
+          { icon: FileText, label: 'CSV / TSV', desc: '.csv, .tsv', color: 'text-[#14292E] bg-[#EDF5F6] border-[#14292E]/10' },
+          { icon: FileImage, label: 'PDF / Images', desc: '.pdf, .jpg, .png (OCR)', color: 'text-[#14292E] bg-[#EDF5F6] border-[#14292E]/10' },
         ].map(item => {
           const Icon = item.icon;
           return (
@@ -546,10 +546,10 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
         {/* File Info Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'Total Rows', value: totalRows.toLocaleString(), color: 'text-navy-700 bg-navy-50', icon: FileSpreadsheet },
-            { label: 'Columns', value: totalCols, color: 'text-emerald-700 bg-emerald-50', icon: Columns },
-            { label: 'File Size', value: session.fileSize ? `${(session.fileSize / 1024).toFixed(1)} KB` : 'â€”', color: 'text-amber-700 bg-amber-50', icon: File },
-            { label: 'Format', value: session.source.toUpperCase(), color: 'text-violet-700 bg-violet-50', icon: HelpCircle },
+            { label: 'Total Rows', value: totalRows.toLocaleString(), color: 'text-[#14292E] bg-[#EDF5F6]', icon: FileSpreadsheet },
+            { label: 'Columns', value: totalCols, color: 'text-[#14292E] bg-[#EDF5F6]', icon: Columns },
+            { label: 'File Size', value: session.fileSize ? `${(session.fileSize / 1024).toFixed(1)} KB` : 'â€”', color: 'text-[#14292E] bg-[#EDF5F6]', icon: File },
+            { label: 'Format', value: session.source.toUpperCase(), color: 'text-[#14292E] bg-[#EDF5F6]', icon: HelpCircle },
           ].map(item => {
             const Icon = item.icon;
             return (
@@ -663,14 +663,14 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
           </div>
         </div>
 
-        {/* AI Suggestions Summary */}
+        {/* Smart Suggestions Summary */}
         {aiSuggestions.length > 0 && (
-          <Card variant="bordered" className="bg-gradient-to-r from-accent/10 to-success-light border-violet-100">
+          <Card variant="bordered" className="bg-emerald-500/10 border-emerald-500/20">
             <CardContent className="p-3 flex items-center gap-3">
-              <Sparkles className="w-4 h-4 text-violet-500" />
-              <span className="text-xs text-violet-700">
-                AI detected <strong>{aiSuggestions.length}</strong> column mappings automatically.
-                {unknownColumns.length > 0 && ` ${unknownColumns.length} unknown columns found.`}
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <span className="text-xs text-emerald-900">
+                Auto-detected <strong>{aiSuggestions.length}</strong> column mappings.
+                {unknownColumns.length > 0 && ` ${unknownColumns.length} unmapped columns require review.`}
               </span>
             </CardContent>
           </Card>
@@ -678,7 +678,7 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
 
         {/* Profile Match Dialog */}
         {showProfileDialog && matchedProfileName && (
-          <Card variant="bordered" className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+          <Card variant="bordered" className="bg-gradient-to-r from-amber-50 to-amber-50 border-amber-200">
             <CardContent className="p-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
@@ -728,7 +728,7 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
                     <span className="text-xs font-medium text-slate-700 truncate">{mapping.sourceColumn}</span>
                     {mapping.suggestedBy === 'ai' && (
                       <Badge variant="outline-teal" size="sm" className="gap-1">
-                        <Sparkles className="w-2.5 h-2.5" /> AI
+                        <Check className="w-2.5 h-2.5" /> Auto
                       </Badge>
                     )}
                     {mapping.suggestedBy === 'profile' && (
@@ -767,7 +767,7 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
                         : 'bg-warning-light border-amber-300 text-amber-800'
                     )}
                   >
-                    <option value="">Ã¢â‚¬â€ Skip / Do Not Import Ã¢â‚¬â€</option>
+                    <option value="">— Skip / Do Not Import —</option>
                     {PROTECTED_SCHEMA_FIELDS.map(field => (
                       <option key={field.key} value={field.key}>
                         {field.label} {field.required ? '*' : ''}
@@ -775,17 +775,17 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
                     ))}
                   </select>
 
-                  {/* AI Suggestions */}
+                  {/* Auto Mapping Suggestions */}
                   {suggestion && !mapping.isMapped && (
                     <div className="mt-1 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-violet-400" />
+                      <Check className="w-3 h-3 text-emerald-600" />
                       <button
                         onClick={() => applyAISuggestion(mapping.sourceColumn)}
-                        className="text-[10px] text-violet-600 hover:text-violet-800 underline font-medium"
+                        className="text-[10px] text-emerald-700 hover:text-emerald-900 underline font-medium"
                       >
                         Map to "{PROTECTED_SCHEMA_FIELDS.find(f => f.key === suggestion.suggestedField)?.label}"
                       </button>
-                      <span className="text-[9px] text-violet-400">({suggestion.confidence}%)</span>
+                      <span className="text-[9px] text-emerald-600/70">({suggestion.confidence}%)</span>
                     </div>
                   )}
 
@@ -934,7 +934,7 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
             { label: 'Valid Rows', value: validationSummary.validRows, color: 'text-success bg-success-light', icon: Check },
             { label: 'Warnings', value: validationSummary.totalWarnings, color: 'text-warning bg-warning-light', icon: AlertTriangle },
             { label: 'Errors', value: validationSummary.totalErrors, color: 'text-destructive bg-destructive/10', icon: AlertCircle },
-            { label: 'Duplicates', value: validationSummary.duplicateCount, color: 'text-violet-600 bg-violet-50', icon: AlertTriangle },
+            { label: 'Duplicates', value: validationSummary.duplicateCount, color: 'text-amber-700 bg-amber-50', icon: AlertTriangle },
           ].map(item => {
             const Icon = item.icon;
             return (
@@ -1144,7 +1144,7 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
             { label: 'Rows to Add', value: summary.rowsAdded, color: 'text-success bg-success-light' },
             { label: 'Rows to Update', value: summary.rowsUpdated, color: 'text-warning bg-warning-light' },
             { label: 'Rows to Skip', value: summary.rowsIgnored, color: 'text-slate-500 bg-muted' },
-            { label: 'New Columns', value: summary.columnsAdded, color: 'text-violet-600 bg-violet-50' },
+            { label: 'New Columns', value: summary.columnsAdded, color: 'text-[#14292E] bg-[#EDF5F6]' },
           ].map(item => (
             <Card key={item.label} variant="bordered" className="p-3">
               <p className={cn('text-lg font-bold', item.color.split(' ')[0])}>{item.value}</p>
@@ -1154,7 +1154,7 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
         </div>
 
         {/* Financial Impact */}
-        <Card variant="bordered" className="bg-gradient-to-r from-navy-50 to-indigo-50 border-navy-100">
+        <Card variant="bordered" className="bg-gradient-to-r from-[#EDF5F6] to-[#2E9C90]/25 border-[#14292E]/10">
           <CardContent className="p-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
@@ -1270,7 +1270,7 @@ export default function DataImportStudio({ initialMode = 'import' }: DataImportS
                 )}
                 {summary.columnsAdded > 0 && (
                   <li className="flex items-center gap-2">
-                    <Columns className="w-3 h-3 text-violet-500" /> {summary.columnsAdded} new custom fields will be created
+                    <Columns className="w-3 h-3 text-[#14292E]" /> {summary.columnsAdded} new custom fields will be created
                   </li>
                 )}
                 <li className="flex items-center gap-2">

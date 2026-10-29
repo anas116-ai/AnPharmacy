@@ -181,9 +181,9 @@ export default function Settings() {
   const getLicenseStatusColor = () => {
     switch (licenseStatus) {
       case 'active': return 'text-success';
-      case 'expired': return 'text-orange-600';
+      case 'expired': return 'text-amber-600';
       case 'invalid': return 'text-destructive';
-      case 'needs_heartbeat': return 'text-orange-600';
+      case 'needs_heartbeat': return 'text-amber-600';
       default: return 'text-muted-foreground';
     }
   };
@@ -295,7 +295,7 @@ export default function Settings() {
                     theme === 'dark' ? 'border-accent/60 bg-accent/10 shadow-md' : 'border-border bg-background hover:border-accent/40'
                   )}
                 >
-                  <Moon className="w-5 h-5 text-indigo-400" />
+                  <Moon className="w-5 h-5 text-slate-400" />
                   <div>
                     <p className="text-sm font-semibold">Dark</p>
                     <p className="text-[11px] text-muted-foreground">Easy on the eyes, colors pop</p>
@@ -653,7 +653,7 @@ export default function Settings() {
                   className="px-3 py-2 bg-muted/50 border border-border rounded-xl hover:bg-muted transition-all duration-200 cursor-pointer"
                   title="Copy Device ID"
                 >
-                  {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
+                  {copied ? <CheckCircle className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
                 </button>
               </div>
             </div>
@@ -694,8 +694,7 @@ export default function Settings() {
               <div className="mt-4 pt-4 border-t border-border flex items-center gap-3">
                 <div className={cn(
                   'w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white bg-gradient-to-br',
-                  user.role === 'admin' ? 'from-accent via-teal-400 to-emerald-500' :
-                  user.role === 'sales' ? 'from-sky-500 via-blue-500 to-indigo-500' : 'from-amber-500 via-orange-500 to-rose-500'
+                  'from-[#123F3D] to-[#14292E]'
                 )}>
                   {user.displayName?.charAt(0) || 'U'}
                 </div>

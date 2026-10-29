@@ -32,6 +32,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateSupplier: (data) => ipcRenderer.invoke('suppliers:update', data),
   deleteSupplier: (data) => ipcRenderer.invoke('suppliers:delete', data),
   getSupplierMedicines: (data) => ipcRenderer.invoke('suppliers:getMedicines', data),
+  getSupplierLedger: (data) => ipcRenderer.invoke('suppliers:getLedger', data),
+  addSupplierPayment: (data) => ipcRenderer.invoke('suppliers:addPayment', data),
 
   // License
   getLicenseStatus: () => ipcRenderer.invoke('license:getStatus'),

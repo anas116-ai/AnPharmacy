@@ -118,7 +118,7 @@ describe('ValidationEngine', () => {
             'Medicine Name': 'Paracetamol',
             'Batch No': 'BT24001',
             Quantity: '100',
-            Expiry: '2026-12-31',
+            Expiry: '2028-12-31',
             MRP: '100.00',
             HSN: '3004',
             GST: '12',

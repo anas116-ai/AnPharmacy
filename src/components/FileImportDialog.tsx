@@ -210,7 +210,7 @@ export default function FileImportDialog({
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#123F3D] to-[#14292E] rounded-xl flex items-center justify-center">
                 <UploadCloud className="w-5 h-5 text-white" />
               </div>
               Import Stock from File
@@ -258,7 +258,7 @@ export default function FileImportDialog({
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-20 h-20 bg-[#EDF5F6] rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <FileUp className="w-10 h-10 text-accent" />
                 </div>
                 <p className="text-lg font-semibold text-foreground mb-2">
@@ -308,7 +308,7 @@ export default function FileImportDialog({
                 {selectedFile && `${selectedFile.name} (${formatFileSize(selectedFile.size)})`}
               </p>
               <div className="mt-6 w-64 bg-muted rounded-full h-2 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full animate-pulse" style={{ width: '60%' }} />
+                <div className="h-full bg-gradient-to-r from-[#123F3D] to-[#14292E] rounded-full animate-pulse" style={{ width: '60%' }} />
               </div>
             </div>
           )}
@@ -319,8 +319,8 @@ export default function FileImportDialog({
               {/* File Info & Stats */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-xl flex items-center justify-center text-2xl">
-                    {(() => { const Icon = getFileIcon(importResult.detectedFormat as any); return <Icon className="w-6 h-6 text-teal-600" />; })()}
+                  <div className="w-12 h-12 bg-[#EDF5F6] rounded-xl flex items-center justify-center text-2xl">
+                    {(() => { const Icon = getFileIcon(importResult.detectedFormat as any); return <Icon className="w-6 h-6 text-[#14292E]" />; })()}
                   </div>
                   <div>
                     <p className="font-semibold text-foreground text-sm">{importResult.fileName}</p>
@@ -336,22 +336,22 @@ export default function FileImportDialog({
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="p-3 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-xl border border-teal-100">
+                <div className="p-3 bg-[#EDF5F6] rounded-xl border border-[#14292E]/10">
                   <p className="text-[10px] font-semibold text-accent uppercase">Total Rows</p>
                   <p className="text-2xl font-bold text-accent">{importResult.totalRows}</p>
                 </div>
-                <div className="p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
-                  <p className="text-[10px] font-semibold text-green-600 uppercase">Valid</p>
-                  <p className="text-2xl font-bold text-green-700">{importResult.validRows}</p>
+                <div className="p-3 bg-gradient-to-br from-emerald-50 to-emerald-50 rounded-xl border border-emerald-100">
+                  <p className="text-[10px] font-semibold text-emerald-600 uppercase">Valid</p>
+                  <p className="text-2xl font-bold text-emerald-700">{importResult.validRows}</p>
                 </div>
-                <div className="p-3 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-100">
+                <div className="p-3 bg-red-50 rounded-xl border border-red-200">
                   <p className="text-[10px] font-semibold text-destructive uppercase">Invalid</p>
                   <p className="text-2xl font-bold text-destructive">{importResult.invalidRows}</p>
                 </div>
-                <div className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100"
+                <div className="p-3 bg-[#EDF5F6] rounded-xl border border-[#14292E]/10"
                   onClick={selectAllValid}>
-                  <p className="text-[10px] font-semibold text-info uppercase">Selected</p>
-                  <p className="text-2xl font-bold text-info cursor-pointer">{selectedRows.size}</p>
+                  <p className="text-[10px] font-semibold text-[#14292E] uppercase">Selected</p>
+                  <p className="text-2xl font-bold text-[#14292E] cursor-pointer">{selectedRows.size}</p>
                 </div>
               </div>
 
@@ -429,7 +429,7 @@ export default function FileImportDialog({
                           <th className="px-2 py-2 text-center font-semibold text-muted-foreground">Conf</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50">
+                      <tbody className="divide-y divide-slate-50">
                         {importResult.rows.map((row) => {
                           const isSelected = selectedRows.has(row._rowNumber);
                           const hasErrors = row._errors.length > 0;
@@ -545,7 +545,7 @@ export default function FileImportDialog({
                               <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground">Cell</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-gray-50">
+                          <tbody className="divide-y divide-slate-50">
                             {allMissing.slice(0, 50).map((mf, idx) => (
                               <tr key={idx} className="hover:bg-warning-light/30">
                                 <td className="px-2 py-1 text-muted-foreground/60">{idx + 1}</td>
@@ -596,8 +596,8 @@ export default function FileImportDialog({
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 {selectedRows.size > 0 ? (
                   <>
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="font-medium text-green-700">{selectedRows.size} items</span>
+                    <CheckCircle className="w-4 h-4 text-[#123F3D]" />
+                    <span className="font-medium text-[#14292E]">{selectedRows.size} items</span>
                     <span className="text-muted-foreground/60">selected for import</span>
                   </>
                 ) : (
@@ -630,7 +630,7 @@ export default function FileImportDialog({
                   }}
                   disabled={selectedRows.size === 0 || isConfirming}
                   size="lg"
-                  className="gap-2 min-w-[200px] bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border-0"
+                  className="gap-2 min-w-[200px] bg-gradient-to-r from-[#14292E] to-[#123F3D] hover:from-[#223A40] hover:to-[#17827A] text-white border-0"
                 >
                   <Shield className="w-5 h-5" />
                   {isConfirming ? (

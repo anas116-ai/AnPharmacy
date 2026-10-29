@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Sparkles, Database, TrendingUp, Download, Upload, RefreshCw, Trash2, FileText, Package, Columns, Lightbulb, AlertTriangle, CheckCircle, X, Search, Filter, List, BarChart3 } from 'lucide-react';
+import { Cpu, Database, TrendingUp, Download, Upload, RefreshCw, Trash2, FileText, Package, Columns, Lightbulb, AlertTriangle, CheckCircle, X, Search, Filter, List, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -89,21 +89,21 @@ export default function SupplierProfileManager() {
       label: 'Patterns Learned',
       value: learningStats.patternsLearned,
       icon: Lightbulb,
-      gradient: 'from-amber-500 to-orange-600',
+      gradient: 'from-amber-500 to-amber-600',
       change: `${topPatterns.filter(p => p.confidence >= 80).length} high confidence`,
     },
     {
       label: 'Accuracy',
       value: `${learningStats.accuracyImprovement}%`,
       icon: TrendingUp,
-      gradient: 'from-blue-500 to-indigo-600',
+      gradient: 'from-[#123F3D] to-[#14292E]',
       change: learningStats.accuracyImprovement >= 50 ? 'Good' : 'Building...',
     },
     {
       label: 'Patterns Applied',
       value: learningStats.patternsApplied,
       icon: CheckCircle,
-      gradient: 'from-emerald-500 to-teal-600',
+      gradient: 'from-[#123F3D] to-[#14292E]',
       change: 'In production',
     },
   ], [learningStats, topPatterns]);
@@ -160,12 +160,12 @@ export default function SupplierProfileManager() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent/80 rounded-xl flex items-center justify-center shadow-sm">
-            <Sparkles className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-br from-[#123F3D] to-[#14292E] rounded-xl flex items-center justify-center shadow-sm">
+            <Cpu className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-foreground">AI Learning & Profiles</h2>
-            <p className="text-xs text-muted-foreground">{learningStats.totalCorrections} total corrections · {learningStats.patternsLearned} patterns learned</p>
+            <h2 className="text-lg font-bold text-foreground">Pattern Memory & Profiles</h2>
+            <p className="text-xs text-muted-foreground">{learningStats.totalCorrections} total corrections · {learningStats.patternsLearned} patterns remembered</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -250,7 +250,7 @@ export default function SupplierProfileManager() {
                         medicine_name: 'bg-info-light',
                         batch_format: 'bg-accent/100',
                         date_format: 'bg-warning-light',
-                        field_mapping: 'bg-purple-500',
+                        field_mapping: 'bg-[#123F3D]',
                         manufacturer: 'bg-success-light',
                       };
                       return (
@@ -341,7 +341,7 @@ export default function SupplierProfileManager() {
                 <p className="text-sm text-muted-foreground">No patterns match your search</p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-slate-50">
                 {filteredPatterns.map(pattern => (
                   <div key={pattern.id} className="px-4 py-3 hover:bg-muted/50/50 transition-colors">
                     <div className="flex items-center justify-between">
@@ -349,10 +349,10 @@ export default function SupplierProfileManager() {
                         <Badge
                           size="sm"
                           className={cn(
-                            pattern.patternType === 'medicine_name' ? 'bg-blue-100 text-info' :
+                            pattern.patternType === 'medicine_name' ? 'bg-[#EDF5F6] text-[#14292E]' :
                             pattern.patternType === 'batch_format' ? 'bg-accent/10 text-accent' :
                             pattern.patternType === 'date_format' ? 'bg-amber-100 text-warning' :
-                            pattern.patternType === 'field_mapping' ? 'bg-purple-100 text-purple-700' :
+                            pattern.patternType === 'field_mapping' ? 'bg-[#EDF5F6] text-[#14292E]' :
                             'bg-success-light text-success'
                           )}
                         >
@@ -398,7 +398,7 @@ export default function SupplierProfileManager() {
                 <p className="text-sm text-muted-foreground">No corrections made yet</p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-slate-50">
                 {recentCorrections.map(correction => (
                   <div key={correction.id} className="px-4 py-3 hover:bg-muted/50/50 transition-colors">
                     <div className="flex items-center justify-between">
@@ -438,7 +438,7 @@ export default function SupplierProfileManager() {
             </p>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-slate-50">
               {headerMappingDemo.map((mapping, idx) => (
                 <div key={idx} className="px-4 py-2.5 flex items-center justify-between hover:bg-muted/50/50 transition-colors">
                   <div className="flex items-center gap-3">
@@ -448,7 +448,7 @@ export default function SupplierProfileManager() {
                       size="sm"
                       className={cn(
                         mapping.confidence >= 90 ? 'bg-success-light text-success' :
-                        mapping.confidence >= 60 ? 'bg-blue-100 text-info' :
+                        mapping.confidence >= 60 ? 'bg-[#EDF5F6] text-[#14292E]' :
                         'bg-muted text-muted-foreground'
                       )}
                     >

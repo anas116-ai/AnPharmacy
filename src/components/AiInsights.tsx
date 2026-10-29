@@ -192,22 +192,22 @@ export default function AiInsights() {
         {/* Summary Cards */}
         {testResults && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-gradient-to-br from-accent to-success rounded-2xl p-4 text-primary-foreground shadow-md">
+            <div className="bg-gradient-to-br from-[#14292E] to-[#223A40] rounded-2xl p-4 text-primary-foreground shadow-md">
               <CheckCircle className="w-5 h-5 opacity-80 mb-2" />
               <p className="text-2xl font-bold">{testResults.summary.passed}/{testResults.summary.totalInvoices}</p>
               <p className="text-[11px] opacity-80">Tests Passed</p>
             </div>
-            <div className="bg-gradient-to-br from-info to-primary rounded-2xl p-4 text-primary-foreground shadow-md">
+            <div className="bg-gradient-to-br from-[#223A40] to-[#123F3D] rounded-2xl p-4 text-primary-foreground shadow-md">
               <BarChart3 className="w-5 h-5 opacity-80 mb-2" />
               <p className="text-2xl font-bold">{testResults.summary.averageConfidence}%</p>
               <p className="text-[11px] opacity-80">Avg Confidence</p>
             </div>
-            <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-4 text-primary-foreground shadow-md">
+            <div className="bg-gradient-to-br from-[#123F3D] to-[#17827A] rounded-2xl p-4 text-primary-foreground shadow-md">
               <Shield className="w-5 h-5 opacity-80 mb-2" />
               <p className="text-2xl font-bold">{testResults.summary.averageItemAccuracy}%</p>
               <p className="text-[11px] opacity-80">Avg Accuracy</p>
             </div>
-            <div className="bg-gradient-to-br from-info to-info/80 rounded-2xl p-4 text-primary-foreground shadow-md">
+            <div className="bg-gradient-to-br from-[#17827A] to-[#3FA79B] rounded-2xl p-4 text-primary-foreground shadow-md">
               <Clock className="w-5 h-5 opacity-80 mb-2" />
               <p className="text-2xl font-bold">{(testResults.summary.totalProcessingTimeMs / 1000).toFixed(1)}s</p>
               <p className="text-[11px] opacity-80">Total Time</p>
@@ -337,7 +337,7 @@ export default function AiInsights() {
                       <th className="text-right px-4 py-3 font-semibold text-muted-foreground">Stages</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-slate-50">
                     {testResults.invoices.map(invoice => (
                       <tr key={invoice.invoiceId} className="hover:bg-muted/50 transition-colors">
                         <td className="px-4 py-3">
@@ -436,7 +436,7 @@ export default function AiInsights() {
                           <th className="text-left px-3 py-2 text-muted-foreground font-medium">Match</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50">
+                      <tbody className="divide-y divide-slate-50">
                         {singleResult.itemDetails.map((item, i) => (
                           <tr key={i} className="hover:bg-muted/50">
                             <td className="px-3 py-2 font-medium text-foreground/80">{item.medicineName}</td>

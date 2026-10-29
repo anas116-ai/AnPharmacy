@@ -9,15 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --ink:#0A0F1E;
-    --ink2:#101E38;
-    --paper:#F7F8FA;
+    --ink:#0C1D21;
+    --ink2:#123035;
+    --paper:#F4F9FA;
     --white:#FFFFFF;
-    --m1:#990066;
-    --m2:#D4148C;
-    --m3:#FF5A8D;
-    --grad: linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
-    --grad-soft: linear-gradient(135deg,#99006622,#D4148C22 50%,#FF5A8D22);
+    --m1:#123F3D;
+    --m2:#17827A;
+    --m3:#3FA79B;
+    --grad: linear-gradient(135deg,#123F3D 0%,#17827A 50%,#3FA79B 100%);
+    --grad-soft: linear-gradient(135deg,#123F3D22,#17827A22 50%,#3FA79B22);
     --font-display:"Space Grotesk","Manrope",system-ui,-apple-system,sans-serif;
     --font-body:"Manrope","Space Grotesk",system-ui,-apple-system,sans-serif;
   }
@@ -27,9 +27,9 @@
     font-family:var(--font-body);
     color:var(--ink);
     background:
-      radial-gradient(900px 600px at 12% -5%, #99006614, transparent 60%),
-      radial-gradient(800px 700px at 105% 10%, #FF5A8D12, transparent 55%),
-      radial-gradient(700px 600px at 50% 120%, #D4148C12, transparent 55%),
+      radial-gradient(900px 600px at 12% -5%, #123F3D14, transparent 60%),
+      radial-gradient(800px 700px at 105% 10%, #3FA79B12, transparent 55%),
+      radial-gradient(700px 600px at 50% 120%, #17827A12, transparent 55%),
       var(--paper);
     -webkit-font-smoothing:antialiased;
     line-height:1.5;
@@ -43,7 +43,7 @@
     letter-spacing:.32em;text-transform:uppercase;font-size:12px;
     padding:7px 16px;border-radius:999px;
     background:var(--grad-soft);color:var(--m1);
-    border:1px solid #D4148C33;margin-bottom:22px;
+    border:1px solid #17827A33;margin-bottom:22px;
   }
   .hero h1{
     font-family:var(--font-display);font-weight:700;
@@ -53,22 +53,22 @@
     background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
   }
   .hero p{
-    max-width:620px;margin:18px auto 0;color:#46506a;font-size:clamp(15px,2vw,18px);
+    max-width:620px;margin:18px auto 0;color:#46606A;font-size:clamp(15px,2vw,18px);
   }
   .chips{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px;}
   .chip{
     font-family:var(--font-display);font-weight:600;font-size:14px;
     padding:11px 20px;border-radius:14px;background:var(--white);
-    border:1px solid #e6e8f0;box-shadow:0 6px 20px -10px #0A0F1E22;
+    border:1px solid #E6EDF0;box-shadow:0 6px 20px -10px #0C1D2122;
     display:flex;align-items:center;gap:10px;cursor:default;transition:transform .25s ease,box-shadow .25s ease;
   }
-  .chip:hover{transform:translateY(-3px);box-shadow:0 14px 30px -14px #D4148C55;}
+  .chip:hover{transform:translateY(-3px);box-shadow:0 14px 30px -14px #17827A55;}
   .chip svg{width:24px;height:24px;display:block;}
 
   /* ---------- Concept block ---------- */
   .concept{
-    background:var(--white);border:1px solid #e9ebf2;border-radius:26px;
-    padding:36px;margin-top:40px;box-shadow:0 30px 60px -40px #0A0F1E33;
+    background:var(--white);border:1px solid #E9EFF2;border-radius:26px;
+    padding:36px;margin-top:40px;box-shadow:0 30px 60px -40px #0C1D2133;
     position:relative;overflow:hidden;
     opacity:0;transform:translateY(26px);
     animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;
@@ -84,16 +84,16 @@
   .c-badge{
     width:64px;height:64px;flex:0 0 64px;border-radius:18px;
     background:var(--grad-soft);display:grid;place-items:center;
-    border:1px solid #D4148C22;
+    border:1px solid #17827A22;
   }
   .c-badge svg{width:40px;height:40px;}
   .c-title{font-family:var(--font-display);font-weight:700;font-size:26px;letter-spacing:-0.01em;}
   .c-sub{color:var(--m1);font-weight:600;font-size:13px;letter-spacing:.04em;margin-top:2px;}
-  .c-desc{color:#52607c;margin-top:10px;max-width:760px;font-size:15px;}
+  .c-desc{color:#52707C;margin-top:10px;max-width:760px;font-size:15px;}
 
   .section-label{
     font-family:var(--font-display);font-weight:600;font-size:12px;letter-spacing:.22em;
-    text-transform:uppercase;color:#8a93ab;margin:34px 0 14px;
+    text-transform:uppercase;color:#8AA2AB;margin:34px 0 14px;
   }
 
   /* presentation panels */
@@ -106,62 +106,62 @@
     position:absolute;bottom:12px;left:0;right:0;text-align:center;
     font-family:var(--font-display);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
   }
-  .panel.light{background:var(--paper);border:1px solid #e6e8f0;}
-  .panel.light small{color:#9aa2b8;}
+  .panel.light{background:var(--paper);border:1px solid #E6EDF0;}
+  .panel.light small{color:#9AAFB8;}
   .panel.dark{background:var(--ink);}
-  .panel.dark small{color:#9aa2cc;}
+  .panel.dark small{color:#9ABECC;}
   .panel.grad{background:var(--grad);}
   .panel.grad small{color:#ffffffcc;}
-  .panel svg{width:96px;height:96px;display:block;filter:drop-shadow(0 8px 18px #0A0F1E22);}
+  .panel svg{width:96px;height:96px;display:block;filter:drop-shadow(0 8px 18px #0C1D2122);}
 
   /* size ramp */
   .ramp{
     display:flex;align-items:flex-end;gap:26px;flex-wrap:wrap;
-    background:var(--paper);border:1px solid #e6e8f0;border-radius:18px;padding:28px 26px;
+    background:var(--paper);border:1px solid #E6EDF0;border-radius:18px;padding:28px 26px;
   }
   .ramp .item{display:flex;flex-direction:column;align-items:center;gap:10px;}
-  .ramp .item span{font-family:var(--font-display);font-size:11px;color:#8a93ab;letter-spacing:.04em;}
+  .ramp .item span{font-family:var(--font-display);font-size:11px;color:#8AA2AB;letter-spacing:.04em;}
   .ramp svg{display:block;}
 
   /* two-up grid for tile / mono / lockups */
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   .card{
-    border:1px solid #e6e8f0;border-radius:18px;padding:26px;
+    border:1px solid #E6EDF0;border-radius:18px;padding:26px;
     background:var(--white);display:flex;flex-direction:column;gap:16px;
   }
-  .card.dark{background:var(--ink);border-color:#1c2742;}
-  .card h4{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#8a93ab;}
-  .card.dark h4{color:#9aa2cc;}
+  .card.dark{background:var(--ink);border-color:#1C3742;}
+  .card h4{font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#8AA2AB;}
+  .card.dark h4{color:#9ABECC;}
   .row{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
 
-  .tile{width:84px;height:84px;border-radius:20px;box-shadow:0 14px 30px -16px #D4148C77;}
-  .mono-swatch{width:84px;height:84px;border-radius:14px;background:var(--white);border:1px dashed #c9cfdd;display:grid;place-items:center;}
+  .tile{width:84px;height:84px;border-radius:20px;box-shadow:0 14px 30px -16px #17827A77;}
+  .mono-swatch{width:84px;height:84px;border-radius:14px;background:var(--white);border:1px dashed #C9D7DD;display:grid;place-items:center;}
 
   /* wordmark */
   .wm{font-family:var(--font-display);letter-spacing:-0.01em;white-space:nowrap;line-height:1;}
-  .wm .a{font-weight:700;background:linear-gradient(95deg,#990066,#D4148C 48%,#FF5A8D);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .wm .a{font-weight:700;background:linear-gradient(95deg,#123F3D,#17827A 48%,#3FA79B);-webkit-background-clip:text;background-clip:text;color:transparent;}
   .wm .b{font-weight:300;color:inherit;}
   .wm-lg{font-size:34px;}
   .wm-md{font-size:24px;}
-  .tagline{font-family:var(--font-display);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#9aa2b8;margin-top:8px;}
+  .tagline{font-family:var(--font-display);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#9AAFB8;margin-top:8px;}
 
   /* Do / Don't */
   .donote{
-    margin-top:44px;background:var(--white);border:1px solid #e9ebf2;border-radius:26px;
-    padding:36px;box-shadow:0 30px 60px -40px #0A0F1E33;
+    margin-top:44px;background:var(--white);border:1px solid #E9EFF2;border-radius:26px;
+    padding:36px;box-shadow:0 30px 60px -40px #0C1D2133;
   }
   .donote h2{font-family:var(--font-display);font-weight:700;font-size:24px;margin-bottom:6px;}
-  .donote > p{color:#52607c;margin-bottom:24px;}
+  .donote > p{color:#52707C;margin-bottom:24px;}
   .dnd{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
   .dnd h3{font-family:var(--font-display);font-weight:700;font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
   .dnd .do h3{color:#1f9d6b;}
-  .dnd .dont h3{color:#d4455f;}
+  .dnd .dont h3{color:#51C8C0;}
   .dnd ul{list-style:none;display:flex;flex-direction:column;gap:14px;}
-  .dnd li{display:flex;gap:14px;align-items:flex-start;color:#46506a;font-size:14px;}
+  .dnd li{display:flex;gap:14px;align-items:flex-start;color:#46606A;font-size:14px;}
   .dnd li svg{flex:0 0 56px;width:56px;height:56px;}
   .dnd .dont li svg{flex:0 0 56px;}
 
-  footer{text-align:center;color:#8a93ab;font-size:13px;margin-top:54px;}
+  footer{text-align:center;color:#8AA2AB;font-size:13px;margin-top:54px;}
 
   @media(max-width:760px){
     .panels{grid-template-columns:1fr;}
@@ -178,9 +178,9 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
     <linearGradient id="brandGrad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#990066"/>
-      <stop offset="50%" stop-color="#D4148C"/>
-      <stop offset="100%" stop-color="#FF5A8D"/>
+      <stop offset="0%" stop-color="#123F3D"/>
+      <stop offset="50%" stop-color="#17827A"/>
+      <stop offset="100%" stop-color="#3FA79B"/>
     </linearGradient>
 
     <!-- Hexa Care cross cutout mask -->
@@ -379,7 +379,7 @@
       <div class="panel grad"><svg style="color:#fff"><use href="#infMono"/></svg><small>Mono on Gradient</small></div>
     </div>
 
-    <div class="section-label">Size Ramp · 16 → 256 <span style="font-weight:400;color:#b3b9c9;text-transform:none;letter-spacing:0;">(16–32 use favicon-tuned variant)</span></div>
+    <div class="section-label">Size Ramp · 16 → 256 <span style="font-weight:400;color:#B3C3C9;text-transform:none;letter-spacing:0;">(16–32 use favicon-tuned variant)</span></div>
     <div class="ramp">
       <div class="item"><svg width="16" height="16"><use href="#infMarkSm"/></svg><span>16</span></div>
       <div class="item"><svg width="24" height="24"><use href="#infMarkSm"/></svg><span>24</span></div>
@@ -441,7 +441,7 @@
       <div class="panel grad"><svg style="color:#fff"><use href="#aperMono"/></svg><small>Mono on Gradient</small></div>
     </div>
 
-    <div class="section-label">Size Ramp · 16 → 256 <span style="font-weight:400;color:#b3b9c9;text-transform:none;letter-spacing:0;">(16–32 use favicon-tuned variant)</span></div>
+    <div class="section-label">Size Ramp · 16 → 256 <span style="font-weight:400;color:#B3C3C9;text-transform:none;letter-spacing:0;">(16–32 use favicon-tuned variant)</span></div>
     <div class="ramp">
       <div class="item"><svg width="16" height="16"><use href="#aperMarkSm"/></svg><span>16</span></div>
       <div class="item"><svg width="24" height="24"><use href="#aperMarkSm"/></svg><span>24</span></div>
@@ -499,7 +499,7 @@
           </li>
           <li>
             <svg viewBox="0 0 100 100"><use href="#hexaMark"/></svg>
-            Use the gradient exactly as defined (#990066→#D4148C→#FF5A8D).
+            Use the gradient exactly as defined (#123F3D→#17827A→#3FA79B).
           </li>
           <li>
             <svg viewBox="0 0 100 100" style="color:var(--ink)"><use href="#infMono"/></svg>
@@ -515,7 +515,7 @@
             Stretch or squash the mark — always preserve the original proportions.
           </li>
           <li>
-            <svg viewBox="0 0 100 100"><path d="M38,14 L11.9,28 L11.9,72 L50,94 L88.1,72 L88.1,28 L62,14 L38,14 Z" fill="#1f6fd4"/></svg>
+            <svg viewBox="0 0 100 100"><path d="M38,14 L11.9,28 L11.9,72 L50,94 L88.1,72 L88.1,28 L62,14 L38,14 Z" fill="#3796BC"/></svg>
             Recolour outside the magenta→coral family (no blue, green or grey).
           </li>
           <li>

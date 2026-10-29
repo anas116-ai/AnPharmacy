@@ -129,7 +129,7 @@ export default function RecycleBin() {
         </div>
         <Card variant="bordered">
           <CardContent className="p-12 text-center">
-            <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <div className="w-16 h-16 border-4 border-[#14292E] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-sm text-slate-500">Loading deleted items...</p>
           </CardContent>
         </Card>
@@ -142,7 +142,7 @@ export default function RecycleBin() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/20">
+          <div className="w-12 h-12 bg-gradient-to-br from-[#123F3D] to-[#17827A] rounded-2xl flex items-center justify-center shadow-lg shadow-[#17827A]/20">
             <Trash2 className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -184,7 +184,7 @@ export default function RecycleBin() {
         </div>
         <div className="card-enterprise p-4">
           <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Storage</p>
-          <p className="text-2xl font-bold text-orange-600">
+          <p className="text-2xl font-bold text-slate-700 dark:text-slate-200">
             {deletedItems.reduce((s, i) => s + (i.quantity || 0), 0).toLocaleString()} units
           </p>
         </div>
@@ -273,7 +273,7 @@ export default function RecycleBin() {
               key={item.id}
               className={cn(
                 'card-enterprise transition-all duration-200',
-                selectedIds.has(item.id) && 'border-emerald-300 ring-1 ring-emerald-200'
+                selectedIds.has(item.id) && 'border-[#14292E]/30 ring-1 ring-[#14292E]/15'
               )}
             >
               <div className="p-4">
@@ -422,7 +422,7 @@ export default function RecycleBin() {
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <RotateCcw className="w-5 h-5 text-emerald-500" />
+              <RotateCcw className="w-5 h-5 text-[#123F3D]" />
               Restore Items?
             </DialogTitle>
           </DialogHeader>

@@ -4,35 +4,34 @@ import { cn } from '../../lib/utils';
 import { Loader2 } from 'lucide-react';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap text-[13px] font-medium transition-all duration-150 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.97]',
+  'inline-flex items-center justify-center whitespace-nowrap text-[13px] font-medium transition-all duration-140 ease-out rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98] cursor-pointer',
   {
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground hover:bg-primary-dark shadow-sm hover:shadow-md',
+          'bg-primary text-primary-foreground hover:bg-primary-dark shadow-[0_1px_2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.18)] hover:shadow-md active:shadow-xs',
         secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+          'bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/40 shadow-xs',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-[0_1px_2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.18)]',
         outline:
-          'border border-border bg-card text-foreground hover:bg-muted',
+          'border border-border/80 bg-card text-foreground hover:bg-muted/70 hover:border-border shadow-xs',
         ghost:
-          'text-muted-foreground hover:bg-muted hover:text-foreground',
+          'text-muted-foreground hover:bg-muted/70 hover:text-foreground',
         link:
-          'text-primary underline-offset-4 hover:underline',
+          'text-primary underline-offset-4 hover:underline p-0 h-auto',
         success:
-          'bg-success text-success-foreground hover:bg-success/90 shadow-sm',
+          'bg-success text-success-foreground hover:bg-success/90 shadow-xs',
         warning:
-          'bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm',
+          'bg-warning text-warning-foreground hover:bg-warning/90 shadow-xs',
         'premium-glow':
-          'bg-gradient-to-r from-accent to-emerald-700 text-white shadow-md shadow-accent/20 hover:shadow-lg hover:shadow-accent/30',
+          'bg-primary text-white shadow-sm hover:bg-primary-dark border border-primary/20',
         'premium-outline':
-          'border-2 border-border bg-transparent hover:border-accent/50 hover:bg-muted',
-
-        'primary':
-          'bg-primary text-primary-foreground hover:bg-primary-dark shadow-sm hover:shadow-md',
+          'border border-border/80 bg-card hover:border-primary/50 hover:bg-muted/60 text-foreground shadow-xs',
+        primary:
+          'bg-primary text-primary-foreground hover:bg-primary-dark shadow-[0_1px_2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.18)] hover:shadow-md active:shadow-xs',
         'outline-teal':
-          'border-2 border-accent/30 bg-card text-accent hover:bg-accent-light hover:border-accent/50 shadow-sm',
+          'border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/50 shadow-xs',
       },
       size: {
         xs: 'h-8 px-2.5 text-xs',

@@ -2,10 +2,10 @@
   <!-- LOGO — "The An-Wordmark" favicon / app icon (TRANSPARENT — no box) -->
   <defs>
     <linearGradient id="apMarkGrad" gradientUnits="userSpaceOnUse" x1="4" y1="53" x2="96" y2="53">
-      <stop offset="0%" stop-color="#A21CAF"/>
-      <stop offset="40%" stop-color="#D946EF"/>
-      <stop offset="75%" stop-color="#F472B6"/>
-      <stop offset="100%" stop-color="#FB7185"/>
+      <stop offset="0%" stop-color="#123F3D"/>
+      <stop offset="40%" stop-color="#17827A"/>
+      <stop offset="75%" stop-color="#3FA79B"/>
+      <stop offset="100%" stop-color="#2E9C90"/>
     </linearGradient>
   </defs>
   <circle cx="25" cy="53" r="14" fill="none" stroke="url(#apMarkGrad)" stroke-width="14"/>

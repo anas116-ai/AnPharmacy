@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <!-- LOGO — "The An-Wordmark" monochrome BLACK (single color, transparent bg) -->
-  <circle cx="25" cy="53" r="14" fill="none" stroke="#0F172A" stroke-width="14"/>
-  <path d="M42 30 L42 74" fill="none" stroke="#0F172A" stroke-width="14" stroke-linecap="round"/>
+  <!-- LOGO - The An-Wordmark, monochrome single-colour (deep-teal ink, transparent bg) -->
+  <circle cx="25" cy="53" r="14" fill="none" stroke="#14292E" stroke-width="14"/>
+  <path d="M42 30 L42 74" fill="none" stroke="#14292E" stroke-width="14" stroke-linecap="round"/>
   <path d="M60 74 L60 37 C60 30 66 29 74.5 29 C83 29 89 31 89 37 L89 74"
-        fill="none" stroke="#0F172A" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+        fill="none" stroke="#14292E" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

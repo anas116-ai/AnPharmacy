@@ -26,13 +26,13 @@ export function formatCurrency(amount: number | null | undefined): string {
 
 export function getStatusColor(status: string): string {
   switch (status) {
-    case 'expired': return 'bg-gray-500 text-white';
+    case 'expired': return 'bg-slate-500 text-white';
     case 'critical': return 'bg-red-500 text-white';
-    case 'warning': return 'bg-orange-500 text-white';
-    case 'safe': return 'bg-green-500 text-white';
-    case 'active': return 'bg-green-500 text-white';
-    case 'inactive': return 'bg-gray-400 text-white';
-    default: return 'bg-gray-400 text-white';
+    case 'warning': return 'bg-amber-500 text-white';
+    case 'safe': return 'bg-emerald-500 text-white';
+    case 'active': return 'bg-emerald-500 text-white';
+    case 'inactive': return 'bg-slate-400 text-white';
+    default: return 'bg-slate-400 text-white';
   }
 }
 
@@ -61,10 +61,10 @@ export function getInitials(name: string): string {
 
 export function getRoleBadgeColor(role: string): string {
   switch (role) {
-    case 'admin': return 'bg-purple-100 text-purple-800';
-    case 'sales': return 'bg-blue-100 text-blue-800';
-    case 'purchase_mgr': return 'bg-amber-100 text-amber-800';
-    default: return 'bg-gray-100 text-gray-800';
+    case 'admin': return 'bg-[#14292E]/10 text-[#14292E] dark:bg-[#2E9C90]/15 dark:text-[#2E9C90]';
+    case 'sales': return 'bg-[#EDF5F6] text-[#123F3D] dark:bg-white/10 dark:text-slate-200';
+    case 'purchase_mgr': return 'bg-[#EDF5F6] text-[#123F3D] dark:bg-white/10 dark:text-slate-200';
+    default: return 'bg-slate-100 text-slate-800';
   }
 }
 

@@ -19,6 +19,7 @@ export interface Supplier {
   transporter_name: string | null;
   vehicle_number: string | null;
   notes: string | null;
+  current_balance?: number;
   created_at: string;
 }
 
@@ -74,6 +75,8 @@ export interface Medicine {
   num_cartons: number | null;
   cold_chain: number | null;
   dosage_form?: string | null;
+  requires_prescription?: boolean | number | null;
+  shelf_life_days_after_opening?: number | null;
   category?: string | null;
   supplier_gstin?: string | null;
   added_by: number | null;
@@ -83,6 +86,21 @@ export interface Medicine {
   days_remaining: number | null;
   custom_fields?: Record<string, any>;
 }
+
+export const DOSAGE_FORMS = [
+  'Tablets',
+  'Syrups',
+  'Inhalers/Puffs',
+  'Sprays',
+  'Creams',
+  'Gels',
+  'Lotions',
+  'Suppositories',
+  'Emulsions',
+  'Solutions',
+  'Injectables',
+  'Ampoules'
+] as const;
 
 export interface AddMedicineInput {
   name: string;
@@ -132,6 +150,9 @@ export interface AddMedicineInput {
   ewayBillNo?: string | null;
   numCartons?: number | null;
   coldChain?: number | null;
+  dosageForm?: string | null;
+  requiresPrescription?: boolean | null;
+  shelfLifeDaysAfterOpening?: number | null;
   prescriptionDoc?: string | null;
 }
 

@@ -1,12 +1,12 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { useStockStore } from '../stores/stockStore';
-import { ScanLine, Camera, Image, FileText, Database, CheckCircle, AlertCircle, X, Edit3, Eye, RefreshCw, Package, Table, List, Columns, AlertTriangle, Lightbulb, Sparkles } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { ScanLine, Camera, Image, FileText, Database, CheckCircle, AlertCircle, X, Edit3, Eye, RefreshCw, Package, Table, List, Columns, AlertTriangle, Lightbulb, Cpu, Settings, Zap } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from './ui/dialog';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { cn } from '../lib/utils';
 import { parseOCRTextEnhanced, getConfidenceColor, getConfidenceLabel, ParsedItem as ParsedItemType, OCRResult } from '../lib/ocrParser';
 import { analyzeTableStructure } from '../lib/invoiceTableParser';
@@ -14,6 +14,7 @@ import { validateParsedItem } from '../lib/invoiceFieldExtractor';
 import { learningEngine } from '../lib/invoiceLearningEngine';
 import { TableStructureAnalysis } from '../lib/invoiceTableParser';
 import { ItemValidationResult } from '../lib/invoiceFieldExtractor';
+import { preprocessForOcr } from '../lib/imageProcessing';
 
 interface ParsedItem extends ParsedItemType {}
 
@@ -152,10 +153,10 @@ type SourceType = 'camera' | 'gallery' | 'pdf' | 'sample' | null;
 type ScanStage = 'loading' | 'recognizing' | 'parsing' | 'done';
 
 const SOURCES = [
-  { type: 'camera' as SourceType, icon: Camera, label: 'Camera', desc: 'Capture invoice with camera', gradient: 'from-blue-500 to-blue-600' },
-  { type: 'gallery' as SourceType, icon: Image, label: 'Gallery', desc: 'Select invoice from gallery', gradient: 'from-emerald-500 to-emerald-600' },
-  { type: 'pdf' as SourceType, icon: FileText, label: 'PDF', desc: 'Load invoice PDF file', gradient: 'from-accent to-accent/80' },
-  { type: 'sample' as SourceType, icon: Database, label: 'Sample Data', desc: 'Use pre-loaded sample for testing', gradient: 'from-amber-500 to-amber-600' },
+  { type: 'camera' as SourceType, icon: Camera, label: 'Camera', desc: 'Capture invoice with camera', gradient: 'from-[#14292E] to-[#223A40]' },
+  { type: 'gallery' as SourceType, icon: Image, label: 'Gallery', desc: 'Select invoice from gallery', gradient: 'from-[#223A40] to-[#123F3D]' },
+  { type: 'pdf' as SourceType, icon: FileText, label: 'PDF', desc: 'Load invoice PDF file', gradient: 'from-[#123F3D] to-[#17827A]' },
+  { type: 'sample' as SourceType, icon: Database, label: 'Sample Data', desc: 'Use pre-loaded sample for testing', gradient: 'from-[#17827A] to-[#3FA79B]' },
 ];
 
 export default function ScanInvoice() {
@@ -184,6 +185,38 @@ export default function ScanInvoice() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [fieldValidations, setFieldValidations] = useState<Map<string, ItemValidationResult>>(new Map());
   const [learningStats, setLearningStats] = useState(learningEngine.getStats());
+  type OcrEngineMode = 'enhanced_offline' | 'ai_vision_server';
+  const [ocrEngine, setOcrEngine] = useState<OcrEngineMode>('enhanced_offline');
+  const [aiEndpoint, setAiEndpoint] = useState('http://localhost:8000/api/ocr');
+  const [showEngineSettings, setShowEngineSettings] = useState(false);
+  const [ocrEngineNotice, setOcrEngineNotice] = useState<string | null>(null);
+
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      resetScanState();
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setSelectedFilePath(file.name);
+    await runOCR(url);
+    e.target.value = '';
+  };
+
+  const handlePdfFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      resetScanState();
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setSelectedFilePath(file.name);
+    await runPDFOCR(url);
+    e.target.value = '';
+  };
 
   const resetScanState = useCallback(() => {
     setSelectedSource(null);
@@ -295,22 +328,55 @@ export default function ScanInvoice() {
     setScanProgress(0);
     setScanStage('loading');
     setError('');
+    setOcrEngineNotice(null);
     setInvoiceRows([]);
     setOcrResult(null);
 
     try {
-      const Tesseract = await import('tesseract.js');
-      updateProgress(5, 'loading');
+      // 1. AI Vision Server Mode (Baidu Unlimited-OCR / Python VLM service)
+      if (ocrEngine === 'ai_vision_server') {
+        updateProgress(15, 'loading');
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
 
+          const resp = await fetch(aiEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imagePath, mode: 'unlimited_ocr' }),
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.success && data.text) {
+              setOcrEngineNotice('⚡ Processed via AI Vision Server (Unlimited-OCR)');
+              await processOCRText(data.text, data.confidence || 95);
+              return;
+            }
+          }
+          throw new Error('AI Server responded with non-200');
+        } catch (aiErr) {
+          console.warn('AI OCR server unreachable or errored, falling back to enhanced offline OCR:', aiErr);
+          setOcrEngineNotice(`ℹ️ AI OCR Server offline at ${aiEndpoint}. Seamlessly processed with Enhanced Offline OCR (Otsu & Deskew).`);
+        }
+      }
+
+      // 2. Built-in Enhanced Offline OCR Pipeline
+      updateProgress(20, 'loading');
+      // Run auto-deskewing, contrast enhancement, and Otsu adaptive binarization
+      const { enhancedCanvas, transformations } = await preprocessForOcr(imagePath);
+      updateProgress(40, 'recognizing');
+
+      const Tesseract = await import('tesseract.js');
       const result = await Tesseract.recognize(
-        imagePath, 'eng',
+        enhancedCanvas, 'eng',
         {
           logger: (m: any) => {
             if (m.status === 'recognizing text') {
               const pct = Math.round(m.progress * 100);
-              updateProgress(10 + Math.round(pct * 0.7), 'recognizing');
-            } else if (m.status === 'loading language traineddata') {
-              updateProgress(5, 'loading');
+              updateProgress(40 + Math.round(pct * 0.45), 'recognizing');
             }
           },
         } as any
@@ -318,13 +384,16 @@ export default function ScanInvoice() {
 
       const ocrText = result.data.text;
       const confidence = result.data.confidence;
+      if (transformations.length > 0 && !ocrEngineNotice) {
+        setOcrEngineNotice(`⚡ Preprocessed: ${transformations.join(' · ')}`);
+      }
       await processOCRText(ocrText, confidence);
     } catch (err: any) {
       setIsScanning(false);
       setScanProgress(0);
       setError(err.message || 'Failed to process image. Please try again.');
     }
-  }, [processOCRText, updateProgress]);
+  }, [processOCRText, updateProgress, ocrEngine, aiEndpoint, ocrEngineNotice]);
 
   // ── Run OCR on PDF ────────────────────────────────────────────────
   const runPDFOCR = useCallback(async (pdfPath: string) => {
@@ -435,11 +504,16 @@ export default function ScanInvoice() {
 
     if (source === 'camera' || source === 'gallery') {
       try {
-        const result = await window.electronAPI?.openImageDialog();
-        if (result && !result.canceled && result.filePath) {
-          setSelectedFilePath(result.filePath);
-          await runOCR(result.filePath);
-        } else { resetScanState(); }
+        if (window.electronAPI?.openImageDialog) {
+          const result = await window.electronAPI.openImageDialog();
+          if (result && !result.canceled && result.filePath) {
+            setSelectedFilePath(result.filePath);
+            await runOCR(result.filePath);
+          } else { resetScanState(); }
+        } else {
+          // Browser fallback: trigger hidden HTML file input
+          imageInputRef.current?.click();
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to open image dialog');
         resetScanState();
@@ -449,11 +523,16 @@ export default function ScanInvoice() {
 
     if (source === 'pdf') {
       try {
-        const result = await window.electronAPI?.openPdfDialog();
-        if (result && !result.canceled && result.filePath) {
-          setSelectedFilePath(result.filePath);
-          await runPDFOCR(result.filePath);
-        } else { resetScanState(); }
+        if (window.electronAPI?.openPdfDialog) {
+          const result = await window.electronAPI.openPdfDialog();
+          if (result && !result.canceled && result.filePath) {
+            setSelectedFilePath(result.filePath);
+            await runPDFOCR(result.filePath);
+          } else { resetScanState(); }
+        } else {
+          // Browser fallback: trigger hidden HTML file input
+          pdfInputRef.current?.click();
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to open PDF dialog');
         resetScanState();
@@ -467,10 +546,14 @@ export default function ScanInvoice() {
     if (selectedSource === 'sample') { handleSourceSelect('sample'); return; }
     if (selectedSource === 'pdf') {
       if (!selectedFilePath) {
-        const result = await window.electronAPI?.openPdfDialog();
-        if (result && !result.canceled && result.filePath) {
-          setSelectedFilePath(result.filePath);
-          await runPDFOCR(result.filePath);
+        if (window.electronAPI?.openPdfDialog) {
+          const result = await window.electronAPI.openPdfDialog();
+          if (result && !result.canceled && result.filePath) {
+            setSelectedFilePath(result.filePath);
+            await runPDFOCR(result.filePath);
+          }
+        } else {
+          pdfInputRef.current?.click();
         }
         return;
       }
@@ -478,10 +561,14 @@ export default function ScanInvoice() {
       return;
     }
     if (!selectedFilePath) {
-      const result = await window.electronAPI?.openImageDialog();
-      if (result && !result.canceled && result.filePath) {
-        setSelectedFilePath(result.filePath);
-        await runOCR(result.filePath);
+      if (window.electronAPI?.openImageDialog) {
+        const result = await window.electronAPI.openImageDialog();
+        if (result && !result.canceled && result.filePath) {
+          setSelectedFilePath(result.filePath);
+          await runOCR(result.filePath);
+        }
+      } else {
+        imageInputRef.current?.click();
       }
       return;
     }
@@ -794,19 +881,100 @@ export default function ScanInvoice() {
   // ═════════════════════════════════════════════════════════════════
   return (
     <div className="max-w-6xl mx-auto space-y-5">
+      {/* Hidden browser file inputs for web mode */}
+      <input
+        type="file"
+        ref={imageInputRef}
+        onChange={handleImageFileChange}
+        accept="image/*"
+        className="hidden"
+      />
+      <input
+        type="file"
+        ref={pdfInputRef}
+        onChange={handlePdfFileChange}
+        accept="application/pdf"
+        className="hidden"
+      />
       {/* ── Source Selection ── */}
       {invoiceRows.length === 0 && !isScanning && (
         <Card variant="bordered">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
+              <div className="w-9 h-9 bg-gradient-to-br from-[#123F3D] to-[#14292E] rounded-xl flex items-center justify-center">
                 <ScanLine className="w-4 h-4 text-white" />
               </div>
               Scan Invoice
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground mb-5">Choose a source to scan invoice data from:</p>
+            {/* OCR Engine & AI Server Toggle */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 p-3 bg-muted/40 rounded-xl border border-border">
+              <div className="flex items-center gap-2">
+                <Cpu className="w-4 h-4 text-accent" />
+                <div>
+                  <span className="text-xs font-semibold text-foreground">OCR Engine: </span>
+                  <span className="text-xs text-muted-foreground">
+                    {ocrEngine === 'enhanced_offline'
+                      ? 'Enhanced Offline OCR (Auto-Deskew & Otsu Binarization)'
+                      : 'AI Vision Server (Baidu Unlimited-OCR / VLM)'}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  value={ocrEngine}
+                  onChange={(e) => setOcrEngine(e.target.value as any)}
+                  className="h-8 px-2 text-xs bg-background border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-accent"
+                >
+                  <option value="enhanced_offline">Enhanced Offline OCR (Otsu & Deskew)</option>
+                  <option value="ai_vision_server">AI Unlimited-OCR Server</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setShowEngineSettings(!showEngineSettings)}
+                  className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted"
+                  title="Configure AI OCR Endpoint"
+                >
+                  <Settings className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {showEngineSettings && (
+              <div className="mb-4 p-3.5 bg-card border border-border rounded-xl space-y-2 animate-fade-in text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-foreground flex items-center gap-1.5">
+                    <Cpu className="w-3.5 h-3.5 text-accent" />
+                    OCR Engine / Python Service Endpoint
+                  </span>
+                  <Badge variant="outline-teal" size="sm">Local / HTTP Sidecar</Badge>
+                </div>
+                <p className="text-muted-foreground text-[11px] leading-relaxed">
+                  Configure the HTTP endpoint where your Baidu Unlimited-OCR or PaddleOCR Python service is listening. If the service is unreachable or uninstalled, AnPharmacy automatically and seamlessly falls back to the built-in enhanced Otsu binarization engine.
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    value={aiEndpoint}
+                    onChange={(e) => setAiEndpoint(e.target.value)}
+                    placeholder="http://localhost:8000/api/ocr"
+                    className="h-8 text-xs font-mono"
+                  />
+                  <Button size="sm" variant="outline" onClick={() => setShowEngineSettings(false)} className="h-8 px-3 text-xs">
+                    Save
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {ocrEngineNotice && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-accent/10 border border-accent/20 text-xs text-accent font-medium mb-4">
+                <Zap className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{ocrEngineNotice}</span>
+              </div>
+            )}
+
+            <p className="text-sm text-muted-foreground mb-4">Choose a source to scan invoice data from:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {SOURCES.map(source => {
                 const Icon = source.icon;
@@ -845,8 +1013,8 @@ export default function ScanInvoice() {
       {/* Learning Stats */}
       {learningStats.totalCorrections > 0 && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Sparkles className="w-3.5 h-3.5 text-accent" />
-          <span>AI Learning: {learningStats.totalCorrections} corrections, {learningStats.patternsLearned} patterns learned</span>
+          <Database className="w-3.5 h-3.5 text-accent" />
+          <span>Vendor Memory: {learningStats.totalCorrections} corrections, {learningStats.patternsLearned} patterns remembered</span>
         </div>
       )}
 
@@ -867,7 +1035,7 @@ export default function ScanInvoice() {
               <Badge variant="outline-teal" size="sm">{getStageLabel()}</Badge>
             </div>
             <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-teal-500 to-teal-600 rounded-full transition-all duration-300 ease-out"
+              <div className="h-full bg-gradient-to-r from-[#123F3D] to-[#14292E] rounded-full transition-all duration-300 ease-out"
                 style={{ width: `${scanProgress}%` }} />
             </div>
             <p className="text-xs text-muted-foreground mt-2 text-center">{scanProgress}% complete</p>
@@ -878,6 +1046,12 @@ export default function ScanInvoice() {
       {/* ── INVOICE PREVIEW TABLE ── */}
       {invoiceRows.length > 0 && !isScanning && (
         <>
+          {ocrEngineNotice && (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-accent/10 border border-accent/20 text-xs text-accent font-medium">
+              <Zap className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{ocrEngineNotice}</span>
+            </div>
+          )}
           {/* Detected Headers Badge */}
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="outline-teal" size="sm" className="gap-1">
@@ -932,7 +1106,7 @@ export default function ScanInvoice() {
                   <thead className="bg-muted/50 border-b border-border">
                     <tr>{renderTableHeaders()}</tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-slate-50">
                     {invoiceRows.map((item, idx) => (
                       <tr key={item.id} className={cn('hover:bg-accent/10/30 transition-colors', !item.selected && 'opacity-50')}>
                         {renderTableRow(item, idx).map((cell, ci) => (
@@ -971,7 +1145,7 @@ export default function ScanInvoice() {
           )}
 
           {/* Summary Card */}
-          <Card variant="bordered" className="border-teal-200">
+          <Card variant="bordered" className="border-[#14292E]/15">
             <CardContent className="p-4">
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <span className="font-medium text-foreground/80"><Package className="w-3.5 h-3.5 inline mr-1" />{reviewSummary.totalItems} items</span>
@@ -1054,21 +1228,21 @@ export default function ScanInvoice() {
           <div className="space-y-4">
             {/* Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-xl p-3 border border-teal-100">
-                <p className="text-[10px] font-semibold text-accent uppercase tracking-wider">Total Items</p>
-                <p className="text-2xl font-bold text-accent mt-1">{reviewSummary.totalItems}</p>
+              <div className="bg-[#EDF5F6] rounded-xl p-3 border border-[#14292E]/10">
+                <p className="text-[10px] font-semibold text-[#14292E] uppercase tracking-wider">Total Items</p>
+                <p className="text-2xl font-bold text-[#14292E] mt-1">{reviewSummary.totalItems}</p>
               </div>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 border border-blue-100">
-                <p className="text-[10px] font-semibold text-info uppercase tracking-wider">Total Qty</p>
-                <p className="text-2xl font-bold text-info mt-1">{reviewSummary.totalQty}</p>
+              <div className="bg-[#EDF5F6] rounded-xl p-3 border border-[#14292E]/10">
+                <p className="text-[10px] font-semibold text-[#14292E] uppercase tracking-wider">Total Qty</p>
+                <p className="text-2xl font-bold text-[#14292E] mt-1">{reviewSummary.totalQty}</p>
               </div>
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 border border-warning/20">
-                <p className="text-[10px] font-semibold text-warning uppercase tracking-wider">Batches</p>
-                <p className="text-2xl font-bold text-warning mt-1">{reviewSummary.selected.length}</p>
+              <div className="bg-[#EDF5F6] rounded-xl p-3 border border-[#14292E]/10">
+                <p className="text-[10px] font-semibold text-[#14292E] uppercase tracking-wider">Batches</p>
+                <p className="text-2xl font-bold text-[#14292E] mt-1">{reviewSummary.selected.length}</p>
               </div>
-              <div className="bg-gradient-to-br from-accent/10 to-success-light rounded-xl p-3 border border-accent/30">
-                <p className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Avg Confidence</p>
-                <p className="text-2xl font-bold text-purple-700 mt-1">
+              <div className="bg-[#EDF5F6] rounded-xl p-3 border border-[#14292E]/10">
+                <p className="text-[10px] font-semibold text-[#14292E] uppercase tracking-wider">Avg Confidence</p>
+                <p className="text-2xl font-bold text-[#14292E] mt-1">
                   {reviewSummary.totalItems > 0
                     ? Math.round(invoiceRows.filter(i => i.selected).reduce((s, i) => s + i.confidence, 0) / reviewSummary.totalItems) + '%'
                     : 'N/A'}
@@ -1095,7 +1269,7 @@ export default function ScanInvoice() {
                       <th className="px-3 py-2 text-center font-semibold text-muted-foreground">Conf.</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-slate-50">
                     {invoiceRows.filter(i => i.selected).map((item, idx) => {
                       const enhanced = item as EnhancedInvoiceRow;
                       return (
@@ -1148,8 +1322,8 @@ export default function ScanInvoice() {
             )}
 
             {/* Confirmation Notice */}
-            <div className="p-3 bg-info-light border border-blue-200 rounded-xl">
-              <p className="text-xs font-semibold text-info flex items-center gap-1.5">
+            <div className="p-3 bg-[#EDF5F6] border border-[#14292E]/10 rounded-xl">
+              <p className="text-xs font-semibold text-[#14292E] flex items-center gap-1.5">
                 <CheckCircle className="w-3.5 h-3.5" />
                 Stock will be updated only after you click "Approve & Add to Stock"
               </p>

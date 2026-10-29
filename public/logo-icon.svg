@@ -4,14 +4,14 @@
     Two chunky bold lowercase letterforms, 'a' and 'n', drawn as thick uniform
     strokes — the letters themselves ARE the icon. No extra text, no numbers.
     Gradient flows across the letters from left to right: deep violet-magenta
-    #A21CAF → rich magenta #D946EF → light pink #F472B6 → coral-red #FB7185.
+    #123F3D → rich magenta #17827A → light pink #3FA79B → coral-red #2E9C90.
   -->
   <defs>
     <linearGradient id="apMarkGrad" gradientUnits="userSpaceOnUse" x1="4" y1="53" x2="96" y2="53">
-      <stop offset="0%" stop-color="#A21CAF"/>
-      <stop offset="40%" stop-color="#D946EF"/>
-      <stop offset="75%" stop-color="#F472B6"/>
-      <stop offset="100%" stop-color="#FB7185"/>
+      <stop offset="0%" stop-color="#123F3D"/>
+      <stop offset="40%" stop-color="#17827A"/>
+      <stop offset="75%" stop-color="#3FA79B"/>
+      <stop offset="100%" stop-color="#2E9C90"/>
     </linearGradient>
   </defs>
   <!-- 'a' bowl -->

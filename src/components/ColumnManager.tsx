@@ -436,7 +436,7 @@ export default function ColumnManager({ open, onOpenChange, onClose, columns: ex
       )}
 
       {/* Info */}
-      <div className="text-xs text-slate-500 bg-info-light p-3 rounded-lg border border-blue-100">
+      <div className="text-xs text-slate-500 bg-[#EDF5F6] p-3 rounded-lg border border-[#14292E]/10">
         <strong>Tip:</strong> Drag columns to reorder. Click eye icon to show/hide. 
         Click edit icon to rename. Default columns (like Medicine Name, Batch, Quantity) cannot be deleted, 
         but you can rename them or hide them. Add custom columns for extra data like Cold Storage, Doctor Scheme, etc.

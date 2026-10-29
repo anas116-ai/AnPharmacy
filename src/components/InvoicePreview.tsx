@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { formatDate, cn } from '../lib/utils';
 import { Printer, X, FileText, CheckCircle, Download } from 'lucide-react';
 import { BrandTile } from '../lib/Logo';
@@ -11,6 +11,8 @@ interface CartItem {
   batchNumber: string;
   expiryDate: string;
   quantity: number;
+  freeQty?: number;
+  schemeBonusCode?: string;
   sellingPrice: number;
   discountPercent: number;
   taxableValue: number;
@@ -160,6 +162,35 @@ export default function InvoicePreview({
 }: InvoiceProps) {
   const printRef = useRef<HTMLDivElement>(null);
   const [showPrintPreview, setShowPrintPreview] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    if (window.electronAPI?.getCompanyProfile) {
+      window.electronAPI.getCompanyProfile().then((res: any) => {
+        if (res?.success && res.profile) setProfile(res.profile);
+      }).catch(() => {});
+    }
+  }, []);
+
+  const ph = {
+    name: profile?.store_name || PHARMACY.name,
+    tagline: profile?.tagline || PHARMACY.tagline,
+    address: profile?.address || PHARMACY.address,
+    phone: profile?.phone || PHARMACY.phone,
+    email: profile?.email || PHARMACY.email,
+    gstin: profile?.gstin || PHARMACY.gstin,
+    dlNo: profile?.drug_license_no || PHARMACY.dlNo,
+    licenseNo: profile?.drug_license_no || PHARMACY.licenseNo,
+    cin: PHARMACY.cin,
+    website: PHARMACY.website,
+    bankName: PHARMACY.bankName,
+    bankBranch: PHARMACY.bankBranch,
+    bankAccountNo: PHARMACY.bankAccountNo,
+    bankIfsc: PHARMACY.bankIfsc,
+    bankUpi: PHARMACY.bankUpi,
+    digitalSignature: profile?.owner_name ? `Proprietor: ${profile.owner_name}` : PHARMACY.digitalSignature,
+    footerNote: profile?.footer_note || 'Subject to Hyderabad Jurisdiction. E.&O.E.',
+  };
 
   const amountInWords = numberToWords(finalAmount ?? summary.grandTotal);
   const hsnSummary = computeHsnSummary(items);
@@ -183,8 +214,8 @@ export default function InvoicePreview({
               <div className="invoice-brand">
                 <BrandTile className="w-14 h-14 rounded-lg" markClassName="w-8 h-8" />
                 <div className="invoice-title-group">
-                <h1 className="invoice-pharmacy-name">{PHARMACY.name}</h1>
-                <p className="invoice-tagline">{PHARMACY.tagline}</p>
+                <h1 className="invoice-pharmacy-name">{ph.name}</h1>
+                <p className="invoice-tagline">{ph.tagline}</p>
               </div>
             </div>
             <div className="invoice-doc-badge">
@@ -194,11 +225,11 @@ export default function InvoicePreview({
           </div>
           <div className="invoice-address-bar">
             <div className="flex flex-wrap justify-between gap-x-8 gap-y-1 text-xs">
-              <span>{PHARMACY.address}</span>
-              <span>{PHARMACY.phone}</span>
-              <span>{PHARMACY.email}</span>
-              <span>GST: {PHARMACY.gstin}</span>
-              <span>DL: {PHARMACY.dlNo}</span>
+              <span>{ph.address}</span>
+              <span>{ph.phone}</span>
+              <span>{ph.email}</span>
+              <span>GST: {ph.gstin}</span>
+              <span>DL: {ph.dlNo}</span>
             </div>
           </div>
         </div>
@@ -253,7 +284,7 @@ export default function InvoicePreview({
                 prescriptionType === 'OTC' && 'bg-success-light text-success',
                 prescriptionType === 'H' && 'bg-amber-100 text-amber-800',
                 prescriptionType === 'H1' && 'bg-red-100 text-red-800',
-                prescriptionType === 'X' && 'bg-purple-100 text-purple-800',
+                prescriptionType === 'X' && 'bg-[#EDF5F6] text-[#14292E]',
               )}>Rx: {prescriptionType}</span>
             )}
           </div>
@@ -292,7 +323,12 @@ export default function InvoicePreview({
                     <td className="text-center font-mono text-[10px] text-muted-foreground">{item.hsnCode || item.itemCode || '-'}</td>
                     <td className="text-center font-mono text-[10px] text-muted-foreground">{item.batchNumber}</td>
                     <td className="text-center text-[10px] text-muted-foreground">{formatDate(item.expiryDate)}</td>
-                    <td className="text-center font-bold text-foreground">{item.quantity}</td>
+                    <td className="text-center font-bold text-foreground">
+                      {item.quantity}
+                      {item.freeQty && item.freeQty > 0 ? (
+                        <span className="block text-[8px] font-semibold text-emerald-600 uppercase">+{item.freeQty} Free</span>
+                      ) : null}
+                    </td>
                     <td className="text-right font-medium">{item.sellingPrice.toFixed(2)}</td>
                     <td className="text-center text-muted-foreground">{item.discountPercent > 0 ? item.discountPercent + '%' : '-'}</td>
                     <td className="text-right font-medium">{item.taxableValue.toFixed(2)}</td>
@@ -448,13 +484,13 @@ export default function InvoicePreview({
             </div>
           </div>
           <div className="invoice-signature-block text-right">
-            <p className="text-[9px] text-muted-foreground font-mono">{PHARMACY.digitalSignature}</p>
-            <p className="text-[8px] text-muted-foreground/60">License: {PHARMACY.licenseNo} | CIN: {PHARMACY.cin}</p>
+            <p className="text-[9px] text-muted-foreground font-mono">{ph.digitalSignature}</p>
+            <p className="text-[8px] text-muted-foreground/60">License: {ph.licenseNo} | CIN: {PHARMACY.cin}</p>
           </div>
         </div>
 
         <div className="invoice-footer">
-          <p className="font-semibold">Thank you for your purchase! Visit Again</p>
+          <p className="font-semibold">{ph.footerNote}</p>
           {previousBalance > 0 && (
             <p className="text-[9px] text-amber-200 mt-0.5">Please clear outstanding balance of ₹{previousBalance.toFixed(2)}</p>
           )}
@@ -467,9 +503,9 @@ export default function InvoicePreview({
   return (
     <>
       {!showPrintPreview && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-[#0E2429]/45 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-background rounded-2xl shadow-2xl max-w-[900px] w-full max-h-[92vh] flex flex-col overflow-hidden animate-scale-in">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-gray-50 to-white no-print">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-slate-50 to-white no-print">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-accent to-success rounded-xl flex items-center justify-center shadow-lg">
                   <FileText className="w-5 h-5 text-white" />
@@ -492,7 +528,7 @@ export default function InvoicePreview({
               </div>
             </div>
             <div className="flex-1 overflow-y-auto bg-muted/50 p-6">{invoiceContent}</div>
-            <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-gray-50 to-white border-t border-border no-print">
+            <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-slate-50 to-white border-t border-border no-print">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <CheckCircle className="w-3.5 h-3.5 text-accent" /> Ready to print on A4 / thermal paper
               </div>

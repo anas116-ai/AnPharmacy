@@ -19,17 +19,17 @@ export default function StatusBar() {
 
   return (
     <div className="relative h-6 flex items-center justify-between px-3 bg-slate-950 border-t border-white/[0.06] text-[10px] text-slate-500 select-none shrink-0">
-      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-[#990066]/60 via-[#D4148C]/60 to-[#FF5A8D]/60 opacity-60 pointer-events-none" aria-hidden="true" />
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-[#14292E]/20 via-[#123F3D]/40 to-[#14292E]/20 opacity-50 pointer-events-none" aria-hidden="true" />
       <div className="flex items-center gap-4 min-w-0">
         <span className="flex items-center gap-1.5 truncate" title="Database location">
-          <HardDrive className="w-3 h-3 text-emerald-400/70" />
+          <HardDrive className="w-3 h-3 text-[#123F3D]/70 dark:text-[#2E9C90]/70" />
           <span className="truncate max-w-[280px]">{info.dbPath || 'local database'}</span>
         </span>
         <span className="hidden md:flex items-center gap-1.5">
-          <Database className="w-3 h-3 text-sky-400/70" />
+          <Database className="w-3 h-3 text-[#123F3D]/70 dark:text-[#2E9C90]/70" />
           v{info.version || '1.0.0'}
         </span>
-        <span className="hidden sm:flex items-center gap-1.5 text-emerald-400/90">
+        <span className="hidden sm:flex items-center gap-1.5 text-[#123F3D]/90 dark:text-[#2E9C90]/90">
           <ShieldCheck className="w-3 h-3" />
           Data is 100% on this device
         </span>

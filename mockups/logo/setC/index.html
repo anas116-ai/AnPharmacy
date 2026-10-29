@@ -9,15 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --magenta-deep:#990066;
-    --magenta:#D4148C;
-    --coral:#FF5A8D;
-    --brand-grad:linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
-    --ink:#0A0F1E;
-    --ink-2:#101E38;
+    --magenta-deep:#123F3D;
+    --magenta:#17827A;
+    --coral:#3FA79B;
+    --brand-grad:linear-gradient(135deg,#123F3D 0%,#17827A 50%,#3FA79B 100%);
+    --ink:#0C1D21;
+    --ink-2:#123035;
     --paper:#FFFFFF;
-    --paper-2:#F7F8FA;
-    --line:rgba(10,15,30,.10);
+    --paper-2:#F4F9FA;
+    --line:rgba(10, 24, 30,.10);
     --display:'Space Grotesk','Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
     --body:'Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
   }
@@ -43,7 +43,7 @@
     content:"";position:absolute;inset:0;
     background:
       radial-gradient(60% 80% at 20% 0%,rgba(255,255,255,.18),transparent 60%),
-      radial-gradient(50% 70% at 90% 100%,rgba(10,15,30,.28),transparent 60%);
+      radial-gradient(50% 70% at 90% 100%,rgba(10, 24, 30,.28),transparent 60%);
     pointer-events:none;
   }
   header.hero .tag{
@@ -64,10 +64,10 @@
     font-family:var(--display);font-weight:700;font-size:14px;
     color:#fff;background:var(--brand-grad);
     width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
-    box-shadow:0 8px 22px -8px rgba(212,20,140,.6);
+    box-shadow:0 8px 22px -8px rgba(35, 197, 184,.6);
   }
   .concept h2{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.4vw,30px);letter-spacing:-.01em}
-  .concept .lead{color:#46506a;max-width:680px;margin-bottom:26px;font-size:15px}
+  .concept .lead{color:#46606A;max-width:680px;margin-bottom:26px;font-size:15px}
   .concept .lead b{color:var(--magenta);font-weight:600}
 
   /* ---------- Presentation panels ---------- */
@@ -87,7 +87,7 @@
   .panel.grad{background:var(--brand-grad);color:#fff;border-color:transparent}
   .panel.grad .lbl{opacity:.85}
   .panel .mark{width:128px;height:128px;display:block}
-  .panel.grad .mark{filter:drop-shadow(0 10px 20px rgba(10,15,30,.35))}
+  .panel.grad .mark{filter:drop-shadow(0 10px 20px rgba(10, 24, 30,.35))}
 
   /* ---------- Grid of detail cards ---------- */
   .grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
@@ -98,28 +98,28 @@
   }
   .card h3{
     font-family:var(--display);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
-    color:#6a7286;font-weight:600;margin-bottom:16px;
+    color:#6A7E86;font-weight:600;margin-bottom:16px;
   }
 
   /* size ramp */
   .ramp{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
-  .ramp .item{display:flex;flex-direction:column;align-items:center;gap:8px;color:#6a7286;font-size:11px;font-family:var(--display)}
+  .ramp .item{display:flex;flex-direction:column;align-items:center;gap:8px;color:#6A7E86;font-size:11px;font-family:var(--display)}
   .ramp .item svg{display:block}
 
   /* favicon tiles */
   .tiles{display:flex;gap:14px;flex-wrap:wrap}
   .tile{
     width:84px;height:84px;border-radius:22px;background:var(--brand-grad);
-    display:grid;place-items:center;box-shadow:0 14px 30px -12px rgba(153,0,102,.6);
+    display:grid;place-items:center;box-shadow:0 14px 30px -12px rgba(23, 130, 121,.6);
     position:relative;
   }
-  .tile.dark{background:var(--ink);box-shadow:0 14px 30px -12px rgba(10,15,30,.8)}
+  .tile.dark{background:var(--ink);box-shadow:0 14px 30px -12px rgba(10, 24, 30,.8)}
   .tile svg{width:54px;height:54px}
   .tile .cap{position:absolute;bottom:8px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75);font-family:var(--display)}
 
   /* monochrome */
   .mono-row{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
-  .mono-row .sample{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:#6a7286;font-family:var(--display);letter-spacing:.04em}
+  .mono-row .sample{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:#6A7E86;font-family:var(--display);letter-spacing:.04em}
   .mono-row .sw{width:80px;height:80px;border-radius:14px;display:grid;place-items:center;border:1px solid var(--line)}
   .mono-row .sw.ink{background:var(--ink);border-color:transparent}
   .mono-row .sw.paper{background:var(--paper-2)}
@@ -134,8 +134,8 @@
   }
   .lockup .wm .rest{font-weight:300;color:var(--ink)}
   .lockup .wm.white .rest{color:#fff}
-  .lockup .wm.white .an{background:linear-gradient(95deg,#fff,#ffd9e9);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .lockup .tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a93a8;font-weight:600;margin-top:4px}
+  .lockup .wm.white .an{background:linear-gradient(95deg,#fff,#E2F6F5);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lockup .tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8AA0A8;font-weight:600;margin-top:4px}
   .lockup .tag.white{color:rgba(255,255,255,.7)}
   .lockup .iconbox{width:54px;height:54px;flex:0 0 auto}
   .lockup.stacked .iconbox{width:64px;height:64px}
@@ -144,17 +144,17 @@
   .dodont{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
   @media(max-width:760px){.dodont{grid-template-columns:1fr}}
   .dodont .col{border-radius:14px;padding:16px 18px;border:1px solid var(--line);background:var(--paper)}
-  .dodont .col.bad{border-color:rgba(217,20,140,.25);background:rgba(255,90,141,.04)}
+  .dodont .col.bad{border-color:rgba(36, 201, 188,.25);background:rgba(115, 230, 221,.04)}
   .dodont h4{font-family:var(--display);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
   .dodont .good h4{color:#0a8a5a}
   .dodont .bad h4{color:var(--magenta)}
   .dodont ul{list-style:none;display:flex;flex-direction:column;gap:8px}
-  .dodont li{font-size:13px;color:#3c455c;display:flex;gap:9px;align-items:flex-start}
+  .dodont li{font-size:13px;color:#3C535C;display:flex;gap:9px;align-items:flex-start}
   .dodont li .b{flex:0 0 auto;font-weight:700;font-family:var(--display)}
   .dodont .good li .b{color:#0a8a5a}
   .dodont .bad li .b{color:var(--magenta)}
 
-  footer{margin-top:70px;text-align:center;color:#8a93a8;font-size:13px}
+  footer{margin-top:70px;text-align:center;color:#8AA0A8;font-size:13px}
   footer .bar{width:60px;height:4px;border-radius:99px;background:var(--brand-grad);margin:0 auto 14px}
 
   .reveal{opacity:0;transform:translateY(14px);animation:rise .7s ease forwards}
@@ -170,23 +170,23 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="cgrad" x1="22" y1="12" x2="80" y2="90" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#D4148C"/>
-      <stop offset="50%" stop-color="#FF5A8D"/>
-      <stop offset="100%" stop-color="#990066"/>
+      <stop offset="0%" stop-color="#17827A"/>
+      <stop offset="50%" stop-color="#3FA79B"/>
+      <stop offset="100%" stop-color="#123F3D"/>
     </linearGradient>
     <linearGradient id="c3v" x1="50" y1="12" x2="50" y2="88" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FF5A8D"/>
-      <stop offset="100%" stop-color="#990066"/>
+      <stop offset="0%" stop-color="#3FA79B"/>
+      <stop offset="100%" stop-color="#123F3D"/>
     </linearGradient>
     <linearGradient id="c3h" x1="12" y1="50" x2="88" y2="50" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#D4148C"/>
-      <stop offset="50%" stop-color="#FF5A8D"/>
-      <stop offset="100%" stop-color="#D4148C"/>
+      <stop offset="0%" stop-color="#17827A"/>
+      <stop offset="50%" stop-color="#3FA79B"/>
+      <stop offset="100%" stop-color="#17827A"/>
     </linearGradient>
     <linearGradient id="c1g" x1="30" y1="10" x2="70" y2="92" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#D4148C"/>
-      <stop offset="55%" stop-color="#FF5A8D"/>
-      <stop offset="100%" stop-color="#990066"/>
+      <stop offset="0%" stop-color="#17827A"/>
+      <stop offset="55%" stop-color="#3FA79B"/>
+      <stop offset="100%" stop-color="#123F3D"/>
     </linearGradient>
     <mask id="c1cut">
       <rect width="100" height="100" fill="#fff"/>
@@ -218,7 +218,7 @@
       <circle cx="78" cy="22" r="9" fill="url(#cgrad)"/>
       <circle cx="72" cy="78" r="9" fill="url(#cgrad)"/>
       <circle cx="28" cy="74" r="9" fill="url(#cgrad)"/>
-      <circle cx="50" cy="50" r="14" fill="#FF5A8D"/>
+      <circle cx="50" cy="50" r="14" fill="#3FA79B"/>
       <circle cx="50" cy="50" r="14" fill="none" stroke="#fff" stroke-width="2" opacity="0.55"/>
       <circle r="4.5" fill="#fff">
         <animateMotion dur="4.2s" repeatCount="indefinite"
@@ -265,8 +265,8 @@
       <!-- vertical ribbon (behind, tapered ends) -->
       <path d="M43 18 L57 18 L61 50 L57 82 L43 82 L39 50 Z" fill="url(#c3v)"/>
       <!-- contact shadow: horizontal band passes in front of vertical -->
-      <ellipse cx="50" cy="43" rx="11" ry="3.2" fill="#6e0048" opacity="0.32"/>
-      <ellipse cx="50" cy="57" rx="11" ry="3.2" fill="#6e0048" opacity="0.32"/>
+      <ellipse cx="50" cy="43" rx="11" ry="3.2" fill="#0E3331" opacity="0.32"/>
+      <ellipse cx="50" cy="57" rx="11" ry="3.2" fill="#0E3331" opacity="0.32"/>
       <!-- horizontal ribbon (front, tapered ends) -->
       <path d="M18 43 L18 57 L50 61 L82 57 L82 43 L50 39 Z" fill="url(#c3h)"/>
       <!-- lit top edges (ribbon face catching light) -->
@@ -275,10 +275,10 @@
       <path d="M18 43 L50 39 L82 43" fill="none" stroke="#fff" stroke-width="2.4" opacity="0.6" stroke-linecap="round"/>
       <path d="M18 43 L18 57" fill="none" stroke="#fff" stroke-width="2" opacity="0.4" stroke-linecap="round"/>
       <!-- fold-under shadows at the four free ends -->
-      <path d="M43 18 L57 18 L53 25 L47 25 Z" fill="#6e0048" opacity="0.40"/>
-      <path d="M43 82 L57 82 L53 75 L47 75 Z" fill="#6e0048" opacity="0.40"/>
-      <path d="M18 43 L18 57 L25 53 L25 47 Z" fill="#6e0048" opacity="0.40"/>
-      <path d="M82 43 L82 57 L75 53 L75 47 Z" fill="#6e0048" opacity="0.40"/>
+      <path d="M43 18 L57 18 L53 25 L47 25 Z" fill="#0E3331" opacity="0.40"/>
+      <path d="M43 82 L57 82 L53 75 L47 75 Z" fill="#0E3331" opacity="0.40"/>
+      <path d="M18 43 L18 57 L25 53 L25 47 Z" fill="#0E3331" opacity="0.40"/>
+      <path d="M82 43 L82 57 L75 53 L75 47 Z" fill="#0E3331" opacity="0.40"/>
     </symbol>
     <!-- ===== C3 — monochrome ===== -->
     <symbol id="c3m" viewBox="0 0 100 100">
@@ -551,7 +551,7 @@
   <footer>
     <div class="bar"></div>
     AnPharmacy · Set C — Liquid Drop · Node Web · Fold Ribbon<br/>
-    Palette locked to #990066 → #D4148C → #FF5A8D. Offline-safe; fonts degrade to system stack.
+    Palette locked to #123F3D → #17827A → #3FA79B. Offline-safe; fonts degrade to system stack.
   </footer>
 </div>
 </body>

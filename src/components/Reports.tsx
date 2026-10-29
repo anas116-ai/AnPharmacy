@@ -31,11 +31,7 @@ function ProgressBar({ value, max, color = 'teal' }: { value: number; max: numbe
   const colorMap: Record<string, string> = {
     teal: 'bg-accent/100',
     red: 'bg-destructive/100',
-    orange: 'bg-orange-500',
-    green: 'bg-green-500',
-    blue: 'bg-info-light',
     amber: 'bg-warning-light',
-    purple: 'bg-purple-500',
   };
   return (
     <div className="flex items-center gap-2">
@@ -227,8 +223,8 @@ export default function Reports() {
                   </span>
                 )}
               </div>
-              <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0', 
-                i === 0 ? 'bg-success-light text-success' : i === 1 ? 'bg-info-light text-info' : i === 2 ? 'bg-accent/10 text-accent' : i === 3 ? 'bg-warning-light text-warning' : 'bg-violet-50 text-violet-600'
+              <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0',
+                'bg-[#14292E] text-white'
               )}>
                 {item.icon}
               </div>
@@ -469,11 +465,11 @@ export default function Reports() {
       {activeTab === 'stock' && filteredReport?.stats && (
         <div className="animate-fade-in-up space-y-5">
           {renderKPICards([
-            { label: t('reports.uniqueMedicines'), value: String(filteredReport.stats.uniqueMedicines), icon: <Package className="w-4 h-4 text-white" />, gradient: 'from-accent to-accent/80' },
-            { label: t('reports.totalBatches'), value: String(filteredReport.stats.totalBatches), icon: <BarChart3 className="w-4 h-4 text-white" />, gradient: 'from-info to-info/80' },
-            { label: t('reports.totalUnits'), value: String(filteredReport.stats.totalUnits), icon: <TrendingUp className="w-4 h-4 text-white" />, gradient: 'from-success to-success/80' },
-            { label: t('reports.totalValue'), value: formatCurrency(filteredReport.stats.totalValue), icon: <IndianRupee className="w-4 h-4 text-white" />, gradient: 'from-orange-500 to-orange-600' },
-            { label: t('reports.avgPrice'), value: formatCurrency(filteredReport.stats.avgPricePerUnit), icon: <DollarSign className="w-4 h-4 text-white" />, gradient: 'from-accent to-accent/80' },
+            { label: t('reports.uniqueMedicines'), value: String(filteredReport.stats.uniqueMedicines), icon: <Package className="w-4 h-4 text-white" />, gradient: 'from-[#14292E] to-[#223A40]' },
+            { label: t('reports.totalBatches'), value: String(filteredReport.stats.totalBatches), icon: <BarChart3 className="w-4 h-4 text-white" />, gradient: 'from-[#223A40] to-[#123F3D]' },
+            { label: t('reports.totalUnits'), value: String(filteredReport.stats.totalUnits), icon: <TrendingUp className="w-4 h-4 text-white" />, gradient: 'from-[#123F3D] to-[#17827A]' },
+            { label: t('reports.totalValue'), value: formatCurrency(filteredReport.stats.totalValue), icon: <IndianRupee className="w-4 h-4 text-white" />, gradient: 'from-[#17827A] to-[#3FA79B]' },
+            { label: t('reports.avgPrice'), value: formatCurrency(filteredReport.stats.avgPricePerUnit), icon: <DollarSign className="w-4 h-4 text-white" />, gradient: 'from-[#14292E] to-[#223A40]' },
           ])}
 
           {/* Purchase vs Selling Price Comparison Card */}
@@ -491,7 +487,7 @@ export default function Reports() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-info-light dark:bg-blue-900/20 rounded-xl p-4">
+                    <div className="bg-[#EDF5F6] dark:bg-[#2E9C90]/10 rounded-xl p-4">
                       <p className="text-xs text-info dark:text-info font-medium">Purchase Value</p>
                       <p className="text-xl font-bold text-info dark:text-info mt-1">{formatCurrency(totalPurchase)}</p>
                     </div>
@@ -557,7 +553,7 @@ export default function Reports() {
                         <th>Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                       {filteredReport.medicines.map((m: any) => {
                         const priceDiff = (m.selling_price || 0) - (m.purchase_price || 0);
                         const alertLevel = m.low_stock_alert || 0;
@@ -617,10 +613,10 @@ export default function Reports() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
                   {[
-                    { key: 'expired', label: 'Expired', count: expired, pct: pct(expired), gradient: 'from-gray-600 to-gray-500', textColor: 'text-white' },
-                    { key: 'critical', label: 'Critical (≤90 days)', count: critical, pct: pct(critical), gradient: 'from-red-500 to-rose-400', textColor: 'text-white' },
-                    { key: 'warning', label: 'Warning (91-180 days)', count: warning, pct: pct(warning), gradient: 'from-orange-500 to-amber-400', textColor: 'text-white' },
-                    { key: 'safe', label: 'Safe (>180 days)', count: safe, pct: pct(safe), gradient: 'from-green-500 to-emerald-400', textColor: 'text-white' },
+                    { key: 'expired', label: 'Expired', count: expired, pct: pct(expired), gradient: 'from-slate-700 to-slate-500', textColor: 'text-white' },
+                    { key: 'critical', label: 'Critical (≤90 days)', count: critical, pct: pct(critical), gradient: 'from-red-600 to-red-400', textColor: 'text-white' },
+                    { key: 'warning', label: 'Warning (91-180 days)', count: warning, pct: pct(warning), gradient: 'from-amber-500 to-amber-400', textColor: 'text-white' },
+                    { key: 'safe', label: 'Safe (>180 days)', count: safe, pct: pct(safe), gradient: 'from-[#123F3D] to-[#14292E]', textColor: 'text-white' },
                   ].map(cat => (
                     <Card key={cat.key} className="overflow-hidden border-0">
                       <div className={cn('p-5 bg-gradient-to-br', cat.gradient)}>
@@ -669,15 +665,15 @@ export default function Reports() {
                   'pb-3 rounded-t-2xl',
                   category === 'expired' && 'bg-muted/50 dark:bg-muted/60/50',
                   category === 'critical' && 'bg-destructive/10 dark:bg-destructive/10',
-                  category === 'warning' && 'bg-orange-50 dark:bg-orange-900/20',
-                  category === 'safe' && 'bg-green-50 dark:bg-green-900/20',
+                  category === 'warning' && 'bg-amber-50 dark:bg-amber-900/20',
+                  category === 'safe' && 'bg-emerald-50 dark:bg-emerald-900/20',
                 )}>
                   <CardTitle className={cn(
                     'text-sm flex items-center gap-2',
                     category === 'expired' && 'text-foreground/80 dark:text-muted-foreground/70',
                     category === 'critical' && 'text-destructive dark:text-destructive',
-                    category === 'warning' && 'text-orange-700 dark:text-orange-300',
-                    category === 'safe' && 'text-green-700 dark:text-green-300',
+                    category === 'warning' && 'text-amber-700 dark:text-amber-300',
+                    category === 'safe' && 'text-emerald-700 dark:text-emerald-300',
                   )}>
                     <AlertTriangle className="w-4 h-4" />
                     {category === 'expired' ? 'Expired Items' : category === 'critical' ? 'Critical Items (≤90 days)' : category === 'warning' ? 'Warning Items (91-180 days)' : 'Safe Items (>180 days)'}
@@ -699,14 +695,14 @@ export default function Reports() {
                           {category !== 'safe' && <th className="text-right">Value at Risk</th>}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                      <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                         {items.map((m: any) => (
                           <tr key={m.id} className={cn(
                             'transition-colors',
                             category === 'expired' && 'hover:bg-destructive/10/50 dark:hover:bg-destructive/10',
                             category === 'critical' && 'hover:bg-destructive/10/30 dark:hover:bg-destructive/10',
-                            category === 'warning' && 'hover:bg-orange-50/30 dark:hover:bg-orange-900/10',
-                            category === 'safe' && 'hover:bg-green-50/30 dark:hover:bg-green-900/10',
+                            category === 'warning' && 'hover:bg-amber-50/30 dark:hover:bg-amber-900/10',
+                            category === 'safe' && 'hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10',
                           )}>
                             <td className="font-medium text-foreground dark:text-foreground">{m.name}</td>
                             <td className="text-muted-foreground dark:text-muted-foreground/60 font-mono text-xs">{m.batch_number}</td>
@@ -715,9 +711,9 @@ export default function Reports() {
                             <td className={cn(
                               'text-right font-semibold',
                               category === 'expired' && 'text-destructive dark:text-destructive',
-                              category === 'critical' && 'text-orange-600 dark:text-orange-400',
+                              category === 'critical' && 'text-amber-600 dark:text-amber-400',
                               category === 'warning' && 'text-warning dark:text-amber-400',
-                              category === 'safe' && 'text-green-600 dark:text-green-400',
+                              category === 'safe' && 'text-emerald-600 dark:text-emerald-400',
                             )}>
                               {category === 'expired' ? `${Math.abs(Math.round(m.days_remaining))}d over` : `${Math.round(m.days_remaining)}d`}
                             </td>
@@ -743,11 +739,11 @@ export default function Reports() {
         <div className="animate-fade-in-up space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
             {[
-              { key: 'expired', label: 'Expired', count: (expiryTierReport.tiers.expired || []).length, gradient: 'from-gray-600 to-gray-500' },
-              { key: 'd90', label: '≤ 90 days', count: (expiryTierReport.tiers.d90 || []).length, gradient: 'from-red-500 to-rose-400' },
-              { key: 'd60', label: '≤ 60 days', count: (expiryTierReport.tiers.d60 || []).length, gradient: 'from-orange-500 to-amber-400' },
-              { key: 'd30', label: '≤ 30 days', count: (expiryTierReport.tiers.d30 || []).length, gradient: 'from-orange-600 to-red-500' },
-              { key: 'safe', label: 'Safe (>90)', count: (expiryTierReport.tiers.safe || []).length, gradient: 'from-green-500 to-emerald-400' },
+              { key: 'expired', label: 'Expired', count: (expiryTierReport.tiers.expired || []).length, gradient: 'from-slate-700 to-slate-500' },
+              { key: 'd90', label: '≤ 90 days', count: (expiryTierReport.tiers.d90 || []).length, gradient: 'from-red-600 to-red-400' },
+              { key: 'd60', label: '≤ 60 days', count: (expiryTierReport.tiers.d60 || []).length, gradient: 'from-amber-600 to-amber-400' },
+              { key: 'd30', label: '≤ 30 days', count: (expiryTierReport.tiers.d30 || []).length, gradient: 'from-red-700 to-red-500' },
+              { key: 'safe', label: 'Safe (>90)', count: (expiryTierReport.tiers.safe || []).length, gradient: 'from-[#123F3D] to-[#14292E]' },
             ].map(cat => (
               <Card key={cat.key} className="overflow-hidden border-0">
                 <div className={cn('p-5 bg-gradient-to-br', cat.gradient)}>
@@ -779,12 +775,12 @@ export default function Reports() {
                 <CardHeader className={cn('pb-3 rounded-t-2xl', 
                   tier === 'expired' ? 'bg-muted/50 dark:bg-muted/60/50' : 
                   tier === 'd30' ? 'bg-red-100 dark:bg-destructive/10' :
-                  tier === 'safe' ? 'bg-green-50 dark:bg-green-900/20' :
+                  tier === 'safe' ? 'bg-emerald-50 dark:bg-emerald-900/20' :
                   'bg-destructive/10 dark:bg-destructive/10'
                 )}>
                   <CardTitle className={cn('text-sm flex items-center gap-2', 
                     tier === 'expired' ? 'text-foreground/80 dark:text-muted-foreground/70' : 
-                    tier === 'safe' ? 'text-green-700 dark:text-green-300' :
+                    tier === 'safe' ? 'text-emerald-700 dark:text-emerald-300' :
                     'text-destructive dark:text-destructive'
                   )}>
                     <AlertTriangle className="w-4 h-4" />
@@ -804,7 +800,7 @@ export default function Reports() {
                           {isUrgent && <th className="text-right">Clearance @ Cost</th>}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                      <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                         {items.map((m: any) => (
                           <tr key={m.id} className={cn(
                             'transition-colors',
@@ -817,8 +813,8 @@ export default function Reports() {
                             <td className="text-muted-foreground dark:text-muted-foreground/60 text-xs">{formatDate(m.expiry_date)}</td>
                             <td className={cn('text-right font-semibold', 
                               m.days_remaining < 0 ? 'text-destructive dark:text-destructive' : 
-                              tier === 'safe' ? 'text-green-600 dark:text-green-400' :
-                              'text-orange-600 dark:text-orange-400'
+                              tier === 'safe' ? 'text-emerald-600 dark:text-emerald-400' :
+                              'text-amber-600 dark:text-amber-400'
                             )}>
                               {m.days_remaining < 0 ? `${-m.days_remaining}d over` : `${m.days_remaining}d`}
                             </td>
@@ -857,7 +853,7 @@ export default function Reports() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div className="bg-info-light dark:bg-blue-900/20 rounded-xl p-4">
+                <div className="bg-[#EDF5F6] dark:bg-[#2E9C90]/10 rounded-xl p-4">
                   <p className="text-xs text-info dark:text-info font-medium">Purchase Value</p>
                   <p className="text-xl font-bold text-info dark:text-info mt-1">{formatCurrency(profitReport.stats.totalPurchaseValue)}</p>
                   <div className="flex items-center gap-1 mt-1">
@@ -906,9 +902,9 @@ export default function Reports() {
                     className={cn(
                       'h-full rounded-full transition-all duration-700',
                       profitReport.stats.marginPercent >= 30 ? 'bg-gradient-to-r from-accent to-success' :
-                      profitReport.stats.marginPercent >= 15 ? 'bg-gradient-to-r from-amber-400 to-orange-500' :
+                      profitReport.stats.marginPercent >= 15 ? 'bg-gradient-to-r from-amber-400 to-amber-500' :
                       profitReport.stats.marginPercent >= 0 ? 'bg-gradient-to-r from-red-400 to-red-500' :
-                      'bg-gradient-to-r from-red-600 to-rose-600'
+                      'bg-gradient-to-r from-red-600 to-red-600'
                     )}
                     style={{ width: `${Math.min(Math.max(profitReport.stats.marginPercent, 0), 100)}%` }}
                   />
@@ -926,8 +922,8 @@ export default function Reports() {
           {/* GST Breakup Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
             {[
-              { label: 'Input GST (paid to suppliers)', value: formatCurrency(profitReport.stats.totalInputGst), icon: '↘', gradient: 'from-info to-info/80', desc: 'Tax paid on purchases' },
-              { label: 'Output GST (collected from customers)', value: formatCurrency(profitReport.stats.totalOutputGst), icon: '↗', gradient: 'from-cyan-500 to-cyan-600', desc: 'Tax collected on sales' },
+              { label: 'Input GST (paid to suppliers)', value: formatCurrency(profitReport.stats.totalInputGst), icon: '↘', gradient: 'from-[#123F3D] to-[#14292E]', desc: 'Tax paid on purchases' },
+              { label: 'Output GST (collected from customers)', value: formatCurrency(profitReport.stats.totalOutputGst), icon: '↗', gradient: 'from-[#3FA79B] to-[#123F3D]', desc: 'Tax collected on sales' },
               { label: 'Net GST Payable (Output − Input)', value: formatCurrency(profitReport.stats.totalOutputGst - profitReport.stats.totalInputGst), icon: '∑', gradient: 'from-slate-500 to-slate-600', desc: 'Amount to remit to govt' },
             ].map(card => (
               <Card key={card.label} variant="bordered">
@@ -961,7 +957,7 @@ export default function Reports() {
                       <th className="text-right">Real Margin</th><th className="text-right">%</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                  <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                     {profitReport.rows.map((r: any) => {
                       const priceDiff = r.selling_price - r.purchase_price;
                       const netGst = r.output_gst - r.input_gst;
@@ -1002,10 +998,10 @@ export default function Reports() {
       {activeTab === 'sales' && filteredReport?.stats && (
         <div className="animate-fade-in-up space-y-5">
           {renderKPICards([
-            { label: t('reports.totalRevenue'), value: formatCurrency(filteredReport.stats.totalRevenue), icon: <IndianRupee className="w-4 h-4 text-white" />, gradient: 'from-success to-success/80', diff: { value: `${filteredReport.stats.totalSales} transactions`, positive: true } },
-            { label: 'Total Sales', value: String(filteredReport.stats.totalSales), icon: <BarChart3 className="w-4 h-4 text-white" />, gradient: 'from-info to-info/80' },
-            { label: t('reports.totalUnits'), value: String(filteredReport.stats.totalUnitsSold), icon: <Package className="w-4 h-4 text-white" />, gradient: 'from-accent to-accent/80' },
-            { label: t('reports.avgSaleValue'), value: formatCurrency(filteredReport.stats.avgSaleValue), icon: <TrendingUp className="w-4 h-4 text-white" />, gradient: 'from-accent to-accent/80', diff: { value: `${filteredReport.stats.totalUnitsSold} units total`, positive: true } },
+            { label: t('reports.totalRevenue'), value: formatCurrency(filteredReport.stats.totalRevenue), icon: <IndianRupee className="w-4 h-4 text-white" />, gradient: 'from-[#14292E] to-[#223A40]', diff: { value: `${filteredReport.stats.totalSales} transactions`, positive: true } },
+            { label: 'Total Sales', value: String(filteredReport.stats.totalSales), icon: <BarChart3 className="w-4 h-4 text-white" />, gradient: 'from-[#223A40] to-[#123F3D]' },
+            { label: t('reports.totalUnits'), value: String(filteredReport.stats.totalUnitsSold), icon: <Package className="w-4 h-4 text-white" />, gradient: 'from-[#123F3D] to-[#17827A]' },
+            { label: t('reports.avgSaleValue'), value: formatCurrency(filteredReport.stats.avgSaleValue), icon: <TrendingUp className="w-4 h-4 text-white" />, gradient: 'from-[#17827A] to-[#3FA79B]', diff: { value: `${filteredReport.stats.totalUnitsSold} units total`, positive: true } },
           ])}
 
           {/* Revenue Per Transaction Summary */}
@@ -1018,24 +1014,24 @@ export default function Reports() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="bg-gradient-to-br from-success to-success/80 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-[#14292E] to-[#223A40] rounded-xl p-4">
                     <p className="text-xs text-white/80">Total Revenue</p>
                     <p className="text-2xl font-bold text-white">{formatCurrency(filteredReport.stats.totalRevenue)}</p>
                     <p className="text-[10px] text-white/60 mt-1">Across {filteredReport.stats.totalSales} sales</p>
                   </div>
-                  <div className="bg-gradient-to-br from-info to-info/80 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-[#223A40] to-[#123F3D] rounded-xl p-4">
                     <p className="text-xs text-white/80">Avg. Per Sale</p>
                     <p className="text-2xl font-bold text-white">{formatCurrency(filteredReport.stats.avgSaleValue)}</p>
                     <p className="text-[10px] text-white/60 mt-1">Per transaction</p>
                   </div>
-                  <div className="bg-gradient-to-br from-accent to-accent/80 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-[#123F3D] to-[#17827A] rounded-xl p-4">
                     <p className="text-xs text-white/80">Avg. Per Unit</p>
                     <p className="text-2xl font-bold text-white">
                       {formatCurrency(filteredReport.stats.totalUnitsSold > 0 ? filteredReport.stats.totalRevenue / filteredReport.stats.totalUnitsSold : 0)}
                     </p>
                     <p className="text-[10px] text-white/60 mt-1">Per item sold</p>
                   </div>
-                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4">
+                  <div className="bg-gradient-to-br from-[#17827A] to-[#3FA79B] rounded-xl p-4">
                     <p className="text-xs text-white/80">Items Per Sale</p>
                     <p className="text-2xl font-bold text-white">
                       {filteredReport.stats.totalSales > 0 ? (filteredReport.stats.totalUnitsSold / filteredReport.stats.totalSales).toFixed(1) : '0'}
@@ -1063,7 +1059,7 @@ export default function Reports() {
                         <th className="text-right">Avg/Unit</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                       {filteredReport.sales.map((s: any) => {
                         const avgUnit = s.quantity > 0 ? s.total_amount / s.quantity : 0;
                         return (
@@ -1089,17 +1085,17 @@ export default function Reports() {
       {activeTab === 'margin' && marginReport && (
         <div className="animate-fade-in-up space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="bg-gradient-to-br from-accent to-accent/80 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#14292E] to-[#223A40] rounded-xl p-4">
               <p className="text-xs text-white/80">Real Margin (30d)</p>
               <p className="text-2xl font-bold text-white">{formatCurrency(marginReport.stats.margin)}</p>
               <p className="text-[10px] text-white/60 mt-1">Revenue minus purchase cost</p>
             </div>
-            <div className="bg-gradient-to-br from-info to-info/80 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#223A40] to-[#123F3D] rounded-xl p-4">
               <p className="text-xs text-white/80">Revenue</p>
               <p className="text-2xl font-bold text-white">{formatCurrency(marginReport.stats.revenue)}</p>
               <p className="text-[10px] text-white/60 mt-1">At billed price</p>
             </div>
-            <div className="bg-gradient-to-br from-success to-success/80 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#123F3D] to-[#17827A] rounded-xl p-4">
               <p className="text-xs text-white/80">Margin %</p>
               <p className="text-2xl font-bold text-white">{marginReport.stats.marginPercent.toFixed(1)}%</p>
               <p className="text-[10px] text-white/60 mt-1">{marginReport.stats.cost.toFixed(0)} purchase cost</p>
@@ -1122,7 +1118,7 @@ export default function Reports() {
                         <th className="text-right">Margin</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                       {marginReport.rows.map((r: any, idx: number) => (
                         <tr key={idx} className="hover:bg-accent/10 transition-colors">
                           <td className="text-muted-foreground text-xs">{formatDate(r.sale_date)}</td>
@@ -1190,7 +1186,7 @@ export default function Reports() {
                         <th>Worst Age</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                       {receivables.customers.map((c: any) => {
                         const oldest = c.sales.reduce((m: any, s: any) => (!m || s.age_days > m.age_days ? s : m), null);
                         return (
@@ -1249,7 +1245,7 @@ export default function Reports() {
                         <th className="text-right">Outstanding</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                       {payables.suppliers.map((s: any, idx: number) => (
                         <tr key={idx} className="hover:bg-accent/10 transition-colors">
                           <td className="font-medium text-foreground">{s.supplier_name}</td>

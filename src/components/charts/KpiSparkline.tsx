@@ -13,7 +13,7 @@ export interface KpiSparklineProps {
   className?: string;
 }
 
-const DEFAULT_COLOR = '#10b981';
+const DEFAULT_COLOR = '#17827A';
 
 export default function KpiSparkline({
   data,

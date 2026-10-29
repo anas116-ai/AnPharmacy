@@ -48,17 +48,13 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
   }, [onComplete, t]);
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-[#060e1a] via-[#0A1628] to-[#0F2B4A] flex items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 bg-gradient-to-br from-[#050F12] via-[#0E2429] to-[#123035] flex items-center justify-center overflow-hidden">
       {/* Ambient background orbs */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-success-light/8 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '0s' }} />
         <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] bg-navy-400/8 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
       </div>
 
-      {/* Subtle grid */}
-      <div className="absolute inset-0 opacity-[0.03]"
-        style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)`, backgroundSize: '48px 48px' }}
-      />
 
       <div className={`relative text-center space-y-8 transition-all duration-700 ${
         showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
@@ -85,7 +81,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
               className="absolute inset-y-0 left-0 rounded-full transition-all duration-300 ease-out"
               style={{
                 width: `${progress}%`,
-                background: 'linear-gradient(90deg, #EAB308, #FACC15)',
+                background: 'linear-gradient(90deg, #2E9C90, #D7EDE7)',
                 boxShadow: '0 0 12px rgba(234, 179, 8, 0.35)'
               }}
             />

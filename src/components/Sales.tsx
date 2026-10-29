@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { useStockStore } from '../stores/stockStore';
-import { Plus, Minus, ShoppingCart, CheckCircle, AlertCircle, Package, User, Phone, MapPin, Search, Receipt, Wallet, Building2, FileText, CreditCard, Smartphone, Banknote, Trash2, X, Save, Printer } from 'lucide-react';
+import { Plus, Minus, ShoppingCart, CheckCircle, AlertCircle, Package, User, Phone, MapPin, Search, Receipt, Wallet, Building2, FileText, CreditCard, Smartphone, Banknote, Trash2, X, Save, Printer, PauseCircle, PlayCircle, Clock, Calculator } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -22,6 +22,9 @@ interface CartItem {
   expiryDate: string;
   availableQty: number;
   quantity: number;
+  freeQty?: number;
+  schemeBonusCode?: string;
+  gstPercent: number;
   sellingPrice: number;
   purchasePrice: number;
   discountPercent: number;
@@ -32,6 +35,20 @@ interface CartItem {
   igstAmount: number;
   netAmount: number;
   returnable: boolean;
+}
+
+export interface HeldBill {
+  id: string;
+  heldAt: string;
+  customerName: string;
+  customerPhone: string;
+  cart: CartItem[];
+  doctorName: string;
+  doctorRegNo: string;
+  prescriptionType: string;
+  paymentMode: string;
+  billDiscount: number;
+  totalAmount: number;
 }
 
 interface Customer {
@@ -91,18 +108,107 @@ export default function Sales() {
   const [billDiscount, setBillDiscount] = useState(0);
   type RoundOffMode = 'none' | 'nearest_1' | 'nearest_0.50';
   const [roundOffMode, setRoundOffMode] = useState<RoundOffMode>('none');
+  const [priceRules, setPriceRules] = useState<any[]>([]);
+  const [discountSchemes, setDiscountSchemes] = useState<any[]>([]);
+
+  // Held Bills (Park Sale) State
+  const [heldBills, setHeldBills] = useState<HeldBill[]>(() => {
+    try {
+      const saved = localStorage.getItem('anpharmacy_held_bills');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [showHeldBillsModal, setShowHeldBillsModal] = useState(false);
+
+  // Shift & Cash Drawer Reconciliation State
+  const [showShiftModal, setShowShiftModal] = useState(false);
+  const [shiftStartTime] = useState<string>(() => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  const [openingCash, setOpeningCash] = useState<number>(() => {
+    const saved = localStorage.getItem('anpharmacy_shift_opening_cash');
+    return saved ? parseFloat(saved) : 2000;
+  });
+  const [sessionCashSales, setSessionCashSales] = useState<number>(0);
+  const [cashExpenses, setCashExpenses] = useState<number>(0);
+  const [countedCash, setCountedCash] = useState<string>('');
+  const [shiftClosed, setShiftClosed] = useState(false);
+
+  const saveHeldBills = (newHeld: HeldBill[]) => {
+    setHeldBills(newHeld);
+    localStorage.setItem('anpharmacy_held_bills', JSON.stringify(newHeld));
+  };
+
+  const handleParkSale = () => {
+    if (cart.length === 0) {
+      setError('Cannot park an empty sale. Add items to cart first.');
+      return;
+    }
+    const total = cart.reduce((acc, it) => acc + it.totalAmount, 0) - billDiscount;
+    const newHeld: HeldBill = {
+      id: 'HELD-' + Date.now(),
+      heldAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      customerName: customerName.trim() || 'Walk-in Customer',
+      customerPhone: customerPhone.trim() || '',
+      cart: [...cart],
+      doctorName,
+      doctorRegNo,
+      prescriptionType,
+      paymentMode,
+      billDiscount,
+      totalAmount: Math.max(0, total),
+    };
+    const updated = [newHeld, ...heldBills];
+    saveHeldBills(updated);
+    setCart([]);
+    setCustomerName('');
+    setCustomerPhone('');
+    setDoctorName('');
+    setDoctorRegNo('');
+    setBillDiscount(0);
+    setSuccess(`Sale parked successfully for ${newHeld.customerName} (${cart.length} items).`);
+    setTimeout(() => setSuccess(''), 4000);
+  };
+
+  const handleResumeSale = (bill: HeldBill) => {
+    if (cart.length > 0) {
+      if (!window.confirm('Current cart has items. Overwrite with this held bill?')) return;
+    }
+    setCart(bill.cart);
+    setCustomerName(bill.customerName === 'Walk-in Customer' ? '' : bill.customerName);
+    setCustomerPhone(bill.customerPhone);
+    setDoctorName(bill.doctorName);
+    setDoctorRegNo(bill.doctorRegNo);
+    setPrescriptionType(bill.prescriptionType);
+    setPaymentMode(bill.paymentMode);
+    setBillDiscount(bill.billDiscount);
+    const updated = heldBills.filter(b => b.id !== bill.id);
+    saveHeldBills(updated);
+    setShowHeldBillsModal(false);
+    setSuccess(`Resumed sale for ${bill.customerName}`);
+    setTimeout(() => setSuccess(''), 4000);
+  };
+
+  const handleDiscardHeldBill = (id: string) => {
+    const updated = heldBills.filter(b => b.id !== id);
+    saveHeldBills(updated);
+  };
 
   useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     try {
       if (window.electronAPI) {
-        const [custResult, stockResult] = await Promise.all([
+        const [custResult, stockResult, rulesResult, schemesResult] = await Promise.all([
           window.electronAPI.listCustomers?.() || Promise.resolve({ success: true, customers: [] }),
-          window.electronAPI.listStock()
+          window.electronAPI.listStock(),
+          window.electronAPI.listPriceRules?.() || Promise.resolve({ success: true, rules: [] }),
+          window.electronAPI.listDiscountSchemes?.() || Promise.resolve({ success: true, schemes: [] })
         ]);
         if (custResult.success) setCustomers(custResult.customers || []);
         if (stockResult.success) setMedicines(stockResult.medicines || []);
+        if (rulesResult.success) setPriceRules(rulesResult.rules || []);
+        if (schemesResult.success) setDiscountSchemes(schemesResult.schemes || []);
       }
     } catch (error) { console.error(error); }
   };
@@ -227,8 +333,8 @@ export default function Sales() {
       setError('Please select a medicine first');
       return;
     }
-    if (cartQty <= 0 || cartQty > selectedBatch.quantity) {
-      setError(`Only ${selectedBatch.quantity} units available`);
+    if (cartQty <= 0) {
+      setError('Quantity must be greater than zero');
       return;
     }
     if (!selectedBatch.selling_price) {
@@ -236,27 +342,69 @@ export default function Sales() {
       return;
     }
 
+    // Evaluate batch bonus scheme (e.g. 10 + 1 free)
+    const schemeQty = selectedBatch.scheme_qty || 0;
+    const freePerScheme = selectedBatch.free_qty || 0;
+    let autoFreeQty = 0;
+    let schemeCode = selectedBatch.scheme_bonus_code || '';
+    if (schemeQty > 0 && freePerScheme > 0) {
+      autoFreeQty = Math.floor(cartQty / schemeQty) * freePerScheme;
+      if (!schemeCode) schemeCode = `${schemeQty}+${freePerScheme}`;
+    }
+
+    const totalNeeded = cartQty + autoFreeQty;
+    if (totalNeeded > selectedBatch.quantity) {
+      setError(`Only ${selectedBatch.quantity} units available. (Needed ${totalNeeded} with ${autoFreeQty} scheme bonus units)`);
+      return;
+    }
+
+    // Evaluate active volume price rules
+    let autoDiscount = 0;
+    const applicableRule = priceRules.find(r =>
+      r.is_active &&
+      (!r.medicine_id || r.medicine_id === selectedBatch.id) &&
+      cartQty >= (r.min_quantity || 0) &&
+      (!r.max_quantity || cartQty <= r.max_quantity)
+    );
+    if (applicableRule) {
+      autoDiscount = applicableRule.discount_percentage || 0;
+    }
+
     const unitPrice = selectedBatch.selling_price;
-    const taxableValue = cartQty * unitPrice;
-    const cgstAmount = taxableValue * ((selectedBatch.purchase_gst_percent || 0) / 200);
-    const sgstAmount = taxableValue * ((selectedBatch.purchase_gst_percent || 0) / 200);
+    const gstRate = selectedBatch.sale_gst_percent != null && selectedBatch.sale_gst_percent > 0
+      ? selectedBatch.sale_gst_percent
+      : (selectedBatch.purchase_gst_percent || 0);
+
+    const discountedPrice = unitPrice * (1 - autoDiscount / 100);
+    const taxableValue = cartQty * discountedPrice;
+    const halfRate = gstRate / 200;
+    const cgstAmount = taxableValue * halfRate;
+    const sgstAmount = taxableValue * halfRate;
     const igstAmount = 0;
-    const netAmount = taxableValue + cgstAmount + sgstAmount + igstAmount;
+    const netAmount = taxableValue + cgstAmount + sgstAmount;
 
     const existingIndex = cart.findIndex(item => item.batchId === selectedBatch.id);
     if (existingIndex >= 0) {
       const newQty = cart[existingIndex].quantity + cartQty;
-      if (newQty > selectedBatch.quantity) {
-        setError(`Only ${selectedBatch.quantity} units available`);
+      let newFreeQty = 0;
+      if (schemeQty > 0 && freePerScheme > 0) {
+        newFreeQty = Math.floor(newQty / schemeQty) * freePerScheme;
+      }
+      if (newQty + newFreeQty > selectedBatch.quantity) {
+        setError(`Only ${selectedBatch.quantity} units available. (Needed ${newQty + newFreeQty} with bonus units)`);
         return;
       }
-      const updated = cart[existingIndex];
+      const updated = { ...cart[existingIndex] };
       updated.quantity = newQty;
-      updated.totalAmount = newQty * updated.sellingPrice;
-      updated.taxableValue = updated.totalAmount;
-      updated.cgstAmount = updated.totalAmount * ((selectedBatch.purchase_gst_percent || 0) / 200);
-      updated.sgstAmount = updated.totalAmount * ((selectedBatch.purchase_gst_percent || 0) / 200);
-      updated.netAmount = updated.totalAmount + updated.cgstAmount + updated.sgstAmount;
+      updated.freeQty = newFreeQty;
+      const itemDisc = updated.discountPercent || autoDiscount;
+      const updatedTaxable = newQty * (updated.sellingPrice * (1 - itemDisc / 100));
+      updated.taxableValue = updatedTaxable;
+      updated.totalAmount = updatedTaxable;
+      const itemHalfRate = (updated.gstPercent || 0) / 200;
+      updated.cgstAmount = updatedTaxable * itemHalfRate;
+      updated.sgstAmount = updatedTaxable * itemHalfRate;
+      updated.netAmount = updatedTaxable + updated.cgstAmount + updated.sgstAmount;
       cart[existingIndex] = updated;
       setCart([...cart]);
     } else {
@@ -270,10 +418,13 @@ export default function Sales() {
         expiryDate: selectedBatch.expiry_date || '',
         availableQty: selectedBatch.quantity,
         quantity: cartQty,
+        freeQty: autoFreeQty,
+        schemeBonusCode: schemeCode || undefined,
         sellingPrice: unitPrice,
         purchasePrice: selectedBatch.purchase_price || 0,
-        discountPercent: 0,
-        totalAmount: cartQty * unitPrice,
+        gstPercent: gstRate,
+        discountPercent: autoDiscount,
+        totalAmount: taxableValue,
         taxableValue,
         cgstAmount,
         sgstAmount,
@@ -289,7 +440,7 @@ export default function Sales() {
     setMedicineSearch('');
     setSearchResults([]);
     setError('');
-  }, [selectedBatch, cartQty, cart, medicines]);
+  }, [selectedBatch, cartQty, cart, priceRules]);
 
   const handleRemoveFromCart = useCallback((id: string) => {
     setCart(cart.filter(item => item.id !== id));
@@ -301,14 +452,17 @@ export default function Sales() {
         const discPct = Math.max(0, Math.min(100, discount));
         const discountedPrice = item.sellingPrice * (1 - discPct / 100);
         const newTotal = item.quantity * discountedPrice;
+        const halfRate = (item.gstPercent || 0) / 200;
+        const cgst = newTotal * halfRate;
+        const sgst = newTotal * halfRate;
         return {
           ...item,
           discountPercent: discPct,
           totalAmount: newTotal,
           taxableValue: newTotal,
-          cgstAmount: newTotal * 0.06,
-          sgstAmount: newTotal * 0.06,
-          netAmount: newTotal * 1.12,
+          cgstAmount: cgst,
+          sgstAmount: sgst,
+          netAmount: newTotal + cgst + sgst,
         };
       }
       return item;
@@ -397,15 +551,17 @@ export default function Sales() {
           batchNumber: item.batchNumber,
           medicineName: item.medicineName,
           quantity: item.quantity,
+          freeQty: item.freeQty || 0,
+          schemeBonusCode: item.schemeBonusCode || null,
           expiryDate: item.expiryDate,
           purchasePrice: item.purchasePrice || 0,
           sellingPrice: item.sellingPrice,
           discountPercent: item.discountPercent,
-          taxableValue: item.totalAmount,
-          cgstAmount: item.totalAmount * 0.06,
-          sgstAmount: item.totalAmount * 0.06,
-          igstAmount: 0,
-          netAmount: item.totalAmount * 1.12,
+          taxableValue: item.taxableValue,
+          cgstAmount: item.cgstAmount,
+          sgstAmount: item.sgstAmount,
+          igstAmount: item.igstAmount || 0,
+          netAmount: item.netAmount,
         }));
 
         const result = await window.electronAPI.processSale({
@@ -470,6 +626,9 @@ export default function Sales() {
             saleDate: new Date().toISOString(),
           });
           setShowReceipt(true);
+          if (paymentMode === 'cash') {
+            setSessionCashSales(prev => prev + finalAmount);
+          }
           setSuccess('Sale completed successfully!');
           
           setCart([]);
@@ -526,12 +685,47 @@ export default function Sales() {
   return (
     <div className="max-w-7xl mx-auto space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-foreground font-display">Pharmacy POS - Sales</h2>
-          <p className="text-sm text-muted-foreground mt-1">Complete medical billing with customer details, GST, and stock management</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Complete medical billing with customer details, GST, and stock management</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Held Bills Button */}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setShowHeldBillsModal(true)}
+            className={cn(
+              "h-8.5 rounded-xl font-semibold text-xs border transition-all cursor-pointer",
+              heldBills.length > 0
+                ? "bg-[#EDF5F6] border-[#14292E]/20 text-[#14292E] hover:bg-[#EDF5F6]/70"
+                : "border-slate-200 text-slate-600 hover:bg-slate-100"
+            )}
+          >
+            <Clock className="w-3.5 h-3.5 mr-1.5 text-[#14292E]" />
+            Held Bills
+            <span className={cn(
+              "ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold",
+              heldBills.length > 0 ? "bg-[#14292E] text-white" : "bg-slate-200 text-slate-700"
+            )}>
+              {heldBills.length}
+            </span>
+          </Button>
+
+          {/* Cash Drawer / Till Shift Session Button */}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setShowShiftModal(true)}
+            className="h-8.5 rounded-xl font-semibold text-xs border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 cursor-pointer shadow-xs"
+          >
+            <Calculator className="w-3.5 h-3.5 mr-1.5 text-emerald-600" />
+            Cash Drawer / Till
+          </Button>
+
           <Badge variant="outline-teal" size="md">
             <Package className="w-3.5 h-3.5 mr-1.5" />
             {medicines.length} Medicines
@@ -786,11 +980,26 @@ export default function Sales() {
                   <ShoppingCart className="w-4 h-4 text-accent" />
                   Cart ({cart.length} items)
                 </span>
-                {cart.length > 0 && (
-                  <Button variant="ghost" size="sm" onClick={() => setCart([])} className="text-destructive hover:text-destructive">
-                    <Trash2 className="w-4 h-4 mr-1" /> Clear All
-                  </Button>
-                )}
+                <div className="flex items-center gap-2">
+                  {cart.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleParkSale}
+                      className="h-8 text-xs font-semibold border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 cursor-pointer shadow-xs"
+                      title="Park / Hold this sale to serve another customer"
+                    >
+                      <PauseCircle className="w-3.5 h-3.5 mr-1 text-amber-600" />
+                      Hold Bill
+                    </Button>
+                  )}
+                  {cart.length > 0 && (
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setCart([])} className="text-destructive hover:text-destructive h-8 text-xs cursor-pointer">
+                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Clear All
+                    </Button>
+                  )}
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
@@ -820,17 +1029,27 @@ export default function Sales() {
                         <th className="px-3 py-2 text-center font-semibold text-muted-foreground w-10"></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-slate-50">
                       {cart.map((item, idx) => (
                         <tr key={item.id} className="hover:bg-muted/50/50">
                           <td className="px-3 py-2.5 text-muted-foreground/60 font-mono">{idx + 1}</td>
                           <td className="px-3 py-2.5">
                             <p className="font-medium text-foreground">{item.medicineName}</p>
+                            {item.schemeBonusCode && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-accent">
+                                🎁 Scheme: {item.schemeBonusCode}
+                              </span>
+                            )}
                           </td>
                           <td className="px-3 py-2.5 font-mono text-muted-foreground">{item.itemCode || '-'}</td>
                           <td className="px-3 py-2.5 font-mono text-muted-foreground">{item.batchNumber}</td>
                           <td className="px-3 py-2.5 text-center">{formatDate(item.expiryDate)}</td>
-                          <td className="px-3 py-2.5 text-center font-bold">{item.quantity}</td>
+                          <td className="px-3 py-2.5 text-center">
+                            <span className="font-bold text-foreground">{item.quantity}</span>
+                            {item.freeQty && item.freeQty > 0 ? (
+                              <span className="block text-[9px] font-semibold text-emerald-600">+{item.freeQty} Free</span>
+                            ) : null}
+                          </td>
                           <td className="px-3 py-2.5 text-right">₹{item.sellingPrice.toFixed(2)}</td>
                           <td className="px-3 py-2.5 text-center">
                             <input
@@ -843,8 +1062,14 @@ export default function Sales() {
                             />
                           </td>
                           <td className="px-3 py-2.5 text-right">₹{item.taxableValue.toFixed(2)}</td>
-                          <td className="px-3 py-2.5 text-center">₹{item.cgstAmount.toFixed(2)}</td>
-                          <td className="px-3 py-2.5 text-center">₹{item.sgstAmount.toFixed(2)}</td>
+                          <td className="px-3 py-2.5 text-center">
+                            ₹{item.cgstAmount.toFixed(2)}
+                            <span className="block text-[8px] text-muted-foreground/60">{((item.gstPercent || 0) / 2)}%</span>
+                          </td>
+                          <td className="px-3 py-2.5 text-center">
+                            ₹{item.sgstAmount.toFixed(2)}
+                            <span className="block text-[8px] text-muted-foreground/60">{((item.gstPercent || 0) / 2)}%</span>
+                          </td>
                           <td className="px-3 py-2.5 text-right font-semibold text-foreground">₹{item.netAmount.toFixed(2)}</td>
                           <td className="px-3 py-2.5 text-center">
                             <button onClick={() => handleRemoveFromCart(item.id)} className="p-1.5 hover:bg-destructive/10 rounded-lg transition-colors">
@@ -967,7 +1192,7 @@ export default function Sales() {
                         <th className="px-2 py-1.5 text-center">Ret</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-slate-50">
                       {cart.map((item, idx) => (
                         <tr key={item.id}>
                           <td className="px-2 py-1.5 font-medium">{item.medicineName}</td>
@@ -1182,6 +1407,185 @@ export default function Sales() {
             onClose={() => setShowReceipt(false)}
             onPrint={handlePrintReceipt}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Held Bills (Parked Sales) Dialog */}
+      <Dialog open={showHeldBillsModal} onOpenChange={setShowHeldBillsModal}>
+        <DialogContent className="max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
+              <Clock className="w-5 h-5 text-[#14292E] dark:text-[#2E9C90]" />
+              Held & Parked Bills ({heldBills.length})
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 space-y-3 max-h-[60vh] overflow-y-auto">
+            {heldBills.length === 0 ? (
+              <div className="py-12 text-center text-slate-500">
+                <PauseCircle className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                <p className="font-semibold text-slate-700 dark:text-slate-200">No Held Bills</p>
+                <p className="text-xs text-slate-400 mt-1">When customers are waiting or need more items, click "Hold Bill" in the cart to park their sale.</p>
+              </div>
+            ) : (
+              heldBills.map((bill) => (
+                <div key={bill.id} className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 hover:bg-slate-50 flex items-center justify-between gap-4 transition-all">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900 dark:text-white text-sm truncate">{bill.customerName}</span>
+                      <span className="text-[11px] font-mono text-slate-400">({bill.heldAt})</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#2E9C90]/40 text-[#0E3331]">
+                        {bill.cart.length} items
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1 truncate">
+                      {bill.cart.map(c => `${c.medicineName} (x${c.quantity})`).join(', ')}
+                    </p>
+                    <p className="text-xs font-black text-slate-900 dark:text-white font-mono mt-1.5">
+                      Total: ₹{bill.totalAmount.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handleResumeSale(bill)}
+                      className="bg-[#14292E] hover:bg-[#223A40] text-white rounded-xl text-xs font-semibold px-3 h-8 shadow-xs cursor-pointer"
+                    >
+                      <PlayCircle className="w-3.5 h-3.5 mr-1 text-[#2E9C90]" />
+                      Resume
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDiscardHeldBill(bill.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl text-xs h-8 px-2 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowHeldBillsModal(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Shift & Cash Drawer Till Session Dialog */}
+      <Dialog open={showShiftModal} onOpenChange={setShowShiftModal}>
+        <DialogContent className="max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
+              <Calculator className="w-5 h-5 text-emerald-600" />
+              Cash Drawer & Shift Session (Till Tally)
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 space-y-4">
+            <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800 flex items-center justify-between text-xs text-emerald-900 dark:text-emerald-200">
+              <div>
+                <p className="font-bold">Active Shift: {user?.displayName || 'Pharmacist'}</p>
+                <p className="text-emerald-700 dark:text-emerald-400 mt-0.5">Started today at {shiftStartTime} · Counter: {counterId}</p>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-emerald-200/70 dark:bg-emerald-800/60 font-bold text-emerald-900 dark:text-emerald-100 text-[10px]">
+                {shiftClosed ? 'Reconciled' : 'Active Till'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+                <span className="text-slate-500 font-medium">Opening Float Cash</span>
+                <div className="mt-1 flex items-center gap-1">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">₹</span>
+                  <input
+                    type="number"
+                    value={openingCash}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 0;
+                      setOpeningCash(val);
+                      localStorage.setItem('anpharmacy_shift_opening_cash', val.toString());
+                    }}
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 font-mono font-bold text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+                <span className="text-slate-500 font-medium">Session Cash Sales</span>
+                <p className="text-base font-black text-emerald-700 dark:text-emerald-400 font-mono mt-1">₹{sessionCashSales.toFixed(2)}</p>
+              </div>
+
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+                <span className="text-slate-500 font-medium">Cash Expenses / Paid Out</span>
+                <div className="mt-1 flex items-center gap-1">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">₹</span>
+                  <input
+                    type="number"
+                    value={cashExpenses}
+                    onChange={(e) => setCashExpenses(parseFloat(e.target.value) || 0)}
+                    placeholder="0.00"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 font-mono font-bold text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-[#EDF5F6] dark:bg-slate-800">
+                <span className="text-slate-700 dark:text-slate-300 font-bold">Expected In Drawer</span>
+                <p className="text-base font-black text-[#14292E] dark:text-[#2E9C90] font-mono mt-1">
+                  ₹{(openingCash + sessionCashSales - cashExpenses).toFixed(2)}
+                </p>
+              </div>
+            </div>
+
+            {/* Physical Cash Count */}
+            <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+                Physical Cash Counted In Drawer (₹)
+              </label>
+              <Input
+                type="number"
+                placeholder="Enter actual counted physical cash..."
+                value={countedCash}
+                onChange={(e) => setCountedCash(e.target.value)}
+                className="h-11 text-base font-mono font-bold"
+              />
+
+              {countedCash !== '' && (() => {
+                const counted = parseFloat(countedCash) || 0;
+                const expected = openingCash + sessionCashSales - cashExpenses;
+                const diff = counted - expected;
+                return (
+                  <div className={cn(
+                    "mt-3 p-3 rounded-xl flex items-center justify-between text-xs font-bold",
+                    Math.abs(diff) < 0.01
+                      ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 border border-emerald-300"
+                      : diff > 0
+                      ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 border border-emerald-300"
+                      : "bg-red-100 dark:bg-red-950/60 text-red-900 dark:text-red-300 border border-red-300"
+                  )}>
+                    <span>{Math.abs(diff) < 0.01 ? "✓ Till Exactly Balanced" : diff > 0 ? "Surplus Cash in Till" : "Cash Shortage in Till"}</span>
+                    <span className="font-mono text-sm">
+                      {diff > 0 ? `+₹${diff.toFixed(2)}` : diff < 0 ? `-₹${Math.abs(diff).toFixed(2)}` : "₹0.00"}
+                    </span>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+          <DialogFooter className="mt-5 flex gap-2 justify-end">
+            <Button variant="outline" onClick={() => setShowShiftModal(false)}>Close</Button>
+            <Button
+              className="bg-[#14292E] hover:bg-[#223A40] text-white"
+              onClick={() => {
+                setShiftClosed(true);
+                setShowShiftModal(false);
+                setSuccess('Shift reconciled & summary recorded.');
+                setTimeout(() => setSuccess(''), 4000);
+              }}
+            >
+              Confirm Till Reconciliation
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

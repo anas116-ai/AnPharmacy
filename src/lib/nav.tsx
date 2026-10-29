@@ -54,8 +54,8 @@ export const GROUP_LABELS: Record<string, string> = {
 export const GROUP_ORDER = ['overview', 'stock', 'sales', 'returns', 'people', 'operations', 'insights', 'admin'];
 
 /**
- * Aurora group theming — each nav group carries its own accent color so the
- * sidebar reads as a colorful, scannable system map.
+ * Header group chips — one teal accent for every module so the app bar never
+ * competes with page content; Administration stays neutral/muted.
  */
 export interface GroupColors {
   /** text color for the group label */
@@ -75,87 +75,41 @@ export interface GroupColors {
   activeGlow: string;
 }
 
+/**
+ * One accent across the product. The chip is a quiet teal tint on light
+ * surfaces and a mint tint in dark mode; Admin is intentionally muted.
+ */
+const BRAND_GROUP: GroupColors = {
+  label: 'text-[#123F3D]',
+  gradient: 'from-[#14292E] to-[#17827A]',
+  solid: 'text-[#123F3D]',
+  glow: 'shadow-[#17827A]/20',
+  dot: 'bg-[#17827A]',
+  activeBg: 'bg-[#17827A]/10 dark:bg-[#17827A]/20',
+  activeBorder: 'border-[#17827A]/25 dark:border-[#2E9C90]/25',
+  activeGlow: 'shadow-[0_4px_16px_-4px_rgba(23,130,122,0.25)]',
+};
+
+const MUTED_GROUP: GroupColors = {
+  label: 'text-slate-500',
+  gradient: 'from-slate-700 to-slate-600',
+  solid: 'text-slate-500',
+  glow: 'shadow-slate-500/20',
+  dot: 'bg-slate-400',
+  activeBg: 'bg-slate-500/10',
+  activeBorder: 'border-slate-500/25',
+  activeGlow: 'shadow-[0_4px_16px_-4px_rgba(108,138,146,0.25)]',
+};
+
 export const GROUP_COLORS: Record<string, GroupColors> = {
-  overview: {
-    label: 'text-emerald-300',
-    gradient: 'from-emerald-500 via-teal-500 to-emerald-400',
-    solid: 'text-emerald-400',
-    glow: 'shadow-emerald-500/30',
-    dot: 'bg-emerald-400',
-    activeBg: 'bg-gradient-to-r from-emerald-500/25 to-teal-500/10',
-    activeBorder: 'border-emerald-400/40',
-    activeGlow: 'shadow-[0_8px_24px_-10px_rgba(16,185,129,0.7)]',
-  },
-  stock: {
-    label: 'text-teal-300',
-    gradient: 'from-teal-500 via-cyan-500 to-teal-400',
-    solid: 'text-teal-400',
-    glow: 'shadow-teal-500/30',
-    dot: 'bg-teal-400',
-    activeBg: 'bg-gradient-to-r from-teal-500/25 to-cyan-500/10',
-    activeBorder: 'border-teal-400/40',
-    activeGlow: 'shadow-[0_8px_24px_-10px_rgba(20,184,166,0.7)]',
-  },
-  sales: {
-    label: 'text-sky-300',
-    gradient: 'from-sky-500 via-blue-500 to-sky-400',
-    solid: 'text-sky-400',
-    glow: 'shadow-sky-500/30',
-    dot: 'bg-sky-400',
-    activeBg: 'bg-gradient-to-r from-sky-500/25 to-blue-500/10',
-    activeBorder: 'border-sky-400/40',
-    activeGlow: 'shadow-[0_8px_24px_-10px_rgba(14,165,233,0.7)]',
-  },
-  returns: {
-    label: 'text-amber-300',
-    gradient: 'from-amber-500 via-orange-500 to-amber-400',
-    solid: 'text-amber-400',
-    glow: 'shadow-amber-500/30',
-    dot: 'bg-amber-400',
-    activeBg: 'bg-gradient-to-r from-amber-500/25 to-orange-500/10',
-    activeBorder: 'border-amber-400/40',
-    activeGlow: 'shadow-[0_8px_24px_-10px_rgba(245,158,11,0.7)]',
-  },
-  people: {
-    label: 'text-violet-300',
-    gradient: 'from-violet-500 via-purple-500 to-violet-400',
-    solid: 'text-violet-400',
-    glow: 'shadow-violet-500/30',
-    dot: 'bg-violet-400',
-    activeBg: 'bg-gradient-to-r from-violet-500/25 to-purple-500/10',
-    activeBorder: 'border-violet-400/40',
-    activeGlow: 'shadow-[0_8px_24px_-10px_rgba(139,92,246,0.7)]',
-  },
-  operations: {
-    label: 'text-cyan-300',
-    gradient: 'from-cyan-500 via-sky-500 to-cyan-400',
-    solid: 'text-cyan-400',
-    glow: 'shadow-cyan-500/30',
-    dot: 'bg-cyan-400',
-    activeBg: 'bg-gradient-to-r from-cyan-500/25 to-sky-500/10',
-    activeBorder: 'border-cyan-400/40',
-    activeGlow: 'shadow-[0_8px_24px_-10px_rgba(6,182,212,0.7)]',
-  },
-  insights: {
-    label: 'text-indigo-300',
-    gradient: 'from-indigo-500 via-violet-500 to-indigo-400',
-    solid: 'text-indigo-400',
-    glow: 'shadow-indigo-500/30',
-    dot: 'bg-indigo-400',
-    activeBg: 'bg-gradient-to-r from-indigo-500/25 to-violet-500/10',
-    activeBorder: 'border-indigo-400/40',
-    activeGlow: 'shadow-[0_8px_24px_-10px_rgba(99,102,241,0.7)]',
-  },
-  admin: {
-    label: 'text-slate-300',
-    gradient: 'from-slate-500 via-slate-400 to-slate-500',
-    solid: 'text-slate-400',
-    glow: 'shadow-slate-500/30',
-    dot: 'bg-slate-400',
-    activeBg: 'bg-gradient-to-r from-slate-500/25 to-slate-400/10',
-    activeBorder: 'border-slate-400/40',
-    activeGlow: 'shadow-[0_8px_24px_-10px_rgba(148,163,184,0.6)]',
-  },
+  overview: BRAND_GROUP,
+  stock: BRAND_GROUP,
+  sales: BRAND_GROUP,
+  returns: BRAND_GROUP,
+  people: BRAND_GROUP,
+  operations: BRAND_GROUP,
+  insights: BRAND_GROUP,
+  admin: MUTED_GROUP,
 };
 
 /** Shared default for any unknown group */

@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="AnPharmacy">
   <defs>
     <linearGradient id="flow" gradientUnits="userSpaceOnUse" x1="14" y1="14" x2="86" y2="86">
-      <stop offset="0%" stop-color="#990066"/>
-      <stop offset="52%" stop-color="#D4148C"/>
-      <stop offset="100%" stop-color="#FF5A8D"/>
+      <stop offset="0%" stop-color="#123F3D"/>
+      <stop offset="52%" stop-color="#17827A"/>
+      <stop offset="100%" stop-color="#3FA79B"/>
     </linearGradient>
     <linearGradient id="pill" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#D4148C"/>
-      <stop offset="100%" stop-color="#FF5A8D"/>
+      <stop offset="0%" stop-color="#17827A"/>
+      <stop offset="100%" stop-color="#3FA79B"/>
     </linearGradient>
   </defs>
   <!-- three medicine streams converging into one controlled capsule -->

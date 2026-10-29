@@ -9,20 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=Montserrat:wght@600;700&family=Space+Grotesk:wght@500;600;700&family=Sora:wght@500;600;700&family=Saira+Condensed:wght@600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --deep-magenta: #990066;
-    --magenta: #D4148C;
-    --coral: #FF5A8D;
-    --grad: linear-gradient(135deg, #990066 0%, #D4148C 50%, #FF5A8D 100%);
-    --grad-text: linear-gradient(95deg, #990066 0%, #D4148C 48%, #FF5A8D 100%);
+    --deep-magenta: #123F3D;
+    --magenta: #17827A;
+    --coral: #3FA79B;
+    --grad: linear-gradient(135deg, #123F3D 0%, #17827A 50%, #3FA79B 100%);
+    --grad-text: linear-gradient(95deg, #123F3D 0%, #17827A 48%, #3FA79B 100%);
     /* lighter 2-stop reserved for dark surfaces so gradient text clears WCAG 4.5:1 over ink */
-    --grad-text-dark: linear-gradient(135deg, #D4148C 0%, #FF5A8D 100%);
-    --ink: #0A0F1E;
-    --ink-2: #101E38;
+    --grad-text-dark: linear-gradient(135deg, #17827A 0%, #3FA79B 100%);
+    --ink: #0C1D21;
+    --ink-2: #123035;
     --paper: #FFFFFF;
-    --paper-2: #F7F8FA;
-    --ink-text: #0A0F1E;
-    --muted: #5B6478;
-    --line: rgba(16,30,56,0.10);
+    --paper-2: #F4F9FA;
+    --ink-text: #0C1D21;
+    --muted: #5B7078;
+    --line: rgba(16, 45, 56,0.10);
     --sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     --mono-note: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   }
@@ -35,8 +35,8 @@
     font-family: var(--sans);
     color: var(--ink-text);
     background:
-      radial-gradient(60rem 40rem at -10% -10%, rgba(212,20,140,0.06), transparent 60%),
-      radial-gradient(48rem 38rem at 110% 6%, rgba(255,90,141,0.06), transparent 55%),
+      radial-gradient(60rem 40rem at -10% -10%, rgba(35, 197, 184,0.06), transparent 60%),
+      radial-gradient(48rem 38rem at 110% 6%, rgba(115, 230, 221,0.06), transparent 55%),
       var(--paper-2);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -93,7 +93,7 @@
   .concepts { display: grid; gap: 26px; }
   .concept {
     background: #fff; border: 1px solid var(--line); border-radius: 16px;
-    overflow: hidden; box-shadow: 0 18px 40px -30px rgba(16,30,56,0.45);
+    overflow: hidden; box-shadow: 0 18px 40px -30px rgba(16, 45, 56,0.45);
     opacity: 0; transform: translateY(14px);
     animation: rise 0.6s cubic-bezier(.2,.7,.2,1) forwards;
   }
@@ -102,7 +102,7 @@
   .concept .c-top {
     display: flex; align-items: center; justify-content: space-between;
     padding: 16px 22px; border-bottom: 1px solid var(--line);
-    background: linear-gradient(180deg, #fcfcfd, #fff);
+    background: linear-gradient(180deg, #FCFDFD, #fff);
   }
   .concept .c-id {
     font-family: 'Space Grotesk', var(--sans);
@@ -196,7 +196,7 @@
   .sys-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; }
   @media (max-width: 860px) { .sys-grid { grid-template-columns: 1fr; } }
 
-  .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: 0 18px 40px -32px rgba(16,30,56,0.4); }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: 0 18px 40px -32px rgba(16, 45, 56,0.4); }
   .card h3 { font-family: 'Space Grotesk', var(--sans); font-size: 15px; font-weight: 700; margin-bottom: 4px; }
   .card .sub { font-size: 12.5px; color: var(--muted); margin-bottom: 18px; }
 
@@ -212,7 +212,7 @@
   .appbar {
     display: flex; align-items: center; gap: 12px;
     background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px;
-    box-shadow: 0 12px 30px -26px rgba(16,30,56,0.5);
+    box-shadow: 0 12px 30px -26px rgba(16, 45, 56,0.5);
   }
   .appbar .wm-mini { font-family: 'Poppins', var(--sans); font-weight: 700; font-size: 21px; letter-spacing: -0.03em;
     background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -238,13 +238,13 @@
 
   /* favicon / app icon tile */
   .tile-row { display: flex; align-items: flex-end; gap: 18px; flex-wrap: wrap; }
-  .tile { border-radius: 22%; display: flex; align-items: center; justify-content: center; background: var(--grad); box-shadow: 0 14px 30px -18px rgba(212,20,140,0.7); }
+  .tile { border-radius: 22%; display: flex; align-items: center; justify-content: center; background: var(--grad); box-shadow: 0 14px 30px -18px rgba(35, 197, 184,0.7); }
   .tile span { font-family: 'Poppins', var(--sans); font-weight: 700; color: #fff; letter-spacing: -0.03em; }
 
   /* ---------- Per-concept app-header renders ---------- */
   .apphdr { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   @media (max-width: 760px) { .apphdr { grid-template-columns: 1fr; } }
-  .app-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: 0 14px 34px -30px rgba(16,30,56,0.4); display: grid; gap: 10px; }
+  .app-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: 0 14px 34px -30px rgba(16, 45, 56,0.4); display: grid; gap: 10px; }
   .app-card-h { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-2); font-family: 'Space Grotesk', var(--sans); }
   .apphdr-bar { display: flex; align-items: center; gap: 12px; padding: 9px 14px; border-radius: 11px; }
   .apphdr-bar.dark { background: var(--ink); --grad-text: var(--grad-text-dark); }
@@ -264,8 +264,8 @@
   .dn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
   @media (max-width: 760px) { .dn-grid { grid-template-columns: 1fr; } }
   .dn { border-radius: 14px; padding: 22px; border: 1px solid var(--line); }
-  .dn.do { background: linear-gradient(180deg, rgba(212,20,140,0.05), #fff); }
-  .dn.dont { background: linear-gradient(180deg, rgba(153,0,102,0.04), #fff); }
+  .dn.do { background: linear-gradient(180deg, rgba(35, 197, 184,0.05), #fff); }
+  .dn.dont { background: linear-gradient(180deg, rgba(23, 130, 121,0.04), #fff); }
   .dn h4 { font-family: 'Space Grotesk', var(--sans); font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 9px; }
   .dn.do h4 { color: var(--magenta); }
   .dn.dont h4 { color: var(--deep-magenta); }
@@ -296,7 +296,7 @@
       <span class="chip b">P5a – P5h</span>
       <span class="chip">Typography only</span>
       <span class="chip">Geometric sans</span>
-      <span class="chip">#990066 → #FF5A8D</span>
+      <span class="chip">#123F3D → #3FA79B</span>
       <span class="chip">Offline-safe</span>
     </div>
   </div>
@@ -579,11 +579,11 @@
   <div class="wrap">
     <div>AnPharmacy — Logo Concept Set P5 · Wordmark Combinations · self-contained showcase.</div>
     <div class="pal">
-      <span class="sw" style="background:#990066"></span><span class="pc">#990066</span>
-      <span class="sw" style="background:#D4148C"></span><span class="pc">#D4148C</span>
-      <span class="sw" style="background:#FF5A8D"></span><span class="pc">#FF5A8D</span>
-      <span class="sw" style="background:#0A0F1E"></span><span class="pc">#0A0F1E</span>
-      <span class="sw" style="background:#F7F8FA"></span><span class="pc">#F7F8FA</span>
+      <span class="sw" style="background:#123F3D"></span><span class="pc">#123F3D</span>
+      <span class="sw" style="background:#17827A"></span><span class="pc">#17827A</span>
+      <span class="sw" style="background:#3FA79B"></span><span class="pc">#3FA79B</span>
+      <span class="sw" style="background:#0C1D21"></span><span class="pc">#0C1D21</span>
+      <span class="sw" style="background:#F4F9FA"></span><span class="pc">#F4F9FA</span>
     </div>
   </div>
 </footer>

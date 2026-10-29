@@ -49,12 +49,12 @@ export default function SalesTrendChart({
           </div>
           <div className="flex items-center gap-3 text-xs">
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-0.5 rounded-full bg-emerald-500" />
+              <span className="w-3 h-0.5 rounded-full bg-[#17827A]" />
               <span className="text-slate-500 dark:text-slate-400">Sales</span>
             </div>
             {showRevenue && (
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-0.5 rounded-full bg-navy-400" />
+                <span className="w-3 h-0.5 rounded-full bg-[#17827A]" />
                 <span className="text-slate-500 dark:text-slate-400">Revenue</span>
               </div>
             )}
@@ -69,33 +69,33 @@ export default function SalesTrendChart({
                 <defs>
                   {/* Premium animated gradient for sales area */}
                   <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#17827A" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="#17827A" stopOpacity={0} />
                   </linearGradient>
                   {/* Gradient for revenue line */}
                   <linearGradient id="revenueGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#1B6A8A" stopOpacity={1} />
-                    <stop offset="100%" stopColor="#2D8CB6" stopOpacity={1} />
+                    <stop offset="0%" stopColor="#123F3D" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#17827A" stopOpacity={1} />
                   </linearGradient>
                   {/* Subtle grid pattern */}
                   <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <circle cx="20" cy="20" r="0.5" fill="#e2e8f0" />
+                    <circle cx="20" cy="20" r="0.5" fill="#DCEAEC" />
                   </pattern>
                 </defs>
                 <CartesianGrid 
                   strokeDasharray="3 3" 
-                  stroke="#e2e8f0" 
+                  stroke="#DCEAEC" 
                   vertical={false} 
                 />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  tick={{ fontSize: 11, fill: '#8FADB4' }}
                   tickLine={false}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                  axisLine={{ stroke: '#DCEAEC' }}
                   dy={4}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  tick={{ fontSize: 11, fill: '#8FADB4' }}
                   tickLine={false}
                   axisLine={false}
                   width={36}
@@ -103,8 +103,8 @@ export default function SalesTrendChart({
                 <Tooltip
                   contentStyle={{
                     borderRadius: '12px',
-                    border: '1px solid hsl(210, 20%, 88%)',
-                    boxShadow: '0 8px 24px rgba(10, 61, 92, 0.08)',
+                    border: '1px solid hsl(192, 24%, 90%)',
+                    boxShadow: '0 8px 24px rgba(20, 41, 46, 0.08)',
                     fontSize: '12px',
                     background: 'rgba(255,255,255,0.95)',
                     backdropFilter: 'blur(10px)',
@@ -117,16 +117,16 @@ export default function SalesTrendChart({
                 <Area
                   type="monotone"
                   dataKey="sales"
-                  stroke="#10b981"
+                  stroke="#17827A"
                   strokeWidth={2.5}
                   fill="url(#salesGradient)"
                   dot={false}
                   activeDot={{ 
                     r: 5, 
-                    fill: '#10b981', 
+                    fill: '#17827A', 
                     stroke: '#fff', 
                     strokeWidth: 2,
-                    style: { filter: 'drop-shadow(0 2px 4px rgba(16, 185, 129, 0.3))' }
+                    style: { filter: 'drop-shadow(0 2px 4px rgba(23, 130, 122, 0.3))' }
                   }}
                   animationDuration={1200}
                   animationEasing="ease-out"
@@ -142,7 +142,7 @@ export default function SalesTrendChart({
                     strokeDasharray="5 3"
                     activeDot={{ 
                       r: 5, 
-                      fill: '#1B6A8A', 
+                      fill: '#123F3D', 
                       stroke: '#fff', 
                       strokeWidth: 2,
                       style: { filter: 'drop-shadow(0 2px 4px rgba(27, 106, 138, 0.3))' }

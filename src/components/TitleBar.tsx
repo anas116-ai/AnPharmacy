@@ -23,13 +23,13 @@ export default function TitleBar() {
       className="relative h-9 flex items-center justify-between bg-slate-950 border-b border-white/[0.06] select-none shrink-0"
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
-      {/* Aurora accent strip */}
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#990066] via-[#D4148C] to-[#FF5A8D] opacity-70 pointer-events-none" aria-hidden="true" />
+      {/* Subtle clinical accent strip */}
+      <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-[#14292E]/25 via-[#123F3D]/45 to-[#14292E]/25 opacity-60 pointer-events-none" aria-hidden="true" />
       {/* App identity */}
       <div className="flex items-center gap-2 pl-3 min-w-0">
-        <Emblem className="w-4 h-4 shadow-[0_0_10px_-1px_rgba(212,20,140,0.6)]" />
+        <Emblem className="w-4 h-4 shadow-[0_0_8px_-1px_rgba(23,130,122,0.4)]" />
         <span className="text-xs font-semibold text-slate-200 tracking-tight truncate">AnPharmacy</span>
-        <span className="hidden md:inline text-[10px] text-slate-400">— Intelligent Pharmacy Management</span>
+        <span className="hidden md:inline text-[10px] text-slate-400">— Intelligent Pharmacy Distribution Management</span>
       </div>
 
       {/* Window controls */}

@@ -208,7 +208,7 @@ export default function Manufacturers() {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#123F3D] to-[#14292E] rounded-xl flex items-center justify-center">
                       <Factory className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -219,7 +219,7 @@ export default function Manufacturers() {
                             key={i}
                             className={cn(
                               'w-3 h-3',
-                              i < manufacturer.rating ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground/40'
+                              i < manufacturer.rating ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/40'
                             )}
                           />
                         ))}

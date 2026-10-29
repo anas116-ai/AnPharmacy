@@ -53,6 +53,87 @@ export default function Suppliers() {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
 
+  // Supplier Payables & Payment Ledger
+  const [payingSupplier, setPayingSupplier] = useState<Supplier | null>(null);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
+  const [paymentRef, setPaymentRef] = useState('');
+  const [paymentNotes, setPaymentNotes] = useState('');
+  const [isRecordingPayment, setIsRecordingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
+  const [paymentSuccess, setPaymentSuccess] = useState('');
+
+  const [ledgerSupplier, setLedgerSupplier] = useState<Supplier | null>(null);
+  const [ledgerEntries, setLedgerEntries] = useState<any[]>([]);
+  const [ledgerBalance, setLedgerBalance] = useState(0);
+  const [isLoadingLedger, setIsLoadingLedger] = useState(false);
+
+  const openLedger = async (supplier: Supplier) => {
+    setLedgerSupplier(supplier);
+    setIsLoadingLedger(true);
+    setShowMenu(null);
+    try {
+      if (window.electronAPI) {
+        const res = await window.electronAPI.getSupplierLedger({ supplierId: supplier.id });
+        if (res.success) {
+          setLedgerEntries(res.ledger || []);
+          setLedgerBalance(res.currentBalance ?? supplier.current_balance ?? 0);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoadingLedger(false);
+    }
+  };
+
+  const openPaymentModal = (supplier: Supplier) => {
+    setPayingSupplier(supplier);
+    setPaymentAmount(supplier.current_balance && supplier.current_balance > 0 ? String(supplier.current_balance) : '');
+    setPaymentMethod('bank_transfer');
+    setPaymentRef('');
+    setPaymentNotes('');
+    setPaymentError('');
+    setPaymentSuccess('');
+    setShowMenu(null);
+  };
+
+  const handleRecordPayment = async () => {
+    if (!payingSupplier) return;
+    const num = parseFloat(paymentAmount);
+    if (!num || num <= 0) {
+      setPaymentError('Please enter a valid payment amount greater than zero');
+      return;
+    }
+    setIsRecordingPayment(true);
+    setPaymentError('');
+    try {
+      if (window.electronAPI) {
+        const res = await window.electronAPI.addSupplierPayment({
+          supplierId: payingSupplier.id,
+          amount: num,
+          paymentMethod,
+          referenceId: paymentRef.trim() || undefined,
+          notes: paymentNotes.trim() || undefined,
+        });
+        if (res.success) {
+          setPaymentSuccess(`₹${num.toFixed(2)} payment recorded for ${payingSupplier.name}`);
+          refreshSuppliers();
+          setTimeout(() => {
+            setPayingSupplier(null);
+            setPaymentSuccess('');
+          }, 1500);
+        } else {
+          setPaymentError(res.error || 'Failed to record payment');
+        }
+      }
+    } catch (err: any) {
+      setPaymentError(err.message || 'Payment submission failed');
+    } finally {
+      setIsRecordingPayment(false);
+    }
+  };
+
   useEffect(() => {
     if (showMedicines && window.electronAPI) {
       setIsLoadingMedicines(true);
@@ -364,6 +445,15 @@ export default function Suppliers() {
                       <Badge size="sm" className="bg-accent/10 text-accent">
                         {medicineCounts[supplier.id] || 0} medicines
                       </Badge>
+                      {(supplier.current_balance ?? 0) > 0 ? (
+                        <Badge size="sm" className="bg-amber-500/10 text-amber-600 border border-amber-500/20 font-semibold font-mono">
+                          Payable: ₹{(supplier.current_balance ?? 0).toLocaleString()}
+                        </Badge>
+                      ) : (
+                        <Badge size="sm" className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                          Cleared
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-0.5">
                       {supplier.contact_person && (
@@ -384,35 +474,67 @@ export default function Suppliers() {
                     </div>
                   </div>
                 </div>
-                <div className="relative">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setShowMenu(showMenu === supplier.id ? null : supplier.id); }}
-                    className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => openPaymentModal(supplier)}
+                    className="h-8 px-2.5 text-xs gap-1 border-accent/40 text-accent hover:bg-accent/10 font-semibold"
                   >
-                    <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                  {showMenu === supplier.id && (
-                    <div className="absolute right-0 mt-1 w-44 bg-popover rounded-xl border border-border shadow-lg z-10 py-1 animate-fade-in overflow-hidden">
-                      <button
-                        onClick={() => openEditDialog(supplier)}
-                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2.5 transition-colors"
-                      >
-                        <Edit3 className="w-4 h-4 text-accent" /> Edit
-                      </button>
-                      <button
-                        onClick={() => { setShowMedicines(supplier); setShowMenu(null); }}
-                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2.5 transition-colors"
-                      >
-                        <Building2 className="w-4 h-4 text-muted-foreground" /> View Medicines
-                      </button>
-                      <button
-                        onClick={() => { setShowConfirmDelete(supplier); setShowMenu(null); }}
-                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-destructive/10 flex items-center gap-2.5 text-destructive transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" /> Delete
-                      </button>
-                    </div>
-                  )}
+                    <IndianRupee className="w-3.5 h-3.5" />
+                    Pay
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => openLedger(supplier)}
+                    className="h-8 px-2.5 text-xs gap-1 text-muted-foreground hover:bg-muted"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    Ledger
+                  </Button>
+                  <div className="relative">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setShowMenu(showMenu === supplier.id ? null : supplier.id); }}
+                      className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                    >
+                      <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                    {showMenu === supplier.id && (
+                      <div className="absolute right-0 mt-1 w-44 bg-popover rounded-xl border border-border shadow-lg z-10 py-1 animate-fade-in overflow-hidden">
+                        <button
+                          onClick={() => openPaymentModal(supplier)}
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2.5 text-accent transition-colors"
+                        >
+                          <IndianRupee className="w-4 h-4 text-accent" /> Record Payment
+                        </button>
+                        <button
+                          onClick={() => openLedger(supplier)}
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2.5 transition-colors"
+                        >
+                          <FileText className="w-4 h-4 text-muted-foreground" /> View Ledger
+                        </button>
+                        <button
+                          onClick={() => openEditDialog(supplier)}
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2.5 transition-colors"
+                        >
+                          <Edit3 className="w-4 h-4 text-accent" /> Edit
+                        </button>
+                        <button
+                          onClick={() => { setShowMedicines(supplier); setShowMenu(null); }}
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2.5 transition-colors"
+                        >
+                          <Building2 className="w-4 h-4 text-muted-foreground" /> View Medicines
+                        </button>
+                        <button
+                          onClick={() => { setShowConfirmDelete(supplier); setShowMenu(null); }}
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-destructive/10 flex items-center gap-2.5 text-destructive transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -580,6 +702,236 @@ export default function Suppliers() {
               </div>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Record Supplier Payment Dialog */}
+      <Dialog open={payingSupplier !== null} onOpenChange={(o) => !o && setPayingSupplier(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <IndianRupee className="w-5 h-5 text-accent" />
+              Pay Supplier: {payingSupplier?.name}
+            </DialogTitle>
+            <DialogClose onClick={() => setPayingSupplier(null)} />
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Outstanding Balance Banner */}
+            <div className="bg-muted/40 border border-border rounded-xl p-3 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground font-medium">Outstanding Balance</p>
+                <p className="text-lg font-bold text-foreground font-mono">
+                  ₹{(payingSupplier?.current_balance ?? 0).toLocaleString()}
+                </p>
+              </div>
+              {(payingSupplier?.current_balance ?? 0) > 0 && (
+                <div className="flex gap-1.5">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setPaymentAmount(String(payingSupplier?.current_balance ?? 0))}
+                    className="text-xs h-7 px-2"
+                  >
+                    Full Due
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setPaymentAmount(String(Math.round(((payingSupplier?.current_balance ?? 0) / 2) * 100) / 100))}
+                    className="text-xs h-7 px-2"
+                  >
+                    50%
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {paymentSuccess && (
+              <div className="bg-success-light border border-success/30 text-success text-xs rounded-xl p-3 font-medium">
+                {paymentSuccess}
+              </div>
+            )}
+            {paymentError && (
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-xl p-3">
+                {paymentError}
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="pay-amount" className="block text-xs font-semibold text-foreground/80 mb-1">
+                Payment Amount (₹) <span className="text-destructive">*</span>
+              </label>
+              <Input
+                id="pay-amount"
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={paymentAmount}
+                onChange={(e) => setPaymentAmount(e.target.value)}
+                placeholder="0.00"
+                className="font-mono text-base font-bold"
+                autoFocus
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-foreground/80 mb-1">Payment Method</label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="w-full h-10 px-3 text-xs bg-background border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-accent"
+                >
+                  <option value="bank_transfer">Bank Transfer (NEFT/RTGS)</option>
+                  <option value="cheque">Cheque</option>
+                  <option value="upi">UPI / QR</option>
+                  <option value="cash">Cash</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="pay-ref" className="block text-xs font-semibold text-foreground/80 mb-1">Reference / UTR / Cheque #</label>
+                <Input
+                  id="pay-ref"
+                  value={paymentRef}
+                  onChange={(e) => setPaymentRef(e.target.value)}
+                  placeholder="e.g., UTR12345678"
+                  className="text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="pay-notes" className="block text-xs font-semibold text-foreground/80 mb-1">Payment Notes / Remark</label>
+              <Input
+                id="pay-notes"
+                value={paymentNotes}
+                onChange={(e) => setPaymentNotes(e.target.value)}
+                placeholder="Optional remark or invoice settlement note"
+                className="text-xs"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setPayingSupplier(null)} disabled={isRecordingPayment}>
+              Cancel
+            </Button>
+            <Button onClick={handleRecordPayment} loading={isRecordingPayment} className="gap-1.5">
+              <IndianRupee className="w-4 h-4" />
+              Confirm Payment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Supplier Ledger Dialog */}
+      <Dialog open={ledgerSupplier !== null} onOpenChange={(o) => !o && setLedgerSupplier(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-accent" />
+              Payables Ledger: {ledgerSupplier?.name}
+            </DialogTitle>
+            <DialogClose onClick={() => setLedgerSupplier(null)} />
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Balance Overview */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-card border border-border rounded-xl">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase">Current Net Payable</p>
+                <p className="text-xl font-bold font-mono text-accent">
+                  ₹{ledgerBalance.toLocaleString()}
+                </p>
+              </div>
+              <div className="p-3 bg-card border border-border rounded-xl">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase">Total Transactions</p>
+                <p className="text-xl font-bold font-mono text-foreground">
+                  {ledgerEntries.length}
+                </p>
+              </div>
+            </div>
+
+            {/* Ledger Transactions Table */}
+            <div className="border border-border rounded-xl overflow-hidden max-h-72 overflow-y-auto">
+              {isLoadingLedger ? (
+                <div className="p-4 space-y-2">
+                  {[1, 2, 3].map(i => <div key={i} className="skeleton h-10 rounded-lg" />)}
+                </div>
+              ) : ledgerEntries.length === 0 ? (
+                <div className="py-12 text-center text-muted-foreground text-xs">
+                  <FileText className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
+                  No transactions recorded yet for this supplier.
+                </div>
+              ) : (
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/70 sticky top-0 border-b border-border">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Date</th>
+                      <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Type</th>
+                      <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Ref / Mode</th>
+                      <th className="px-3 py-2 text-left font-semibold text-muted-foreground">Notes</th>
+                      <th className="px-3 py-2 text-right font-semibold text-muted-foreground">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {ledgerEntries.map((entry) => (
+                      <tr key={entry.id} className="hover:bg-muted/40 transition-colors">
+                        <td className="px-3 py-2 text-muted-foreground font-mono text-[11px]">
+                          {entry.created_at ? new Date(entry.created_at).toLocaleDateString('en-GB') : '-'}
+                        </td>
+                        <td className="px-3 py-2">
+                          <span className={cn(
+                            'inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase',
+                            entry.transaction_type === 'purchase'
+                              ? 'bg-amber-500/10 text-amber-600'
+                              : 'bg-emerald-500/10 text-emerald-600'
+                          )}>
+                            {entry.transaction_type === 'purchase' ? 'Bill / Invoice' : 'Payment'}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 font-mono text-muted-foreground text-[11px]">
+                          {entry.reference_id || entry.payment_method || '-'}
+                        </td>
+                        <td className="px-3 py-2 text-muted-foreground text-[11px] truncate max-w-xs">
+                          {entry.notes || '-'}
+                        </td>
+                        <td className={cn(
+                          'px-3 py-2 text-right font-mono font-bold',
+                          entry.transaction_type === 'purchase' ? 'text-amber-600' : 'text-emerald-600'
+                        )}>
+                          {entry.transaction_type === 'purchase' ? '+' : '-'}₹{(entry.amount || 0).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter className="mt-4 flex justify-between items-center sm:justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (ledgerSupplier) {
+                  openPaymentModal(ledgerSupplier);
+                  setLedgerSupplier(null);
+                }
+              }}
+              className="gap-1 text-accent border-accent/40 hover:bg-accent/10"
+            >
+              <IndianRupee className="w-3.5 h-3.5" /> Record Payment
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setLedgerSupplier(null)}>
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

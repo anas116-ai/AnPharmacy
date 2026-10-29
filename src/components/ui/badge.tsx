@@ -25,7 +25,7 @@ const badgeVariants = cva(
           'bg-transparent text-foreground border-border hover:bg-muted',
 
         'outline-teal':
-          'border-accent/30 bg-accent-light text-accent dark:border-accent/30 dark:bg-accent/10 dark:text-accent font-medium',
+          'border-primary/30 bg-primary/10 text-primary dark:border-primary/30 dark:bg-primary/15 dark:text-primary font-medium',
         expired:
           'bg-muted text-muted-foreground border-transparent',
         critical:

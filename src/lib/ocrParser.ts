@@ -113,7 +113,7 @@ export interface OCRResult {
 export function getConfidenceColor(confidence: number): string {
   if (confidence >= 90) return 'text-emerald-700 bg-emerald-50 border-emerald-200';
   if (confidence >= 75) return 'text-amber-700 bg-amber-50 border-amber-200';
-  if (confidence >= 60) return 'text-orange-700 bg-orange-50 border-orange-200';
+  if (confidence >= 60) return 'text-amber-700 bg-amber-50 border-amber-200';
   return 'text-red-700 bg-red-50 border-red-200';
 }
 

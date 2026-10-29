@@ -11,9 +11,9 @@ export default {
         primary: {
           DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--primary-foreground))',
           light: 'hsl(var(--primary-light))', dark: 'hsl(var(--primary-dark))',
-          50: '#EEF1F6', 100: '#D0D5E0', 200: '#A1AABF', 300: '#72809F',
-          400: '#4B587A', 500: '#2E3D63', 600: '#1B2641',
-          700: '#121A2C', 800: '#0D1422', 900: '#070C18', 950: '#03060F',
+          50: '#F2F9F9', 100: '#E2F1F0', 200: '#C4E2E0', 300: '#97CBC8',
+          400: '#63AFA9', 500: '#3F918B', 600: '#2C7570',
+          700: '#235D59', 800: '#1D4A47', 900: '#173A38', 950: '#0E2625',
         },
         secondary: { DEFAULT: 'hsl(var(--secondary))', foreground: 'hsl(var(--secondary-foreground))' },
         destructive: { DEFAULT: 'hsl(var(--destructive))', foreground: 'hsl(var(--destructive-foreground))' },
@@ -24,16 +24,30 @@ export default {
         info: { DEFAULT: 'hsl(var(--info))', foreground: 'hsl(var(--info-foreground))', light: 'hsl(var(--info-light))' },
         popover: { DEFAULT: 'hsl(var(--popover))', foreground: 'hsl(var(--popover-foreground))' },
         card: { DEFAULT: 'hsl(var(--card))', foreground: 'hsl(var(--card-foreground))' },
+        /* Cool teal-slate neutrals — mint cast, never black or magenta */
         slate: {
-          50: '#F8FAFC', 100: '#F1F5F9', 150: '#EEF2F7', 200: '#E2E8F0',
-          300: '#CBD5E1', 400: '#94A3B8', 500: '#64748B', 600: '#475569',
-          700: '#334155', 750: '#2A3A52', 800: '#1E293B', 850: '#1A2332',
-          900: '#0F172A', 950: '#070C18', 1000: '#03060F',
+          50: '#F6FAFB', 100: '#EDF4F6', 150: '#E7F0F2', 200: '#DAE8EB',
+          300: '#C2D6DB', 400: '#93AEB5', 500: '#6C8A92', 600: '#4F6C75',
+          700: '#3A535B', 750: '#2F474F', 800: '#253B42', 850: '#1D3238',
+          900: '#152830', 950: '#0B1D21', 1000: '#071417',
         },
         navy: {
-          50: '#EEF1F6', 100: '#D0D5E0', 200: '#A1AABF', 300: '#72809F',
-          400: '#4B587A', 500: '#2E3D63', 600: '#1B2641',
-          700: '#121A2C', 800: '#0D1422', 900: '#070C18', 950: '#03060F',
+          50: '#F2F9F9', 100: '#E2F1F0', 200: '#C4E2E0', 300: '#97CBC8',
+          400: '#63AFA9', 500: '#3F918B', 600: '#2C7570',
+          700: '#235D59', 800: '#1D4A47', 900: '#173A38', 950: '#0E2625',
+        },
+        /* Mint surface ramp — teal-mint, never lime/green */
+        mint: {
+          50: '#F3FAF9', 100: '#EAF6F3', 200: '#D7EDE7', 300: '#C7EBE6', 400: '#A8DCD3',
+        },
+        seafoam: {
+          50: '#F2FAF8', 100: '#E3F5F2', 200: '#C7EBE6', 300: '#A8DCD3', 400: '#86CCC2',
+        },
+        blush: {
+          50: '#FEF5F3', 100: '#FDECE9', 200: '#FBD9D4', 300: '#F8BDB6', 400: '#F4A197',
+        },
+        lilac: {
+          50: '#F5F2FE', 100: '#F0EDFC', 200: '#E2DCF8', 300: '#C3BCF3', 400: '#A79DEA',
         },
         emerald: {
           25: '#F7FEFB', 50: '#ECFDF5', 100: '#D1FAE5', 200: '#A7F3D0',

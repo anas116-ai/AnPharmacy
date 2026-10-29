@@ -64,7 +64,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
 function DefaultErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-[#EDF5F6] dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-6">
       <div className="max-w-md w-full bg-background dark:bg-muted/40 rounded-2xl border border-border dark:border-border shadow-lg p-8 text-center">
         <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-destructive dark:text-destructive/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -99,7 +99,7 @@ function DefaultErrorFallback({ error, resetError }: { error: Error; resetError:
         <div className="flex gap-3 justify-center">
           <button
             onClick={resetError}
-            className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl font-medium hover:from-teal-700 hover:to-teal-600 transition-all duration-200 shadow-md shadow-accent/20 hover:shadow-lg hover:shadow-teal-500/30 hover:scale-105 active:scale-95"
+            className="px-6 py-2.5 bg-gradient-to-r from-[#14292E] to-[#123F3D] text-white rounded-xl font-medium hover:from-[#223A40] hover:to-[#17827A] transition-all duration-200 shadow-md shadow-[#14292E]/20 hover:shadow-lg hover:shadow-[#123F3D]/30 hover:scale-105 active:scale-95"
           >
             Try Again
           </button>

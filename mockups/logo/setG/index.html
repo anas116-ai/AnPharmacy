@@ -9,45 +9,45 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --magenta-deep:#990066; --magenta:#D4148C; --coral:#FF5A8D;
-    --brand-grad:linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
-    --ink:#0A0F1E; --ink-2:#101E38; --paper:#FFFFFF; --paper-2:#F7F8FA;
-    --slate:#64748b; --slate-2:#94a3b8; --line:#e6e9f0;
+    --magenta-deep:#123F3D; --magenta:#17827A; --coral:#3FA79B;
+    --brand-grad:linear-gradient(135deg,#123F3D 0%,#17827A 50%,#3FA79B 100%);
+    --ink:#0C1D21; --ink-2:#123035; --paper:#FFFFFF; --paper-2:#F4F9FA;
+    --slate:#6A8A92; --slate-2:#8FADB4; --line:#E6EDF0;
     --display:'Space Grotesk','Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
     --body:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
   body{font-family:var(--body);color:var(--ink);background:var(--paper-2);
-    background-image:radial-gradient(60rem 60rem at -10% -10%, rgba(212,20,140,.07), transparent 55%),
-      radial-gradient(50rem 50rem at 110% 10%, rgba(255,90,141,.06), transparent 55%);
+    background-image:radial-gradient(60rem 60rem at -10% -10%, rgba(35, 197, 184,.07), transparent 55%),
+      radial-gradient(50rem 50rem at 110% 10%, rgba(115, 230, 221,.06), transparent 55%);
     -webkit-font-smoothing:antialiased;line-height:1.5;}
   .wrap{max-width:1120px;margin:0 auto;padding:0 24px 96px;}
   header.hero{padding:72px 24px 40px;max-width:1120px;margin:0 auto;}
   .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:600;
     font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--magenta);
-    padding:7px 14px;border:1px solid rgba(212,20,140,.3);border-radius:999px;background:rgba(255,255,255,.6);}
-  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 4px rgba(255,90,141,.18);}
+    padding:7px 14px;border:1px solid rgba(35, 197, 184,.3);border-radius:999px;background:rgba(255,255,255,.6);}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 4px rgba(115, 230, 221,.18);}
   h1.title{font-family:var(--display);font-weight:700;letter-spacing:-.03em;font-size:clamp(38px,6vw,68px);
     line-height:1.02;margin:22px 0 14px;}
   h1.title .grad{background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
   .lede{max-width:640px;font-size:17px;color:var(--slate);}
   .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
   .chip{font-family:var(--display);font-size:12.5px;font-weight:500;color:var(--ink-2);background:var(--paper);
-    border:1px solid var(--line);border-radius:10px;padding:8px 13px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+    border:1px solid var(--line);border-radius:10px;padding:8px 13px;box-shadow:0 1px 2px rgba(15, 34, 42,.04);}
   .chip b{color:var(--magenta);font-weight:700;}
   section.concept{margin-top:64px;background:var(--paper);border:1px solid var(--line);border-radius:22px;
-    overflow:hidden;box-shadow:0 24px 60px -40px rgba(15,23,42,.35);animation:rise .6s cubic-bezier(.16,1,.3,1) both;}
+    overflow:hidden;box-shadow:0 24px 60px -40px rgba(15, 34, 42,.35);animation:rise .6s cubic-bezier(.16,1,.3,1) both;}
   @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
   .concept-head{display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;padding:30px 32px 26px;
-    border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(247,248,250,.7),transparent);}
+    border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(247, 249, 250,.7),transparent);}
   .index-badge{flex-shrink:0;width:54px;height:54px;border-radius:15px;display:grid;place-items:center;
     font-family:var(--display);font-weight:700;font-size:22px;color:#fff;background:var(--brand-grad);
-    box-shadow:0 10px 24px -10px rgba(212,20,140,.6);}
+    box-shadow:0 10px 24px -10px rgba(35, 197, 184,.6);}
   .concept-head h2{font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.1;}
   .concept-head .sub{color:var(--slate);font-size:14.5px;margin-top:4px;max-width:640px;}
   .tag{margin-left:auto;align-self:center;font-family:var(--display);font-size:11px;font-weight:600;
-    letter-spacing:.14em;text-transform:uppercase;color:var(--coral);border:1px solid rgba(255,90,141,.35);
+    letter-spacing:.14em;text-transform:uppercase;color:var(--coral);border:1px solid rgba(115, 230, 221,.35);
     border-radius:999px;padding:6px 12px;white-space:nowrap;}
   .block{padding:30px 32px;border-bottom:1px solid var(--line);}
   .block:last-child{border-bottom:none;}
@@ -69,7 +69,7 @@
   .tile-row{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
   .tile-unit{display:flex;flex-direction:column;align-items:center;gap:9px;}
   .tile-unit span{font-family:var(--display);font-size:11px;color:var(--slate);font-weight:500;}
-  .tile{border-radius:24%;display:grid;place-items:center;box-shadow:0 14px 30px -14px rgba(15,23,42,.5);}
+  .tile{border-radius:24%;display:grid;place-items:center;box-shadow:0 14px 30px -14px rgba(15, 34, 42,.5);}
   .tile.sm{width:44px;height:44px;} .tile.md{width:64px;height:64px;} .tile.lg{width:96px;height:96px;}
   .tile.grad{background:var(--brand-grad);}
   .mono-row{display:flex;gap:30px;align-items:center;flex-wrap:wrap;}
@@ -78,17 +78,17 @@
   .lockup-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
   .lockup{display:flex;align-items:center;gap:14px;padding:22px 24px;border-radius:16px;border:1px solid var(--line);background:var(--paper-2);}
   .lockup.stacked{flex-direction:column;gap:12px;text-align:center;}
-  .lockup.dark{background:var(--ink);border-color:#1c2740;}
+  .lockup.dark{background:var(--ink);border-color:#1C3640;}
   .lockup .wm{font-family:var(--display);font-weight:700;letter-spacing:-.02em;font-size:30px;line-height:1;}
   .lockup .wm .an{background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
   .lockup .wm .rest{font-weight:300;color:var(--ink-2);}
-  .lockup.dark .wm .rest{color:#cdd6e6;}
+  .lockup.dark .wm .rest{color:#CDDFE6;}
   .lockup .tagline{font-family:var(--display);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-top:3px;}
   .lockup.dark .tagline{color:var(--slate-2);}
   .dodont{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
   .dn{border-radius:16px;padding:22px 24px;border:1px solid var(--line);}
-  .dn.do{background:linear-gradient(180deg,rgba(212,20,140,.06),transparent);}
-  .dn.dont{background:linear-gradient(180deg,rgba(100,116,139,.08),transparent);}
+  .dn.do{background:linear-gradient(180deg,rgba(35, 197, 184,.06),transparent);}
+  .dn.dont{background:linear-gradient(180deg,rgba(100, 128, 139,.08),transparent);}
   .dn h3{font-family:var(--display);font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:9px;}
   .dn.do h3{color:var(--magenta);} .dn.dont h3{color:var(--slate);}
   .dn h3 .hd-ic{width:22px;height:22px;border-radius:7px;display:inline-grid;place-items:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
@@ -96,7 +96,7 @@
   .dn ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
   .dn li{font-size:13.5px;color:var(--ink-2);display:flex;gap:10px;align-items:flex-start;line-height:1.45;}
   .dn li .ic{flex-shrink:0;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;margin-top:1px;}
-  .dn.do li .ic{background:#D4148C;} .dn.dont li .ic{background:#94a3b8;}
+  .dn.do li .ic{background:#17827A;} .dn.dont li .ic{background:#8FADB4;}
   footer.foot{margin-top:56px;text-align:center;color:var(--slate);font-size:13px;}
   footer.foot .grad{background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600;}
   @media(max-width:760px){.present-grid,.lockup-grid,.dodont{grid-template-columns:1fr;}
@@ -109,13 +109,13 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="gFull" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#990066"/><stop offset="50%" stop-color="#D4148C"/><stop offset="100%" stop-color="#FF5A8D"/>
+      <stop offset="0%" stop-color="#123F3D"/><stop offset="50%" stop-color="#17827A"/><stop offset="100%" stop-color="#3FA79B"/>
     </linearGradient>
     <linearGradient id="gA" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#990066"/><stop offset="100%" stop-color="#D4148C"/>
+      <stop offset="0%" stop-color="#123F3D"/><stop offset="100%" stop-color="#17827A"/>
     </linearGradient>
     <linearGradient id="gB" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#D4148C"/><stop offset="100%" stop-color="#FF5A8D"/>
+      <stop offset="0%" stop-color="#17827A"/><stop offset="100%" stop-color="#3FA79B"/>
     </linearGradient>
     <symbol id="g1" viewBox="0 0 100 100">
       <g transform="rotate(-28 50 50)">
@@ -132,7 +132,7 @@
     </symbol>
     <symbol id="g2" viewBox="0 0 100 100">
       <path d="M50,9 C50,9 43,20 43,25 A7,7 0 0 0 57,25 C57,20 50,9 50,9 Z" fill="url(#gFull)"/>
-      <rect x="40" y="27" width="20" height="12" rx="4" fill="#990066"/>
+      <rect x="40" y="27" width="20" height="12" rx="4" fill="#123F3D"/>
       <rect x="45" y="37" width="10" height="9" rx="2" fill="url(#gFull)"/>
       <path d="M36,47 L64,47 L64,72 A13,13 0 0 1 51,85 L49,85 A13,13 0 0 1 36,72 Z" fill="url(#gFull)"/>
       <rect x="40" y="62" width="20" height="20" rx="9" fill="#FFFFFF" opacity=".18"/>
@@ -160,7 +160,7 @@
   <h1 class="title">Set G — <span class="grad">Creative Concepts</span></h1>
   <p class="lede">Three fresh, distinctive marks inside the warm-premium magenta→coral world. Each is inline SVG, renders offline, and scales from a 16 px favicon to a hero mark.</p>
   <div class="meta-row">
-    <span class="chip">Palette <b>#990066 → #D4148C → #FF5A8D</b></span>
+    <span class="chip">Palette <b>#123F3D → #17827A → #3FA79B</b></span>
     <span class="chip">Format <b>Inline SVG</b></span>
     <span class="chip">Concepts <b>G1 · G2 · G3</b></span>
     <span class="chip">Offline-safe <b>✓</b></span>
@@ -208,9 +208,9 @@
     <div class="block">
       <div class="block-label">Monochrome</div>
       <div class="mono-row">
-        <div class="mono-cell"><svg width="64" height="64" style="color:#0A0F1E"><use href="#g1m"/></svg><span>Ink</span></div>
-        <div class="mono-cell"><svg width="64" height="64" style="color:#64748b"><use href="#g1m"/></svg><span>Slate</span></div>
-        <div class="mono-cell"><svg width="64" height="64" style="background:#0A0F1E;border-radius:12px;padding:6px"><use href="#g1m" style="color:#fff"/></svg><span>On ink</span></div>
+        <div class="mono-cell"><svg width="64" height="64" style="color:#0C1D21"><use href="#g1m"/></svg><span>Ink</span></div>
+        <div class="mono-cell"><svg width="64" height="64" style="color:#6A8A92"><use href="#g1m"/></svg><span>Slate</span></div>
+        <div class="mono-cell"><svg width="64" height="64" style="background:#0C1D21;border-radius:12px;padding:6px"><use href="#g1m" style="color:#fff"/></svg><span>On ink</span></div>
       </div>
     </div>
     <div class="block">
@@ -263,9 +263,9 @@
     <div class="block">
       <div class="block-label">Monochrome</div>
       <div class="mono-row">
-        <div class="mono-cell"><svg width="64" height="64" style="color:#0A0F1E"><use href="#g2m"/></svg><span>Ink</span></div>
-        <div class="mono-cell"><svg width="64" height="64" style="color:#64748b"><use href="#g2m"/></svg><span>Slate</span></div>
-        <div class="mono-cell"><svg width="64" height="64" style="background:#0A0F1E;border-radius:12px;padding:6px"><use href="#g2m" style="color:#fff"/></svg><span>On ink</span></div>
+        <div class="mono-cell"><svg width="64" height="64" style="color:#0C1D21"><use href="#g2m"/></svg><span>Ink</span></div>
+        <div class="mono-cell"><svg width="64" height="64" style="color:#6A8A92"><use href="#g2m"/></svg><span>Slate</span></div>
+        <div class="mono-cell"><svg width="64" height="64" style="background:#0C1D21;border-radius:12px;padding:6px"><use href="#g2m" style="color:#fff"/></svg><span>On ink</span></div>
       </div>
     </div>
     <div class="block">
@@ -318,9 +318,9 @@
     <div class="block">
       <div class="block-label">Monochrome</div>
       <div class="mono-row">
-        <div class="mono-cell"><svg width="64" height="64" style="color:#0A0F1E"><use href="#g3m"/></svg><span>Ink</span></div>
-        <div class="mono-cell"><svg width="64" height="64" style="color:#64748b"><use href="#g3m"/></svg><span>Slate</span></div>
-        <div class="mono-cell"><svg width="64" height="64" style="background:#0A0F1E;border-radius:12px;padding:6px"><use href="#g3m" style="color:#fff"/></svg><span>On ink</span></div>
+        <div class="mono-cell"><svg width="64" height="64" style="color:#0C1D21"><use href="#g3m"/></svg><span>Ink</span></div>
+        <div class="mono-cell"><svg width="64" height="64" style="color:#6A8A92"><use href="#g3m"/></svg><span>Slate</span></div>
+        <div class="mono-cell"><svg width="64" height="64" style="background:#0C1D21;border-radius:12px;padding:6px"><use href="#g3m" style="color:#fff"/></svg><span>On ink</span></div>
       </div>
     </div>
     <div class="block">

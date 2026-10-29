@@ -70,26 +70,21 @@ export default function LicenseActivation({ onActivated }: LicenseActivationProp
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-900 via-teal-700 to-cyan-800 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#14292E] via-[#223A40] to-[#123F3D] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '0s' }} />
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-[#2E9C90]/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-accent/100/5 rounded-full blur-3xl animate-pulse-soft" />
       </div>
 
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-        backgroundSize: '60px 60px'
-      }} />
 
       <div className="w-full max-w-md relative z-10">
         <div className="bg-background/10 backdrop-blur-2xl rounded-3xl p-8 shadow-2xl border border-white/20 animate-fade-in-up">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="relative inline-block">
-              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-teal-400/30 to-teal-600/30 rounded-2xl flex items-center justify-center mb-4 border border-white/30 shadow-xl">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-[#2E9C90]/30 to-[#123F3D]/40 rounded-2xl flex items-center justify-center mb-4 border border-white/30 shadow-xl">
                 <Shield className="w-8 h-8 text-white" />
               </div>
             </div>
@@ -156,7 +151,7 @@ export default function LicenseActivation({ onActivated }: LicenseActivationProp
                 onClick={handleActivate}
                 disabled={isActivating}
                 size="xl"
-                className="w-full h-12 text-base font-semibold bg-gradient-to-r from-teal-500 to-teal-400 text-white hover:from-teal-600 hover:to-teal-500 shadow-lg shadow-teal-500/30"
+                className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#123F3D] to-[#14292E] text-white hover:from-[#17827A] hover:to-[#223A40] shadow-lg shadow-[#14292E]/30"
               >
                 {isActivating ? (
                   <span className="flex items-center gap-2">

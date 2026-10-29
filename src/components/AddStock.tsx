@@ -50,9 +50,14 @@ function SectionHeader({
   );
 }
 
+import { DOSAGE_FORMS } from '../lib/types';
+
 const initialForm = {
   name: '', strength: '', batch_number: '', pack_size: '', company: '',
   generic_name: '', manufacturer_id: '', item_code: '',
+  dosage_form: 'Tablets',
+  requires_prescription: false,
+  shelf_life_days_after_opening: '',
   quantity: '', loose_quantity: '0',
   low_stock_alert: '20', max_stock_limit: '',
   rack_location: '', barcode: '',
@@ -243,6 +248,9 @@ export default function AddStock() {
       ewayBillNo: form.eway_bill_no || null,
       numCartons: form.num_cartons ? parseInt(form.num_cartons) : null,
       coldChain: form.cold_chain ? 1 : 0,
+      dosageForm: form.dosage_form || 'Tablets',
+      requiresPrescription: form.requires_prescription,
+      shelfLifeDaysAfterOpening: form.shelf_life_days_after_opening ? parseInt(form.shelf_life_days_after_opening) : null,
       prescriptionDoc: form.prescription_doc || null,
     };
 
@@ -309,7 +317,7 @@ export default function AddStock() {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* SECTION A: Product Identification */}
         <Card variant="bordered">
-          <SectionHeader title="SECTION A: Product Identification" subtitle="Medicine name, batch, pack size, manufacturer" icon={Package} isOpen={openSections['A']} onToggle={() => toggleSection('A')} color="from-teal-50 to-emerald-50" />
+          <SectionHeader title="SECTION A: Product Identification" subtitle="Medicine name, batch, pack size, manufacturer" icon={Package} isOpen={openSections['A']} onToggle={() => toggleSection('A')} color="from-[#EDF5F6] to-[#2E9C90]/25" />
           {openSections['A'] && (
             <CardContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -353,13 +361,52 @@ export default function AddStock() {
                   <Input id="add-pack-size" value={form.pack_size} onChange={e => updateForm('pack_size', e.target.value)} placeholder="10 Tab / 100ml / 1 Bottle" className="h-11" />
                 </div>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                <div>
+                  <label htmlFor="add-dosage-form" className="block text-sm font-medium text-foreground mb-1">
+                    Dosage Form (12 Formats)
+                  </label>
+                  <Select id="add-dosage-form" value={form.dosage_form} onValueChange={v => updateForm('dosage_form', v)}>
+                    {DOSAGE_FORMS.map(df => (
+                      <SelectItem key={df} value={df}>{df}</SelectItem>
+                    ))}
+                  </Select>
+                </div>
+                <div>
+                  <label htmlFor="add-shelf-life" className="block text-sm font-medium text-foreground mb-1">
+                    Shelf Life After Opening (Days)
+                  </label>
+                  <Input
+                    id="add-shelf-life"
+                    type="number"
+                    value={form.shelf_life_days_after_opening}
+                    onChange={e => updateForm('shelf_life_days_after_opening', e.target.value)}
+                    placeholder="e.g. 28 (Eye drops / Syrups)"
+                    className="h-11"
+                  />
+                </div>
+                <div className="flex items-center pt-6">
+                  <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={form.requires_prescription}
+                      onChange={e => updateForm('requires_prescription', e.target.checked)}
+                      className="w-4 h-4 rounded accent-[#14292E] cursor-pointer"
+                    />
+                    <div>
+                      <span className="text-sm font-bold text-foreground">Requires Prescription (Rx)</span>
+                      <p className="text-[11px] text-muted-foreground">Flag as Schedule H/H1/X drug</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
             </CardContent>
           )}
         </Card>
 
         {/* SECTION B: Quantity & Stock */}
         <Card variant="bordered">
-          <SectionHeader title="SECTION B: Quantity & Stock Management" subtitle="Qty received, loose qty, rack location, alerts" icon={Box} isOpen={openSections['B']} onToggle={() => toggleSection('B')} color="from-blue-50 to-indigo-50" />
+          <SectionHeader title="SECTION B: Quantity & Stock Management" subtitle="Qty received, loose qty, rack location, alerts" icon={Box} isOpen={openSections['B']} onToggle={() => toggleSection('B')} color="from-[#EDF5F6] to-[#2E9C90]/25" />
           {openSections['B'] && (
             <CardContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -406,7 +453,7 @@ export default function AddStock() {
 
         {/* SECTION C: Pricing & Margin */}
         <Card variant="bordered">
-          <SectionHeader title="SECTION C: Pricing & Margin" subtitle="MRP, PTR, PTS, purchase price, selling price, discounts" icon={DollarSign} isOpen={openSections['C']} onToggle={() => toggleSection('C')} color="from-amber-50 to-yellow-50" />
+          <SectionHeader title="SECTION C: Pricing & Margin" subtitle="MRP, PTR, PTS, purchase price, selling price, discounts" icon={DollarSign} isOpen={openSections['C']} onToggle={() => toggleSection('C')} color="from-[#EDF5F6] to-[#2E9C90]/25" />
           {openSections['C'] && (
             <CardContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -475,7 +522,7 @@ export default function AddStock() {
 
         {/* SECTION D: Compliance */}
         <Card variant="bordered">
-          <SectionHeader title="SECTION D: Compliance & Regulatory" subtitle="HSN code, schedule type, GST, barcode, license" icon={Shield} isOpen={openSections['D']} onToggle={() => toggleSection('D')} color="from-accent/10 to-success-light" />
+          <SectionHeader title="SECTION D: Compliance & Regulatory" subtitle="HSN code, schedule type, GST, barcode, license" icon={Shield} isOpen={openSections['D']} onToggle={() => toggleSection('D')} color="from-[#EDF5F6] to-[#2E9C90]/25" />
           {openSections['D'] && (
             <CardContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -540,7 +587,7 @@ export default function AddStock() {
 
         {/* SECTION E: Dates */}
         <Card variant="bordered">
-          <SectionHeader title="SECTION E: Manufacturing & Expiry Dates" subtitle="MFG date and expiry date" icon={Calendar} isOpen={openSections['E']} onToggle={() => toggleSection('E')} color="from-teal-50 to-emerald-50" />
+          <SectionHeader title="SECTION E: Manufacturing & Expiry Dates" subtitle="MFG date and expiry date" icon={Calendar} isOpen={openSections['E']} onToggle={() => toggleSection('E')} color="from-[#EDF5F6] to-[#2E9C90]/25" />
           {openSections['E'] && (
             <CardContent className="pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -559,7 +606,7 @@ export default function AddStock() {
 
         {/* SECTION F: Supplier & Purchase Info */}
         <Card variant="bordered">
-          <SectionHeader title="SECTION F: Supplier & Purchase Order Details" subtitle="Supplier, invoice, PO, payment terms, dispatch" icon={Building2} isOpen={openSections['F']} onToggle={() => toggleSection('F')} color="from-amber-50 to-orange-50" />
+          <SectionHeader title="SECTION F: Supplier & Purchase Order Details" subtitle="Supplier, invoice, PO, payment terms, dispatch" icon={Building2} isOpen={openSections['F']} onToggle={() => toggleSection('F')} color="from-[#EDF5F6] to-[#2E9C90]/25" />
           {openSections['F'] && (
             <CardContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -627,7 +674,7 @@ export default function AddStock() {
 
         {/* SECTION G: Scheme & Bonus */}
         <Card variant="bordered">
-          <SectionHeader title="SECTION G: Scheme & Bonus Details" subtitle="Scheme quantity, free qty, bonus code" icon={BadgePercent} isOpen={openSections['G']} onToggle={() => toggleSection('G')} color="from-green-50 to-emerald-50" />
+          <SectionHeader title="SECTION G: Scheme & Bonus Details" subtitle="Scheme quantity, free qty, bonus code" icon={BadgePercent} isOpen={openSections['G']} onToggle={() => toggleSection('G')} color="from-[#EDF5F6] to-[#2E9C90]/25" />
           {openSections['G'] && (
             <CardContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -651,7 +698,7 @@ export default function AddStock() {
 
         {/* SECTION H: Tax & E-Way Bill */}
         <Card variant="bordered">
-          <SectionHeader title="SECTION H: Tax & E-Way Bill Details" subtitle="Taxable amount, CGST, SGST, IGST, E-way bill" icon={FileSpreadsheet} isOpen={openSections['H']} onToggle={() => toggleSection('H')} color="from-red-50 to-orange-50" />
+          <SectionHeader title="SECTION H: Tax & E-Way Bill Details" subtitle="Taxable amount, CGST, SGST, IGST, E-way bill" icon={FileSpreadsheet} isOpen={openSections['H']} onToggle={() => toggleSection('H')} color="from-[#EDF5F6] to-[#2E9C90]/25" />
           {openSections['H'] && (
             <CardContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
-import { UserPlus, Search, Plus, Phone, Mail, MapPin, CreditCard, DollarSign, Eye, Edit, Trash2 } from 'lucide-react';
+import { UserPlus, Search, Plus, Phone, Mail, MapPin, CreditCard, DollarSign, Eye, Edit, Trash2, Wallet, CheckCircle2, Receipt, ArrowDownCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -33,7 +33,61 @@ export default function Customers() {
   const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', gstin: '', credit_limit: '0', type: 'retail' });
   const [viewingLedger, setViewingLedger] = useState<Customer | null>(null);
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
+  const [recordingPaymentCustomer, setRecordingPaymentCustomer] = useState<Customer | null>(null);
+  const [paymentForm, setPaymentForm] = useState({
+    amount: '',
+    payment_method: 'cash',
+    reference_id: '',
+    notes: '',
+  });
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const canManage = hasPermission('manage_users');
+
+  const startRecordPayment = (customer: Customer) => {
+    setRecordingPaymentCustomer(customer);
+    setPaymentForm({
+      amount: customer.current_balance > 0 ? String(customer.current_balance) : '',
+      payment_method: 'cash',
+      reference_id: '',
+      notes: 'Payment received against outstanding dues',
+    });
+  };
+
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!recordingPaymentCustomer || !window.electronAPI) return;
+    const amountNum = parseFloat(paymentForm.amount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+      toast.error('Invalid Amount', 'Please enter a valid amount greater than ₹0.');
+      return;
+    }
+    setIsSubmittingPayment(true);
+    try {
+      const res = await window.electronAPI.addCustomerLedger({
+        customer_id: recordingPaymentCustomer.id,
+        transaction_type: 'payment',
+        amount: amountNum,
+        payment_method: paymentForm.payment_method,
+        reference_id: paymentForm.reference_id || null,
+        notes: paymentForm.notes || 'Payment Received',
+      });
+      if (res.success) {
+        toast.success('Payment Received', `Recorded ${formatCurrency(amountNum)} from ${recordingPaymentCustomer.name}`);
+        await loadData();
+        if (viewingLedger?.id === recordingPaymentCustomer.id) {
+          const lRes = await window.electronAPI.getCustomerLedger({ customerId: recordingPaymentCustomer.id });
+          if (lRes.success) setLedger(lRes.ledger || []);
+        }
+        setRecordingPaymentCustomer(null);
+      } else {
+        toast.error('Payment Error', res.error || 'Failed to record payment');
+      }
+    } catch (err: any) {
+      toast.error('Error', err.message || 'Operation failed');
+    } finally {
+      setIsSubmittingPayment(false);
+    }
+  };
 
   useEffect(() => { loadData(); }, []);
 
@@ -112,15 +166,32 @@ export default function Customers() {
                       {customer.gstin && <span className="font-mono">GST: {customer.gstin}</span>}
                     </div>
                     <div className="flex items-center gap-4 mt-2 text-xs">
-                      <span className="flex items-center gap-1 text-success"><DollarSign className="w-3 h-3" />Balance: {formatCurrency(customer.current_balance)}</span>
-                      <span className="flex items-center gap-1 text-warning"><CreditCard className="w-3 h-3" />Limit: {formatCurrency(customer.credit_limit)}</span>
+                      <span className={cn('flex items-center gap-1 font-semibold', customer.current_balance > 0 ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400')}>
+                        <DollarSign className="w-3.5 h-3.5" />
+                        Due / Balance: {formatCurrency(customer.current_balance)}
+                      </span>
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <CreditCard className="w-3.5 h-3.5" />
+                        Limit: {formatCurrency(customer.credit_limit)}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex gap-1 flex-shrink-0">
-                    <button onClick={() => viewLedger(customer)} className="p-1.5 rounded-lg hover:bg-accent/10" title="View Ledger"><Eye className="w-4 h-4 text-accent" /></button>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <Button
+                      size="sm"
+                      onClick={() => startRecordPayment(customer)}
+                      className="h-8 gap-1.5 px-3 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm transition-all"
+                      title="Record Payment / Collection from Customer"
+                    >
+                      <Wallet className="w-3.5 h-3.5" />
+                      Receive Pay
+                    </Button>
+                    <button onClick={() => viewLedger(customer)} className="p-2 rounded-lg border border-border hover:bg-accent/10 transition-colors" title="View Customer Ledger">
+                      <Eye className="w-4 h-4 text-accent" />
+                    </button>
                     {canManage && <>
-                      <button onClick={() => { setEditing(customer); setForm({ name: customer.name, phone: customer.phone || '', email: customer.email || '', address: customer.address || '', gstin: customer.gstin || '', credit_limit: String(customer.credit_limit), type: customer.type }); setShowDialog(true); }} className="p-1.5 rounded-lg hover:bg-gray-100"><Edit className="w-4 h-4 text-muted-foreground/60" /></button>
-                      <button onClick={() => handleDelete(customer.id)} className="p-1.5 rounded-lg hover:bg-destructive/10"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                      <button onClick={() => { setEditing(customer); setForm({ name: customer.name, phone: customer.phone || '', email: customer.email || '', address: customer.address || '', gstin: customer.gstin || '', credit_limit: String(customer.credit_limit), type: customer.type }); setShowDialog(true); }} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors"><Edit className="w-4 h-4 text-muted-foreground/60" /></button>
+                      <button onClick={() => handleDelete(customer.id)} className="p-2 rounded-lg border border-border hover:bg-destructive/10 transition-colors"><Trash2 className="w-4 h-4 text-red-400" /></button>
                     </>}
                   </div>
                 </div>
@@ -160,24 +231,161 @@ export default function Customers() {
 
       <Dialog open={!!viewingLedger} onOpenChange={o => { if (!o) { setViewingLedger(null); setLedger([]); } }}>
         {viewingLedger && <DialogContent className="max-w-2xl"><DialogHeader><DialogTitle>Ledger: {viewingLedger.name}</DialogTitle></DialogHeader>
-          <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl mb-4">
-            <span className="text-sm text-muted-foreground">Balance: <span className="font-bold text-success">{formatCurrency(viewingLedger.current_balance)}</span></span>
-            <span className="text-sm text-muted-foreground">Credit Limit: <span className="font-bold text-warning">{formatCurrency(viewingLedger.credit_limit)}</span></span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-muted/50 rounded-xl mb-4">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">Due Balance: <span className="font-bold text-amber-500">{formatCurrency(viewingLedger.current_balance)}</span></span>
+              <span className="text-sm text-muted-foreground">Credit Limit: <span className="font-bold text-foreground">{formatCurrency(viewingLedger.credit_limit)}</span></span>
+            </div>
+            <Button size="sm" onClick={() => startRecordPayment(viewingLedger)} className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium">
+              <Wallet className="w-4 h-4" /> Record Payment
+            </Button>
           </div>
           {ledger.length === 0 ? <p className="text-center text-muted-foreground/60 py-8">No ledger entries found</p> : (
             <div className="space-y-2 max-h-[400px] overflow-y-auto">
               {ledger.map(entry => (
                 <div key={entry.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
-                  <div><span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', entry.transaction_type === 'payment' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-destructive')}>{entry.transaction_type}</span>
-                    {entry.notes && <p className="text-xs text-muted-foreground mt-0.5">{entry.notes}</p>}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className={cn('text-xs font-semibold px-2 py-0.5 rounded-full uppercase', entry.transaction_type === 'payment' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300' : 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300')}>
+                        {entry.transaction_type}
+                      </span>
+                      {entry.payment_method && <span className="text-xs text-muted-foreground capitalize">({entry.payment_method})</span>}
+                      {entry.reference_id && <span className="text-xs font-mono text-muted-foreground">#{entry.reference_id}</span>}
+                    </div>
+                    {entry.notes && <p className="text-xs text-muted-foreground mt-1">{entry.notes}</p>}
+                    <span className="text-[11px] text-muted-foreground/60">{new Date(entry.created_at).toLocaleString()}</span>
                   </div>
-                  <span className={cn('font-bold', entry.transaction_type === 'payment' ? 'text-green-600' : 'text-destructive')}>{entry.transaction_type === 'payment' ? '-' : '+'}{formatCurrency(entry.amount)}</span>
+                  <span className={cn('font-bold text-sm', entry.transaction_type === 'payment' ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive')}>
+                    {entry.transaction_type === 'payment' ? '-' : '+'}{formatCurrency(entry.amount)}
+                  </span>
                 </div>
               ))}
             </div>
           )}
           <DialogFooter><Button variant="outline" onClick={() => { setViewingLedger(null); setLedger([]); }}>Close</Button></DialogFooter>
         </DialogContent>}
+      </Dialog>
+
+      {/* Record Payment Dialog */}
+      <Dialog open={!!recordingPaymentCustomer} onOpenChange={o => { if (!o) setRecordingPaymentCustomer(null); }}>
+        {recordingPaymentCustomer && (
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <Wallet className="w-5 h-5" />
+                </div>
+                Record Customer Payment
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handlePaymentSubmit} className="space-y-4">
+              <div className="p-3.5 bg-muted/60 rounded-xl space-y-1.5 border border-border/50">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Customer:</span>
+                  <span className="font-semibold text-foreground">{recordingPaymentCustomer.name}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Current Due Balance:</span>
+                  <span className="font-bold text-amber-500 text-sm">{formatCurrency(recordingPaymentCustomer.current_balance)}</span>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="pay-amt" className="block text-sm font-medium text-foreground mb-1">
+                  Amount Received (₹) *
+                </label>
+                <Input
+                  id="pay-amt"
+                  type="number"
+                  step="0.01"
+                  required
+                  value={paymentForm.amount}
+                  onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                  placeholder="Enter amount"
+                  className="h-11 text-base font-semibold"
+                  autoFocus
+                />
+                {recordingPaymentCustomer.current_balance > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentForm({ ...paymentForm, amount: String(recordingPaymentCustomer.current_balance) })}
+                      className="text-xs px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium hover:bg-emerald-500/20 transition-colors"
+                    >
+                      Full Due ({formatCurrency(recordingPaymentCustomer.current_balance)})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentForm({ ...paymentForm, amount: String(Math.round(recordingPaymentCustomer.current_balance / 2)) })}
+                      className="text-xs px-2.5 py-1 rounded-lg bg-muted text-foreground font-medium hover:bg-muted/80 transition-colors"
+                    >
+                      50% Due
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Payment Mode</label>
+                  <Select
+                    value={paymentForm.payment_method}
+                    onValueChange={v => setPaymentForm({ ...paymentForm, payment_method: v })}
+                  >
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="upi">UPI / QR</SelectItem>
+                    <SelectItem value="cheque">Cheque</SelectItem>
+                    <SelectItem value="bank_transfer">Bank Transfer (NEFT/RTGS)</SelectItem>
+                  </Select>
+                </div>
+                <div>
+                  <label htmlFor="pay-ref" className="block text-sm font-medium text-foreground mb-1">
+                    Ref / UTR / Cheque No
+                  </label>
+                  <Input
+                    id="pay-ref"
+                    value={paymentForm.reference_id}
+                    onChange={e => setPaymentForm({ ...paymentForm, reference_id: e.target.value })}
+                    placeholder="Optional reference"
+                    className="h-11"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="pay-notes" className="block text-sm font-medium text-foreground mb-1">
+                  Notes / Remarks
+                </label>
+                <Input
+                  id="pay-notes"
+                  value={paymentForm.notes}
+                  onChange={e => setPaymentForm({ ...paymentForm, notes: e.target.value })}
+                  placeholder="Payment remarks"
+                  className="h-11"
+                />
+              </div>
+
+              <DialogFooter className="pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setRecordingPaymentCustomer(null)}
+                  disabled={isSubmittingPayment}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmittingPayment || !paymentForm.amount || parseFloat(paymentForm.amount) <= 0}
+                  className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  {isSubmittingPayment ? 'Saving...' : 'Confirm Payment'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        )}
       </Dialog>
     </div>
   );

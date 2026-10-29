@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuthStore } from './stores/authStore';
 import { ToastProvider } from './components/ui/toast';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -14,9 +14,39 @@ import './stores/appearanceStore';
 
 type AppStage = 'splash' | 'landing' | 'license' | 'login' | 'main';
 
+/** Pre-login screen (landing / sign-in) survives a refresh. */
+const STAGE_KEY = 'anpharmacy.stage';
+
+function readSavedStage(): AppStage {
+  try {
+    const saved = sessionStorage.getItem(STAGE_KEY);
+    if (saved === 'login' || saved === 'landing') return saved;
+  } catch {
+    // storage unavailable — start from the splash screen
+  }
+  return 'splash';
+}
+
 export default function App() {
   const { isAuthenticated, licenseStatus, setLicenseStatus, setDeviceId, setLicenseChecked } = useAuthStore();
-  const [stage, setStage] = useState<AppStage>('splash');
+  const [stage, setStage] = useState<AppStage>(readSavedStage);
+  const wasAuthenticated = useRef(isAuthenticated);
+
+  // Keep the pre-login screen across refreshes; clear it once signed in.
+  useEffect(() => {
+    try {
+      if (stage === 'landing' || stage === 'login') sessionStorage.setItem(STAGE_KEY, stage);
+      else if (stage === 'splash') sessionStorage.removeItem(STAGE_KEY);
+    } catch {
+      // ignore
+    }
+  }, [stage]);
+
+  // Signing out lands on the sign-in screen rather than the marketing page.
+  useEffect(() => {
+    if (wasAuthenticated.current && !isAuthenticated) setStage('login');
+    wasAuthenticated.current = isAuthenticated;
+  }, [isAuthenticated]);
 
   useEffect(() => {
     // Initialize browser-compatible API layer if Electron is not available
@@ -73,9 +103,9 @@ export default function App() {
       case 'license':
         return <LicenseActivation onActivated={handleLicenseActivated} />;
       case 'login':
-        return <LoginScreen />;
+        return <LoginScreen onBack={() => setStage('landing')} />;
       default:
-        return <LoginScreen />;
+        return <LoginScreen onBack={() => setStage('landing')} />;
     }
   };
 

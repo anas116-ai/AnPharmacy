@@ -45,7 +45,20 @@ function createSchema() {
       transporter_name TEXT,
       vehicle_number TEXT,
       notes TEXT,
+      current_balance REAL DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS supplier_ledger (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      supplier_id INTEGER NOT NULL,
+      transaction_type TEXT NOT NULL,
+      amount REAL NOT NULL,
+      payment_method TEXT,
+      reference_id TEXT,
+      notes TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS medicines (
@@ -589,6 +602,8 @@ function migrateSchema() {
   addCol('purchase_returns', 'dispatch_date', 'TEXT');
   addCol('purchase_returns', 'credit_date', 'TEXT');
   addCol('purchase_returns', 'reject_reason', 'TEXT');
+  addCol('suppliers', 'current_balance', 'REAL DEFAULT 0');
+  addCol('sale_items', 'free_qty', 'INTEGER DEFAULT 0');
 }
 
 module.exports = { initDatabase, getDb };

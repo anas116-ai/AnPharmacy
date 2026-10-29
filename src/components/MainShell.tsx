@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, Suspense, lazy } from 'react';
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore, ROUTE_STORAGE_KEY } from '../stores/authStore';
 import { NAV_ITEMS } from '../lib/types';
 import { GROUP_COLORS, GROUP_LABELS } from '../lib/nav';
 import { ArrowLeft, ChevronDown, LogOut, Settings as SettingsIcon, Keyboard, Loader2, Lock, PanelLeft } from 'lucide-react';
@@ -44,28 +44,37 @@ const DataImportStudio = lazy(() => import('./DataImportStudio'));
 const NotificationsPanel = lazy(() => import('./NotificationsPanel'));
 const RecycleBin = lazy(() => import('./RecycleBin'));
 
+/**
+ * Last visited module, so a full refresh (Ctrl+Shift+R) reopens the same page
+ * instead of dropping the user back on the dashboard. A hash deep-link wins.
+ */
+function readInitialRoute(): number {
+  try {
+    const hashPath = window.location.hash.replace(/^#\/?/, '').trim();
+    if (hashPath) {
+      const fromHash = NAV_ITEMS.find(i => i.path === hashPath);
+      if (fromHash) return fromHash.index;
+    }
+    const saved = Number(localStorage.getItem(ROUTE_STORAGE_KEY));
+    if (Number.isInteger(saved) && saved >= 0 && saved < NAV_ITEMS.length) return saved;
+  } catch {
+    // malformed storage / no hash — fall through to the dashboard
+  }
+  return 0;
+}
+
 export default function MainShell() {
   const { theme, toggle } = useTheme();
   const { user, logout, hasPermission } = useAuthStore();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [pageHistory, setPageHistory] = useState<number[]>([0]);
+  const [activeIndex, setActiveIndex] = useState(readInitialRoute);
+  const [pageHistory, setPageHistory] = useState<number[]>(() => [activeIndex]);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // Distinct subtle background per navigation group — each layout reads differently
-  // Vibrant Aurora: colorful radial washes layered over the base surface
-  const groupTints: Record<string, string> = {
-    overview: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(16,185,129,0.16),transparent_62%)]',
-    stock: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(20,184,166,0.18),transparent_62%)]',
-    sales: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(14,165,233,0.18),transparent_62%)]',
-    returns: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(245,158,11,0.16),transparent_62%)]',
-    people: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(139,92,246,0.16),transparent_62%)]',
-    operations: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(6,182,212,0.16),transparent_62%)]',
-    insights: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(99,102,241,0.16),transparent_62%)]',
-    admin: 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(148,163,184,0.13),transparent_62%)]',
-  };
+  // One ambient brand wash for every module — no per-module hue shifts.
+  const GROUP_TINT = 'bg-[radial-gradient(70%_55%_at_50%_-10%,rgba(23,130,122,0.05),transparent_62%)]';
 
   // Per-module accent for the header chip
   const activeGroup = NAV_ITEMS.find(i => i.index === activeIndex)?.group || 'overview';
@@ -105,10 +114,13 @@ export default function MainShell() {
 
   const handleBack = useCallback(() => {
     setPageHistory(prev => {
-      if (prev.length <= 1) return prev;
-      const newHistory = [...prev];
-      newHistory.pop();
-      return newHistory;
+      if (prev.length > 1) {
+        const newHistory = [...prev];
+        newHistory.pop();
+        return newHistory;
+      }
+      setActiveIndex(0);
+      return [0];
     });
   }, []);
 
@@ -125,6 +137,34 @@ export default function MainShell() {
   useEffect(() => {
     mainRef.current?.scrollTo({ top: 0 });
   }, [activeIndex]);
+
+  // Remember the current module (and mirror it into the URL hash) so a refresh
+  // restores this exact page. replaceState keeps the browser history clean.
+  useEffect(() => {
+    const item = NAV_ITEMS.find(i => i.index === activeIndex);
+    try {
+      localStorage.setItem(ROUTE_STORAGE_KEY, String(activeIndex));
+    } catch {
+      // storage unavailable — refresh falls back to the dashboard
+    }
+    if (item) {
+      const nextHash = `#/${item.path}`;
+      if (window.location.hash !== nextHash) {
+        window.history.replaceState(null, '', nextHash);
+      }
+    }
+  }, [activeIndex]);
+
+  // A restored route (refresh / deep link) must be allowed for the signed-in
+  // role — otherwise fall back to the dashboard.
+  useEffect(() => {
+    const item = NAV_ITEMS.find(i => i.index === activeIndex);
+    if (!item?.roles || !user?.role) return;
+    if (!item.roles.includes(user.role)) {
+      setActiveIndex(0);
+      setPageHistory([0]);
+    }
+  }, [activeIndex, user?.role]);
 
   useGlobalShortcuts(handleNavigate);
 
@@ -179,9 +219,9 @@ export default function MainShell() {
 
   const getRoleBadge = () => {
     switch (user?.role) {
-      case 'admin': return 'bg-accent-light text-accent dark:bg-accent/20 dark:text-accent';
-      case 'sales': return 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'purchase_mgr': return 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
+      case 'admin': return 'bg-[#17827A]/10 text-[#123F3D] dark:bg-[#17827A]/20 dark:text-[#2E9C90]';
+      case 'sales': return 'bg-[#EDF5F6] text-[#223A40] dark:bg-white/10 dark:text-slate-200';
+      case 'purchase_mgr': return 'bg-[#EDF5F6] text-[#223A40] dark:bg-white/10 dark:text-slate-200';
       default: return 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300';
     }
   };
@@ -295,28 +335,29 @@ export default function MainShell() {
 
       {/* ───── MAIN AREA ───── */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Clean app bar — aurora accent strip on top */}
-        <header className="relative h-14 bg-slate-950 border-b border-white/[0.06] flex items-center px-3 gap-2 flex-shrink-0 z-40 overflow-hidden">
-          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#990066] via-[#D4148C] to-[#FF5A8D] opacity-80 pointer-events-none" aria-hidden="true" />
+        {/* Clean Luxury App Bar */}
+        <header className="relative h-14 bg-background/90 backdrop-blur-md dark:bg-[#0E2429] border-b border-[#DCEAEC] dark:border-[#223A40] flex items-center px-3 gap-2 flex-shrink-0 z-40 overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#17827A]/70 to-transparent pointer-events-none" aria-hidden="true" />
           {/* Collapse sidebar */}
           <button
             onClick={() => setSidebarCollapsed(v => !v)}
-            className="flex-shrink-0 w-9 h-9 rounded-lg hover:bg-white/[0.06] hover:text-emerald-300 flex items-center justify-center transition-colors cursor-pointer"
+            className="flex-shrink-0 w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.08] text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
             aria-label="Toggle sidebar"
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <PanelLeft className="w-4.5 h-4.5 text-slate-300" />
+            <PanelLeft className="w-4.5 h-4.5" />
           </button>
 
-          {/* Back button */}
-          {activeIndex !== 0 && pageHistory.length > 1 && (
+          {/* Universal Back button — always visible whenever on any page other than Dashboard */}
+          {activeIndex !== 0 && (
             <button
               onClick={handleBack}
-              className="flex-shrink-0 w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all duration-150 cursor-pointer"
-              aria-label="Go back to previous page"
-              title="Back"
+              className="flex-shrink-0 inline-flex items-center gap-1.5 h-8.5 px-3 rounded-xl bg-[#14292E] hover:bg-[#223A40] text-white active:scale-95 transition-all duration-150 cursor-pointer text-xs font-semibold shadow-xs"
+              aria-label="Go back to previous page or dashboard"
+              title="Back (Alt+Left or Esc)"
             >
-              <ArrowLeft className="w-4 h-4 text-slate-200" />
+              <ArrowLeft className="w-3.5 h-3.5 text-[#2E9C90]" />
+              <span>Back</span>
             </button>
           )}
 
@@ -329,58 +370,54 @@ export default function MainShell() {
               <span className={cn('w-1.5 h-1.5 rounded-full', gColor.dot)} />
               {GROUP_LABELS[activeGroup]}
             </span>
-            <h1 className="text-[15px] font-semibold text-white tracking-tight truncate font-display">
+            <h1 className="text-[15px] font-bold text-slate-900 dark:text-white tracking-tight truncate font-display">
               {pageTitles[activeIndex] || 'Dashboard'}
             </h1>
-            <span className="hidden md:inline-flex w-1 h-4 rounded-full bg-gradient-to-b from-[#D4148C] to-[#FF5A8D] opacity-70" />
-            <nav className="hidden lg:flex items-center gap-1.5 text-xs text-muted-foreground min-w-0">
-              <span className="hover:text-white cursor-pointer transition-colors flex-shrink-0" onClick={() => handleNavigate(0)}>
-                Home
+            <span className="hidden md:inline-flex w-1 h-4 rounded-full bg-slate-300 dark:bg-slate-700" />
+            <nav className="hidden lg:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 min-w-0">
+              <span className="hover:text-[#123F3D] dark:hover:text-[#2E9C90] cursor-pointer transition-colors flex-shrink-0 font-medium" onClick={() => handleNavigate(0)}>
+                Dashboard
               </span>
-              <span className="flex-shrink-0 text-slate-600">/</span>
-              <span className="text-slate-400 truncate">{pageTitles[activeIndex] || 'Dashboard'}</span>
+              <span className="flex-shrink-0 text-slate-400">/</span>
+              <span className="text-slate-700 dark:text-slate-300 truncate font-semibold">{pageTitles[activeIndex] || 'Dashboard'}</span>
             </nav>
           </div>
 
           {/* Right controls */}
           <div className="flex items-center gap-1.5">
             {/* Quick status pill */}
-            <span className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 text-[10px] font-semibold mr-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-subtle" />
-              Live
+            <span className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/60 border border-border/70 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold mr-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live System
             </span>
             <ThemeToggle theme={theme} onToggle={toggle} />
             <NotificationBell />
             <button
               onClick={() => setShowShortcutsHelp(true)}
-              className="p-2 rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer"
+              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.08] text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
               aria-label="Keyboard shortcuts"
               title="Keyboard Shortcuts (Ctrl+Shift+/)"
             >
-              <Keyboard className="w-4 h-4 text-muted-foreground" />
+              <Keyboard className="w-4 h-4" />
             </button>
 
             {/* User Menu */}
             <div ref={userMenuRef} className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.06] transition-all duration-150 group cursor-pointer"
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-all duration-150 group cursor-pointer"
               >
-                <div className={cn(
-                  'w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br shadow-md',
-                  user?.role === 'admin' ? 'from-accent via-teal-400 to-emerald-500' :
-                  user?.role === 'sales' ? 'from-sky-500 via-blue-500 to-indigo-500' : 'from-amber-500 via-orange-500 to-rose-500'
-                )}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-white bg-[#17827A] shadow-xs">
                   {user?.displayName?.charAt(0) || 'U'}
                 </div>
                 <div className="hidden sm:block text-left">
-                  <p className="text-[13px] font-medium text-white leading-tight">{user?.displayName}</p>
+                  <p className="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">{user?.displayName}</p>
                   <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full font-medium', getRoleBadge())}>
                     {getRoleLabel()}
                   </span>
                 </div>
                 <ChevronDown className={cn(
-                  'w-4 h-4 text-muted-foreground transition-transform duration-200',
+                  'w-4 h-4 text-slate-500 transition-transform duration-200',
                   showUserMenu && 'rotate-180'
                 )} />
               </button>
@@ -418,10 +455,10 @@ export default function MainShell() {
         <main ref={mainRef} className={cn(
           'relative flex-1 overflow-auto app-mesh transition-colors duration-300'
         )}>
-          {/* Per-module colored wash layered over the ambient mesh */}
+          {/* Ambient brand wash layered over the mesh */}
           <div className={cn(
             'pointer-events-none absolute inset-0',
-            groupTints[NAV_ITEMS.find(i => i.index === activeIndex)?.group || 'overview']
+            GROUP_TINT
           )} />
           <div className="relative z-10 p-6 lg:p-8 max-w-[1440px] mx-auto">
             <div className="page-enter">

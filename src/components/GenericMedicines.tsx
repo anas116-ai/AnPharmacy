@@ -113,7 +113,7 @@ export default function GenericMedicines() {
                   </div>
                   {canManage && (
                     <div className="flex gap-1">
-                      <button onClick={() => { setEditing(item); setForm({ generic_name: item.generic_name, brand_name: item.brand_name, manufacturer_id: String(item.manufacturer_id || ''), category: item.category || '', description: item.description || '' }); setShowDialog(true); }} className="p-1.5 rounded-lg hover:bg-gray-100"><Edit className="w-3.5 h-3.5 text-muted-foreground/60" /></button>
+                      <button onClick={() => { setEditing(item); setForm({ generic_name: item.generic_name, brand_name: item.brand_name, manufacturer_id: String(item.manufacturer_id || ''), category: item.category || '', description: item.description || '' }); setShowDialog(true); }} className="p-1.5 rounded-lg hover:bg-slate-100"><Edit className="w-3.5 h-3.5 text-muted-foreground/60" /></button>
                       <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded-lg hover:bg-destructive/10"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
                     </div>
                   )}

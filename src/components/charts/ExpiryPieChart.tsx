@@ -16,10 +16,10 @@ export interface ExpiryPieChartProps {
 }
 
 const DEFAULT_COLORS = {
-  expired: '#94a3b8',
+  expired: '#8FADB4',
   critical: '#ef4444',
-  warning: '#f97316',
-  safe: '#10b981',
+  warning: '#F59E0B',
+  safe: '#17827A',
 };
 
 function buildDefaultData(
@@ -91,8 +91,8 @@ export default function ExpiryPieChart({
                   ]}
                   contentStyle={{
                     borderRadius: '12px',
-                    border: '1px solid hsl(210, 20%, 88%)',
-                    boxShadow: '0 8px 24px rgba(10, 61, 92, 0.08)',
+                    border: '1px solid hsl(192, 24%, 90%)',
+                    boxShadow: '0 8px 24px rgba(20, 41, 46, 0.08)',
                     fontSize: '12px',
                     background: 'rgba(255,255,255,0.95)',
                     backdropFilter: 'blur(10px)',
@@ -100,7 +100,7 @@ export default function ExpiryPieChart({
                 />
                 <Legend
                   iconType="circle"
-                  wrapperStyle={{ fontSize: '12px', color: '#64748b', paddingTop: '8px' }}
+                  wrapperStyle={{ fontSize: '12px', color: '#6A8A92', paddingTop: '8px' }}
                 />
               </PieChart>
             </ResponsiveContainer>

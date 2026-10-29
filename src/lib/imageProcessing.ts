@@ -323,7 +323,62 @@ function detectBlur(pixels: Uint8ClampedArray, width: number, height: number): n
 }
 
 function detectRotation(pixels: Uint8ClampedArray, width: number, height: number): number {
-  return 0;
+  // Fast skew detection via Radon / horizontal projection profile variance on downscaled sample
+  const sampleW = Math.min(width, 360);
+  const sampleH = Math.min(height, 360);
+  const stepX = Math.max(1, Math.floor(width / sampleW));
+  const stepY = Math.max(1, Math.floor(height / sampleH));
+
+  const gray: number[][] = [];
+  for (let y = 0; y < sampleH; y++) {
+    const row: number[] = [];
+    const srcY = y * stepY;
+    for (let x = 0; x < sampleW; x++) {
+      const srcX = x * stepX;
+      const idx = (srcY * width + srcX) * 4;
+      row.push(0.299 * pixels[idx] + 0.587 * pixels[idx + 1] + 0.114 * pixels[idx + 2]);
+    }
+    gray.push(row);
+  }
+
+  let bestAngle = 0;
+  let maxVariance = -1;
+
+  for (let deg = -8; deg <= 8; deg += 1) {
+    const rad = (deg * Math.PI) / 180;
+    const tan = Math.tan(rad);
+    const rowSums = new Float64Array(sampleH);
+
+    for (let y = 0; y < sampleH; y++) {
+      let sum = 0;
+      let count = 0;
+      for (let x = 0; x < sampleW; x++) {
+        const shiftedY = Math.round(y + (x - sampleW / 2) * tan);
+        if (shiftedY >= 0 && shiftedY < sampleH) {
+          sum += gray[shiftedY][x];
+          count++;
+        }
+      }
+      rowSums[y] = count > 0 ? sum / count : 128;
+    }
+
+    let mean = 0;
+    for (let i = 0; i < sampleH; i++) mean += rowSums[i];
+    mean /= sampleH;
+
+    let variance = 0;
+    for (let i = 0; i < sampleH; i++) {
+      const diff = rowSums[i] - mean;
+      variance += diff * diff;
+    }
+
+    if (variance > maxVariance) {
+      maxVariance = variance;
+      bestAngle = deg;
+    }
+  }
+
+  return bestAngle;
 }
 
 function detectShadows(pixels: Uint8ClampedArray, width: number, height: number): boolean {
@@ -490,4 +545,114 @@ function denoiseImage(pixels: Uint8ClampedArray, width: number, height: number):
   }
   
   return result;
+}
+
+export function rotateCanvas(canvas: HTMLCanvasElement, degrees: number): HTMLCanvasElement {
+  if (Math.abs(degrees) < 0.5) return canvas;
+  const rad = (degrees * Math.PI) / 180;
+  const sin = Math.abs(Math.sin(rad));
+  const cos = Math.abs(Math.cos(rad));
+  const newWidth = Math.round(canvas.width * cos + canvas.height * sin);
+  const newHeight = Math.round(canvas.height * cos + canvas.width * sin);
+
+  const out = document.createElement('canvas');
+  out.width = newWidth;
+  out.height = newHeight;
+  const ctx = out.getContext('2d')!;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, newWidth, newHeight);
+  ctx.save();
+  ctx.translate(newWidth / 2, newHeight / 2);
+  ctx.rotate(rad);
+  ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+  ctx.restore();
+  return out;
+}
+
+export function otsuBinarize(pixels: Uint8ClampedArray): Uint8ClampedArray {
+  const result = copyPixels(pixels);
+  const total = pixels.length / 4;
+  const hist = new Int32Array(256);
+
+  for (let i = 0; i < total; i++) {
+    const idx = i * 4;
+    const g = Math.round(0.299 * pixels[idx] + 0.587 * pixels[idx + 1] + 0.114 * pixels[idx + 2]);
+    hist[g]++;
+  }
+
+  let sum = 0;
+  for (let i = 0; i < 256; i++) sum += i * hist[i];
+
+  let sumB = 0;
+  let wB = 0;
+  let maxVariance = 0;
+  let threshold = 128;
+
+  for (let t = 0; t < 256; t++) {
+    wB += hist[t];
+    if (wB === 0) continue;
+    const wF = total - wB;
+    if (wF === 0) break;
+
+    sumB += t * hist[t];
+    const mB = sumB / wB;
+    const mF = (sum - sumB) / wF;
+    const varianceBetween = wB * wF * (mB - mF) * (mB - mF);
+
+    if (varianceBetween > maxVariance) {
+      maxVariance = varianceBetween;
+      threshold = t;
+    }
+  }
+
+  for (let i = 0; i < total; i++) {
+    const idx = i * 4;
+    const g = 0.299 * pixels[idx] + 0.587 * pixels[idx + 1] + 0.114 * pixels[idx + 2];
+    const val = g < threshold ? 0 : 255;
+    result[idx] = val;
+    result[idx + 1] = val;
+    result[idx + 2] = val;
+  }
+
+  return result;
+}
+
+export async function preprocessForOcr(
+  imageSource: string | HTMLCanvasElement | ImageData
+): Promise<{ enhancedCanvas: HTMLCanvasElement; quality: QualityCheckResult; transformations: string[] }> {
+  let canvas = await ensureCanvas(imageSource);
+  const quality = await checkImageQuality(canvas);
+  const transformations: string[] = [];
+
+  // 1. Deskew if rotated
+  if (Math.abs(quality.rotationAngle) >= 1) {
+    canvas = rotateCanvas(canvas, -quality.rotationAngle);
+    transformations.push(`Deskewed (${quality.rotationAngle > 0 ? '-' : '+'}${Math.abs(quality.rotationAngle)}°)`);
+  }
+
+  // 2. Enhance image contrast & remove shadows
+  const ctx = canvas.getContext('2d')!;
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  let pixels = copyPixels(imgData.data);
+
+  if (quality.hasShadow) {
+    pixels = removeShadows(pixels, canvas.width, canvas.height);
+    transformations.push('Shadows normalized');
+  }
+
+  pixels = improveContrast(pixels);
+  transformations.push('Contrast maximized');
+
+  pixels = sharpenImage(pixels, canvas.width, canvas.height);
+  transformations.push('Edges sharpened');
+
+  // 3. Otsu adaptive binarization for high OCR precision
+  pixels = otsuBinarize(pixels);
+  transformations.push('Otsu binarization applied');
+
+  const outImg = ctx.createImageData(canvas.width, canvas.height);
+  for (let i = 0; i < pixels.length; i++) outImg.data[i] = pixels[i];
+  ctx.putImageData(outImg, 0, 0);
+
+  return { enhancedCanvas: canvas, quality, transformations };
 }

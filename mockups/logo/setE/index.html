@@ -9,24 +9,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --mag-900:#990066;
-    --mag:#D4148C;
-    --coral:#FF5A8D;
-    --ink:#0A0F1E;
-    --ink-2:#101E38;
+    --mag-900:#123F3D;
+    --mag:#17827A;
+    --coral:#3FA79B;
+    --ink:#0C1D21;
+    --ink-2:#123035;
     --paper:#FFFFFF;
-    --paper-2:#F7F8FA;
-    --brand:linear-gradient(135deg,#990066 0%,#D4148C 50%,#FF5A8D 100%);
+    --paper-2:#F4F9FA;
+    --brand:linear-gradient(135deg,#123F3D 0%,#17827A 50%,#3FA79B 100%);
     --font:"Space Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
     font-family:var(--font);
-    color:#E9ECF5;
+    color:#E9F2F5;
     background:
-      radial-gradient(1200px 600px at 15% -10%, rgba(212,20,140,.18), transparent 55%),
-      radial-gradient(1000px 700px at 110% 10%, rgba(255,90,141,.14), transparent 50%),
-      linear-gradient(160deg,#080C18 0%,#0A0F1E 45%,#0B1226 100%);
+      radial-gradient(1200px 600px at 15% -10%, rgba(35, 197, 184,.18), transparent 55%),
+      radial-gradient(1000px 700px at 110% 10%, rgba(115, 230, 221,.14), transparent 50%),
+      linear-gradient(160deg,#081318 0%,#0C1D21 45%,#0B1E26 100%);
     min-height:100vh;
     -webkit-font-smoothing:antialiased;
   }
@@ -34,13 +34,13 @@
 
   /* header */
   .top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:40px;}
-  .eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:#FF8FB6;font-weight:500;}
+  .eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:#AAE4E0;font-weight:500;}
   h1{font-size:clamp(30px,5vw,52px);font-weight:700;line-height:1.02;margin-top:10px;letter-spacing:-.02em;}
   h1 .g{background:var(--brand);-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .lede{max-width:430px;font-size:14px;line-height:1.6;color:#A7AEC4;font-weight:300;}
+  .lede{max-width:430px;font-size:14px;line-height:1.6;color:#A7BCC4;font-weight:300;}
   .swatch-row{display:flex;gap:8px;margin-top:14px;}
   .sw{width:46px;height:10px;border-radius:6px;}
-  .s1{background:#990066}.s2{background:#D4148C}.s3{background:#FF5A8D}
+  .s1{background:#123F3D}.s2{background:#17827A}.s3{background:#3FA79B}
 
   /* concept card */
   .concept{
@@ -53,17 +53,17 @@
   .c-id{font-size:13px;font-weight:700;color:var(--ink);background:var(--brand);
     padding:5px 12px;border-radius:999px;letter-spacing:.04em;}
   .c-name{font-size:clamp(22px,3.4vw,30px);font-weight:700;letter-spacing:-.01em;}
-  .c-sub{font-size:13.5px;color:#A7AEC4;font-weight:300;margin:8px 0 26px;max-width:760px;line-height:1.55;}
+  .c-sub{font-size:13.5px;color:#A7BCC4;font-weight:300;margin:8px 0 26px;max-width:760px;line-height:1.55;}
 
   /* presentation tiles */
   .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px;}
   .tile{border-radius:16px;padding:26px 18px;display:flex;flex-direction:column;align-items:center;gap:14px;min-height:172px;justify-content:center;position:relative;overflow:hidden;}
   .tile small{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;opacity:.85;}
-  .t-light{background:var(--paper);color:#0A0F1E;}
+  .t-light{background:var(--paper);color:#0C1D21;}
   .t-dark{background:var(--ink);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);}
   .t-grad{background:var(--brand);color:#fff;}
-  .t-light small{color:#6B7390}
-  .t-dark small{color:#8C95B0}
+  .t-light small{color:#6B8690}
+  .t-dark small{color:#8CA6B0}
   .t-grad small{color:rgba(255,255,255,.85)}
 
   .mark{display:block;width:96px;height:96px;flex:none;}
@@ -72,7 +72,7 @@
   .ramp{display:flex;align-items:flex-end;gap:26px;flex-wrap:wrap;
     background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
     border-radius:14px;padding:22px 24px;margin-bottom:26px;overflow-x:auto;}
-  .ramp .step{display:flex;flex-direction:column;align-items:center;gap:10px;color:#8C95B0;}
+  .ramp .step{display:flex;flex-direction:column;align-items:center;gap:10px;color:#8CA6B0;}
   .ramp .step span{font-size:11px;letter-spacing:.05em;}
   .ramp .sz16{width:16px;height:16px}
   .ramp .sz24{width:24px;height:24px}
@@ -84,14 +84,14 @@
   /* lower grid: favicon / mono / lockups */
   .grid2{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-bottom:26px;}
   .panel{border-radius:16px;padding:22px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);}
-  .panel h4{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8C95B0;font-weight:500;margin-bottom:16px;}
+  .panel h4{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8CA6B0;font-weight:500;margin-bottom:16px;}
   .fav-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
   .fav{border-radius:22px;padding:14px;display:flex;align-items:center;justify-content:center;flex:none;}
-  .fav-ink{background:#0A0F1E;box-shadow:0 18px 40px -20px rgba(212,20,140,.6);}
+  .fav-ink{background:#0C1D21;box-shadow:0 18px 40px -20px rgba(35, 197, 184,.6);}
   .fav-sq{background:#fff;}
   .fav .mark{width:64px;height:64px}
   .fav-lg .mark{width:88px;height:88px}
-  .mono-box{background:#fff;border-radius:12px;padding:24px;display:flex;align-items:center;justify-content:center;color:#0A0F1E;}
+  .mono-box{background:#fff;border-radius:12px;padding:24px;display:flex;align-items:center;justify-content:center;color:#0C1D21;}
 
   /* lockups */
   .lockup{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:18px;}
@@ -108,17 +108,17 @@
   /* do / dont */
   .dnd{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .dnd .box{border-radius:14px;padding:18px 20px;border:1px solid rgba(255,255,255,.07);}
-  .do{border-left:3px solid #FF5A8D;background:rgba(255,90,141,.06);}
-  .dont{border-left:3px solid #6B7390;background:rgba(255,255,255,.03);}
+  .do{border-left:3px solid #3FA79B;background:rgba(115, 230, 221,.06);}
+  .dont{border-left:3px solid #6B8690;background:rgba(255,255,255,.03);}
   .dnd h5{font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;font-weight:600;}
-  .do h5{color:#FFB3CE}.dont h5{color:#A7AEC4}
+  .do h5{color:#C5EDEA}.dont h5{color:#A7BCC4}
   .dnd ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
-  .dnd li{font-size:13px;line-height:1.5;color:#C7CDDD;display:flex;gap:9px;align-items:flex-start;}
+  .dnd li{font-size:13px;line-height:1.5;color:#C7D7DD;display:flex;gap:9px;align-items:flex-start;}
   .dnd li::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;margin-top:6px;}
-  .do li::before{background:#FF5A8D}
-  .dont li::before{background:#6B7390}
+  .do li::before{background:#3FA79B}
+  .dont li::before{background:#6B8690}
 
-  footer{margin-top:20px;text-align:center;font-size:12px;color:#6B7390;letter-spacing:.04em;}
+  footer{margin-top:20px;text-align:center;font-size:12px;color:#6B8690;letter-spacing:.04em;}
 
   @media(max-width:720px){
     .tiles{grid-template-columns:1fr;}
@@ -134,9 +134,9 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="gBrand" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#990066"/>
-      <stop offset="50%" stop-color="#D4148C"/>
-      <stop offset="100%" stop-color="#FF5A8D"/>
+      <stop offset="0%" stop-color="#123F3D"/>
+      <stop offset="50%" stop-color="#17827A"/>
+      <stop offset="100%" stop-color="#3FA79B"/>
     </linearGradient>
 
     <!-- E1 Cross Spark · color -->
@@ -151,9 +151,9 @@
     <symbol id="e1w" viewBox="0 0 100 100">
       <rect x="37" y="13" width="26" height="74" rx="12" fill="#fff"/>
       <rect x="13" y="37" width="74" height="26" rx="12" fill="#fff"/>
-      <path d="M50 27 C53 43 57 47 73 50 C57 53 53 57 50 73 C47 57 43 53 27 50 C43 47 47 43 50 27 Z" fill="#990066"/>
-      <path d="M79 20 C80 25 82 28 87 29 C82 30 80 33 79 38 C78 33 76 30 71 29 C76 28 78 25 79 20 Z" fill="#990066"/>
-      <path d="M21 66 C22 69 23 71 26 72 C23 73 22 75 21 78 C20 75 19 73 16 72 C19 71 20 69 21 66 Z" fill="#990066"/>
+      <path d="M50 27 C53 43 57 47 73 50 C57 53 53 57 50 73 C47 57 43 53 27 50 C43 47 47 43 50 27 Z" fill="#123F3D"/>
+      <path d="M79 20 C80 25 82 28 87 29 C82 30 80 33 79 38 C78 33 76 30 71 29 C76 28 78 25 79 20 Z" fill="#123F3D"/>
+      <path d="M21 66 C22 69 23 71 26 72 C23 73 22 75 21 78 C20 75 19 73 16 72 C19 71 20 69 21 66 Z" fill="#123F3D"/>
     </symbol>
     <!-- E1 · mono -->
     <symbol id="e1m" viewBox="0 0 100 100">
@@ -173,8 +173,8 @@
     <symbol id="e2-light" viewBox="0 0 100 100">
       <path d="M50 9 L85 22 V52 C85 75 69 88 50 94 C31 88 15 75 15 52 V22 Z" fill="url(#gBrand)" opacity=".15"/>
       <path d="M50 9 L85 22 V52 C85 75 69 88 50 94 C31 88 15 75 15 52 V22 Z" fill="none" stroke="url(#gBrand)" stroke-width="7" stroke-linejoin="round"/>
-      <rect x="43" y="31" width="14" height="40" rx="5" fill="#0A0F1E"/>
-      <rect x="30" y="44" width="40" height="14" rx="5" fill="#0A0F1E"/>
+      <rect x="43" y="31" width="14" height="40" rx="5" fill="#0C1D21"/>
+      <rect x="30" y="44" width="40" height="14" rx="5" fill="#0C1D21"/>
     </symbol>
     <!-- E2 · white -->
     <symbol id="e2w" viewBox="0 0 100 100">
@@ -206,7 +206,7 @@
       <path d="M18 41 L38 41 L38 61 L18 61 L25 51 Z" fill="#fff" opacity=".82"/>
       <path d="M82 41 L62 41 L62 61 L82 61 L75 51 Z" fill="#fff" opacity=".82"/>
       <rect x="33" y="33" width="34" height="36" rx="7" fill="#fff"/>
-      <g fill="none" stroke="#990066" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
+      <g fill="none" stroke="#123F3D" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
         <path d="M42 61 L42 43 L50 43 C54.5 43 56 46.5 56 50 C56 53 54 55 50 55 L42 55"/>
         <path d="M47 55 L56 62"/>
         <path d="M59 45 L65 60"/>
@@ -272,7 +272,7 @@
       </div>
       <div class="panel">
         <h4>Monochrome (stamp / letterhead)</h4>
-        <div class="mono-box"><svg class="mark" style="width:88px;height:88px;color:#0A0F1E"><use href="#e1m"/></svg></div>
+        <div class="mono-box"><svg class="mark" style="width:88px;height:88px;color:#0C1D21"><use href="#e1m"/></svg></div>
       </div>
     </div>
 
@@ -340,7 +340,7 @@
       </div>
       <div class="panel">
         <h4>Monochrome (stamp / letterhead)</h4>
-        <div class="mono-box"><svg class="mark" style="width:88px;height:88px;color:#0A0F1E"><use href="#e2m"/></svg></div>
+        <div class="mono-box"><svg class="mark" style="width:88px;height:88px;color:#0C1D21"><use href="#e2m"/></svg></div>
       </div>
     </div>
 
@@ -408,7 +408,7 @@
       </div>
       <div class="panel">
         <h4>Monochrome (stamp / letterhead)</h4>
-        <div class="mono-box"><svg class="mark" style="width:88px;height:88px;color:#0A0F1E"><use href="#e3m"/></svg></div>
+        <div class="mono-box"><svg class="mark" style="width:88px;height:88px;color:#0C1D21"><use href="#e3m"/></svg></div>
       </div>
     </div>
 
@@ -445,7 +445,7 @@
     </div>
   </section>
 
-  <footer>AnPharmacy · Set E — Cross Spark · Shield Care · Banner Rx — inline SVG, offline-safe, palette #990066→#D4148C→#FF5A8D</footer>
+  <footer>AnPharmacy · Set E — Cross Spark · Shield Care · Banner Rx — inline SVG, offline-safe, palette #123F3D→#17827A→#3FA79B</footer>
 </div>
 
 </body>

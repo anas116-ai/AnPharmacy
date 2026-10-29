@@ -771,8 +771,8 @@ export default function StockManagement() {
                           <span className={cn(
                             'font-semibold',
                             medicine.days_remaining <= 0 && 'text-destructive',
-                            medicine.days_remaining > 0 && medicine.days_remaining <= 90 && 'text-orange-500',
-                            medicine.days_remaining > 90 && 'text-green-500 dark:text-green-400',
+                            medicine.days_remaining > 0 && medicine.days_remaining <= 90 && 'text-amber-500',
+                            medicine.days_remaining > 90 && 'text-emerald-500 dark:text-emerald-400',
                           )}>
                             ({Math.round(medicine.days_remaining)}d)
                           </span>

@@ -11,7 +11,15 @@ let isQuitting = false;
 let db = null;
 
 // Boot marker so we can prove which main.cjs build is loaded
-console.log('[main.cjs] booted v2 (dbTransaction fix)');
+console.log('[main.cjs] booted v3 (crash guards & sqlite fix)');
+
+// ponytail + strix: global crash guards to prevent silent app exits
+process.on('uncaughtException', (err) => {
+  console.error('[CRITICAL] Uncaught exception in main process:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[CRITICAL] Unhandled promise rejection in main process:', reason);
+});
 
 // node:sqlite DatabaseSync has no .transaction(); emulate with BEGIN/COMMIT/ROLLBACK
 const dbTransaction = (database, fn) => {
@@ -251,7 +259,7 @@ function createWindow() {
   const isDev = process.argv.includes('--dev') || !app.isPackaged;
 
   if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadURL('http://localhost:5174');
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
   }
@@ -502,6 +510,35 @@ ipcMain.handle('suppliers:getMedicines', async (event, { supplierId }) => {
     const db = getDb();
     const medicines = db.prepare('SELECT * FROM medicines WHERE supplier_id = ? ORDER BY name').all(supplierId);
     return { success: true, medicines };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('suppliers:getLedger', async (event, { supplierId }) => {
+  try {
+    const db = getDb();
+    const ledger = db.prepare('SELECT * FROM supplier_ledger WHERE supplier_id = ? ORDER BY created_at DESC').all(supplierId);
+    const supplier = db.prepare('SELECT id, name, current_balance FROM suppliers WHERE id = ?').get(supplierId);
+    return { success: true, ledger, currentBalance: supplier ? (supplier.current_balance || 0) : 0 };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('suppliers:addPayment', async (event, { supplierId, amount, paymentMethod, referenceId, notes }) => {
+  try {
+    const db = getDb();
+    const numAmount = parseFloat(amount) || 0;
+    if (numAmount <= 0) return { success: false, error: 'Payment amount must be greater than zero' };
+    dbTransaction(db, () => {
+      db.prepare(`INSERT INTO supplier_ledger (supplier_id, transaction_type, amount, payment_method, reference_id, notes, created_at)
+        VALUES (?, 'payment', ?, ?, ?, ?, datetime('now'))`).run(
+        supplierId, numAmount, paymentMethod || 'bank_transfer', referenceId || null, notes || null
+      );
+      db.prepare('UPDATE suppliers SET current_balance = COALESCE(current_balance, 0) - ? WHERE id = ?').run(numAmount, supplierId);
+    });
+    return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -847,12 +884,27 @@ ipcMain.handle('sales:process', async (event, { customerName, customerId, custom
   try {
     const db = getDb();
     const saleId = crypto.randomUUID();
-    const billNumber = `BILL-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
+
+    // ponytail: sequential, collision-free fiscal invoice numbering (e.g. INV-2627-0001)
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth() + 1;
+    const fyStart = curMonth >= 4 ? curYear : curYear - 1;
+    const fyCode = `${String(fyStart).slice(2)}${String(fyStart + 1).slice(2)}`;
+
+    const lastSale = db.prepare("SELECT bill_number FROM sales WHERE bill_number LIKE ? ORDER BY rowid DESC LIMIT 1").get(`INV-${fyCode}-%`);
+    let nextSeq = 1;
+    if (lastSale && lastSale.bill_number) {
+      const parts = lastSale.bill_number.split('-');
+      const lastNum = parseInt(parts[parts.length - 1], 10);
+      if (!isNaN(lastNum)) nextSeq = lastNum + 1;
+    }
+    const billNumber = `INV-${fyCode}-${String(nextSeq).padStart(4, '0')}`;
 
     const insertSale = db.prepare(`INSERT INTO sales (id, bill_number, customer_name, customer_id, customer_phone, customer_address, customer_gstin, doctor_name, doctor_reg_no, prescription_type, medicine_name, quantity, total_amount, discount_amount, taxable_amount, cgst_amount, sgst_amount, igst_amount, net_payable, payment_mode, counter_id, pharmacist_id, pharmacist_name, sale_date, processed_by)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, date('now'), ?)`);
     const updateStock = db.prepare('UPDATE medicines SET quantity = quantity - ?, loose_quantity = loose_quantity - ? WHERE id = ? AND quantity >= ?');
-    const insertItem = db.prepare('INSERT INTO sale_items (sale_id, medicine_name, batch_id, batch_number, quantity, purchase_price, selling_price, discount_percent, net_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const insertItem = db.prepare('INSERT INTO sale_items (sale_id, medicine_name, batch_id, batch_number, quantity, purchase_price, selling_price, discount_percent, net_amount, free_qty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
     const insertLedger = db.prepare('INSERT INTO customer_ledger (customer_id, transaction_type, amount, payment_method, reference_id, notes) VALUES (?, ?, ?, ?, ?, ?)');
     const bumpBalance = db.prepare('UPDATE customers SET current_balance = current_balance + ? WHERE id = ?');
     const insertAudit = db.prepare('INSERT INTO audit_log (user_id, action, details, timestamp) VALUES (?, ?, ?, datetime(\'now\'))');
@@ -864,12 +916,14 @@ ipcMain.handle('sales:process', async (event, { customerName, customerId, custom
 
       // Deduct stock for each batch
       for (const item of items) {
-        const result = updateStock.run(item.quantity, item.looseQuantity || 0, item.batchId, item.quantity);
+        const freeUnits = item.freeQty || 0;
+        const totalDeduct = (item.quantity || 0) + freeUnits;
+        const result = updateStock.run(totalDeduct, item.looseQuantity || 0, item.batchId, totalDeduct);
         if (result.changes === 0) {
-          throw new Error(`Insufficient stock for batch ${item.batchNumber}`);
+          throw new Error(`Insufficient stock for batch ${item.batchNumber} (needs ${totalDeduct} units including ${freeUnits} bonus free units)`);
         }
         // ponytail: persist cost at sale time; purchase price is gone once stock moves
-        insertItem.run(saleId, item.medicineName || item.batchNumber || '', item.batchId, item.batchNumber || null, item.quantity, item.purchasePrice || 0, item.sellingPrice || 0, item.discountPercent || 0, item.netAmount || item.quantity * (item.sellingPrice || 0));
+        insertItem.run(saleId, item.medicineName || item.batchNumber || '', item.batchId, item.batchNumber || null, item.quantity, item.purchasePrice || 0, item.sellingPrice || 0, item.discountPercent || 0, item.netAmount || item.quantity * (item.sellingPrice || 0), freeUnits);
       }
 
       // ponytail: credit sales must hit the ledger, or receivables/balances are fiction
@@ -920,10 +974,23 @@ ipcMain.handle('purchases:create', async (event, { supplierName, supplierGstin, 
 
     const id = crypto.randomUUID();
     const totalQty = (items || []).reduce((s, i) => s + (i.quantity || 0), 0);
-    db.prepare(`INSERT INTO purchases (id, supplier_id, supplier_name, supplier_gstin, invoice_no, invoice_date, total_amount, order_date, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, date('now'), datetime('now'))`).run(
-      id, supplierId, supplierName || null, supplierGstin || null, invoiceNo || null, invoiceDate || null, totalAmount || 0
-    );
+    const invoiceTotal = parseFloat(totalAmount) || 0;
+
+    dbTransaction(db, () => {
+      db.prepare(`INSERT INTO purchases (id, supplier_id, supplier_name, supplier_gstin, invoice_no, invoice_date, total_amount, order_date, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, date('now'), datetime('now'))`).run(
+        id, supplierId, supplierName || null, supplierGstin || null, invoiceNo || null, invoiceDate || null, invoiceTotal
+      );
+
+      if (supplierId && invoiceTotal > 0) {
+        db.prepare('UPDATE suppliers SET current_balance = COALESCE(current_balance, 0) + ? WHERE id = ?').run(invoiceTotal, supplierId);
+        db.prepare(`INSERT INTO supplier_ledger (supplier_id, transaction_type, amount, reference_id, notes, created_at)
+          VALUES (?, 'purchase', ?, ?, ?, datetime('now'))`).run(
+          supplierId, invoiceTotal, invoiceNo || null, `Purchase invoice #${invoiceNo || id.slice(0, 8)}`
+        );
+      }
+    });
+
     return { success: true, id, supplierId, totalQty };
   } catch (error) {
     return { success: false, error: error.message };
@@ -1399,7 +1466,7 @@ ipcMain.handle('dialog:openPdf', async () => {
 ipcMain.handle('app:logError', async (event, { message, stack, componentStack }) => {
   try {
     const db = getDb();
-    db.prepare('INSERT INTO audit_log (user_id, action, details, timestamp) VALUES (?, ?, ?, datetime("now"))').run(
+    db.prepare("INSERT INTO audit_log (user_id, action, details, timestamp) VALUES (?, ?, ?, datetime('now'))").run(
       0, // System user
       'error',
       `Component Error: ${message}${stack ? `\nStack: ${stack}` : ''}${componentStack ? `\nComponent: ${componentStack}` : ''}`
@@ -2314,7 +2381,7 @@ ipcMain.handle('ai:generateReport', async (event, { reportType }) => {
       if (stats.critical > 0) report += '- Plan promotions for near-expiry items\n';
       report += '- Maintain minimum stock levels for fast-moving items\n';
     } else if (reportType === 'sales') {
-      const salesStats = db.prepare('SELECT COUNT(*) as count, SUM(total_amount) as revenue FROM sales WHERE sale_date >= date("now", "-30 days")').get();
+      const salesStats = db.prepare("SELECT COUNT(*) as count, SUM(total_amount) as revenue FROM sales WHERE sale_date >= date('now', '-30 days')").get();
       title = 'AI Sales Analysis Report';
       report = `Last 30 Days Sales Report\n\nTotal Sales: ${salesStats.count}\nRevenue: ${formatCurrency(salesStats.revenue || 0)}\n\nInsights:\n`;
       report += '- Top selling categories identified\n';
